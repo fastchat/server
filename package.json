@@ -1,0 +1,33 @@
+{
+  "name": "Chat",
+  "version": "0.1.0",
+  "description": "A fast, small, chat server.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "chat",
+    "server"
+  ],
+  "author": "Ethan Mick",
+  "license": "Private",
+  "dependencies" : {
+    "socket.io" : "0.9.16",
+    "express": "3.4.8",
+    "mongoose" : "3.8.1",
+    "bcrypt": ">= 0.0.0",
+    "passport": "0.2.0",
+    "passport-local": "1.0.0",
+    "passport.socketio": "3.0.0",
+    "console-trace" : "0.2.1",
+    "connect-mongo": "0.4.0",
+    "body-parser": "1.0.0",
+    "cookie-parser": "1.0.1",
+    "express-session": "1.0.2",
+    "hashish": "0.0.4",
+    "passport-localapikey": "0.0.3",
+    "async": "0.2.10"
+  }
+}
