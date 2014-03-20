@@ -5,11 +5,16 @@ var bcrypt = require('bcrypt');
 var mongoose = require('mongoose');
 var http = require('http');
 var io = require('socket.io');
+var env = process.env.NODE_ENV || 'dev';
+var config = require('./config')[env];
 
 // better logging... https://github.com/LearnBoost/console-trace/pull/17/files
-require('console-trace')({
-  always: true,
-})
+if (env === 'dev') {
+  require('console-trace')({
+    always: true,
+  });
+}
+
 
 ///
 /// Models
@@ -21,7 +26,7 @@ var Message = require('./model/message');
 ///
 /// Database Setup
 ///
-mongoose.connect( 'mongodb://localhost/dev' );
+mongoose.connect( config.databaseUrl );
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Connection Error (Connecting to Mongo). Did you run "mongod"?:'));
 db.once('open', function callback() {
