@@ -72,13 +72,14 @@ passport.use(new LocalStrategy({
 
 
 // Create HTTP server on port 3000 and register socket.io as listener
+var portNumber = Number(process.env.PORT || 3000);
 var app = express();
 server = http.createServer(app)
-server.listen(3000);
+server.listen(portNumber);
 io = io.listen(server, {origins: '*:*'});
 
 
-app.set('port', process.env.PORT || 3000);
+app.set('port', portNumber);
 //app.set('views', path.join(__dirname, 'views'));
 //app.set('view engine', 'ejs');
 //app.engine('ejs', require('ejs-locals'));
