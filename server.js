@@ -4,16 +4,9 @@ var LocalStrategy = require('passport-local').Strategy;
 var mongoose = require('mongoose');
 var http = require('http');
 var io = require('socket.io');
+
 var env = process.env.NODE_ENV || 'dev';
 var config = require('./config')[env];
-
-// better logging... https://github.com/LearnBoost/console-trace/pull/17/files
-if (env === 'dev') {
-  require('console-trace')({
-    always: true,
-  });
-}
-
 
 ///
 /// Models

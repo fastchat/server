@@ -25,7 +25,6 @@
     "passport": "0.2.0",
     "passport-local": "1.0.0",
     "passport.socketio": "3.0.0",
-    "console-trace" : "0.2.1",
     "body-parser": "1.0.0",
     "cookie-parser": "1.0.1",
     "express-session": "1.0.2",
