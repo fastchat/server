@@ -25,8 +25,8 @@ var Message = require('./model/message');
 ///
 /// Database Setup
 ///
-//mongoose.connect( config.databaseUrl );
-mongoose.connect( process.env.CUSTOMCONNSTR_MONGOLAB_URI );
+var mongoUri = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || 'mongodb://localhost/dev'
+mongoose.connect( mongoUri );
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Connection Error (Connecting to Mongo). Did you run "mongod"?:'));
 db.once('open', function callback() {

@@ -11,6 +11,10 @@
     "chat",
     "server"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Wayfarer247/fast-chat-server.git"
+  },
   "author": "Ethan Mick",
   "license": "Private",
   "dependencies" : {
@@ -28,5 +32,8 @@
     "hashish": "0.0.4",
     "passport-localapikey": "0.0.3",
     "async": "0.2.10"
+  },
+  "engines": {
+    "node": "0.10.x"
   }
 }
