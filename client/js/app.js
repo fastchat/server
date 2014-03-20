@@ -50,6 +50,28 @@ FastChat.prototype = {
 
   }, //login
 
+  // cb(err, success)
+  register: function(email, pass, cb) {
+    
+    $.post( url()+ '/register', {'email': email, 'password': pass}, function( response ) {
+      var token = response['session-token'];
+//"user": "test@gmail.com"
+      if (typeof token !== 'undefined') {
+	chat.token = token;
+	chat.saveToken();
+	$.ajaxSetup({
+	  headers: { 'session-token': token }
+	});
+	console.log('Logged in, token is: ' + token);
+	return cb(null, true);
+      } else {
+	console.log('Failed to Login! ' + JSON.stringify(response, null, 4));
+	return cb(response, false);
+      }
+    });
+
+  }, //login
+
   // cb(err, groups)
   groups: function(cb) {
     
