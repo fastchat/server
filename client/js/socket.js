@@ -1,7 +1,7 @@
 (function() {
 
   function SocketServer(token, cb) {
-    this.socket = io.connect('localhost', { query: 'token=' + token }); 
+    this.socket = io.connect(BASE_URL, { query: 'token=' + token }); 
     this.socket.on('message', function(message) {
       console.log('Received: ' + JSON.stringify(message, null, 4));
       cb(message);

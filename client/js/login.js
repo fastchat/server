@@ -5,7 +5,7 @@ $(document).ready(function() {
   if (!chat.isLoggedIn()) {
     showLogIn();
   } else {
-    window.location.replace(URL + '/chat.html');
+    window.location.replace(url() + '/chat.html');
   }
 });
 

@@ -1,5 +1,10 @@
-//var URL = 'http://localhost:3000';
-var URL = 'http://129.21.120.30:3000';
+//BASE_URL = 'http://localhost';
+BASE_URL = 'http://powerful-cliffs-9562.herokuapp.com';
+BASE_PORT = '3000';
+
+function url(env) {
+  return BASE_URL + ':' + BASE_PORT;
+};
 
 function FastChat(token) {
   this.token = token;
@@ -23,7 +28,7 @@ FastChat.prototype = {
   // cb(err, success)
   login: function(email, pass, cb) {
     
-    $.post( URL + '/login', {'email':email, 'password':pass}, function( response ) {
+    $.post( url()+ '/login', {'email':email, 'password':pass}, function( response ) {
       var token = response['session-token'];
       if (typeof token !== 'undefined') {
 	chat.token = token;
@@ -48,7 +53,7 @@ FastChat.prototype = {
 
     if (this.isLoggedIn()) {
       console.log('Getting groups 2');
-      var jqxhr = $.get(URL + '/group', function( response ) {
+      var jqxhr = $.get(url() + '/group', function( response ) {
 	console.log('Groups: ' + JSON.stringify(response, null, 4));      
 	cb(null, response);
       }).fail(function(err) {
