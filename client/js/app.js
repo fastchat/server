@@ -1,8 +1,12 @@
 //BASE_URL = 'http://localhost';
 BASE_URL = 'http://powerful-cliffs-9562.herokuapp.com';
-BASE_PORT = '3000';
+//BASE_PORT = '3000';
+//BASE_PORT = '80';
 
 function url(env) {
+  if (typeof(BASE_PORT) === 'undefined' ) {
+    return BASE_URL;
+  }
   return BASE_URL + ':' + BASE_PORT;
 };
 
