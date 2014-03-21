@@ -35,7 +35,7 @@ exports.loginPOST = function(req, res, next) {
 // POST Register
 exports.register = function(req, res) {
   console.log('Body: ' + JSON.stringify(req.body, null, 4));
-  User.newUser(req.body.email, req.body.password, function(err, user) {
+  User.newUser(req.body.email.toLowerCase(), req.body.password, function(err, user) {
     if(err) {
       console.log(err);
       req.session.messages = [err.message];
@@ -44,6 +44,17 @@ exports.register = function(req, res) {
       console.log('user: ' + user.email + " saved.");
       res.send({'user':user.email});
     }
+  });
+};
+
+// Get /profile
+exports.profile = function(req, res) {
+  User.findOne( {'accessToken': req.headers['session-token'] })
+    .populate('groups')
+    .exec(function(err, usr) {
+      if (err || !usr) return res.send(400, {'error' : 'The user was not found!'});
+      
+      res.send({'profile': usr});
   });
 };
 

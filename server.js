@@ -55,7 +55,7 @@ passport.use(new LocalStrategy({
     usernameField: 'email',
     passwordField: 'password'
   }, function(email, password, done) {
-  User.findOne({ 'email': email }, function(err, user) {
+  User.findOne({ 'email': email.toLowerCase() }, function(err, user) {
     console.log("User: " + user);
     if (err) { return done(err); }
     if (!user) { return done(null, false, { error: 'Unknown user ' + email }); }
@@ -120,6 +120,7 @@ var messageRoutes = require('./routes/message');
 app.post('/login', userRoutes.loginPOST);
 app.get('/logout', userRoutes.logout); //delete?
 app.post('/register', userRoutes.register);
+app.get('/profile', ensureAuthenticated, userRoutes.profile);
 app.get('/group', ensureAuthenticated, groupRoutes.getGroups);
 
 app.post('/group', ensureAuthenticated, groupRoutes.createGroup);
