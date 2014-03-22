@@ -32,6 +32,7 @@ exports.changeSettings = function(req, res) {
 };
 
 exports.invite = function(req, res) {
+  console.log('Invite Body: ' + JSON.stringify(req.body, null, 4));
   
   var invites = req.body.invitees;
   var groupId = req.params.id;
@@ -47,16 +48,20 @@ exports.invite = function(req, res) {
   Group.findOne( { _id : new ObjectId(groupId) }, function(err, group) {    
     if (err || !group) return res.send(400, {'error' : 'Group was not found!'});
 
+    console.log('Found Group: ' + JSON.stringify(group, null, 4));
     async.each(invites, function(email, cb) {
       User.findOne( { 'email': email }, function (err, usr) {
+	console.log('Found User: ' + JSON.stringify(usr, null, 4));
 	if (usr) {
 	  
-	  group.members.push(usr._id);
+	  group.invites.push(usr._id);
 	  group.save(function (err) {
+	    if (err) return cb(err);
 	    //if error?
 
-	    user.groups.push(group._id);
-	    user.save( function (err) {
+	    usr.invites.push(group._id);
+	    usr.save( function (err) {
+	      if (err) return cb(err);
 	      cb();
 	    });
 	  });

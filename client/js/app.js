@@ -1,6 +1,6 @@
-//BASE_URL = 'http://localhost';
-BASE_URL = 'http://powerful-cliffs-9562.herokuapp.com';
-//BASE_PORT = '3000';
+BASE_URL = 'http://localhost';
+//BASE_URL = 'http://powerful-cliffs-9562.herokuapp.com';
+BASE_PORT = '3000';
 //BASE_PORT = '80';
 
 function url(env) {
@@ -50,27 +50,22 @@ FastChat.prototype = {
 
   }, //login
 
+//"user": "test@gmail.com"
   // cb(err, success)
   register: function(email, pass, cb) {
     
     $.post( url()+ '/register', {'email': email, 'password': pass}, function( response ) {
-      var token = response['session-token'];
-//"user": "test@gmail.com"
-      if (typeof token !== 'undefined') {
-	chat.token = token;
-	chat.saveToken();
-	$.ajaxSetup({
-	  headers: { 'session-token': token }
-	});
-	console.log('Logged in, token is: ' + token);
+      var newUser = response['user'];
+      if (typeof newUser !== 'undefined') {	
+	console.log('Registered');
 	return cb(null, true);
       } else {
-	console.log('Failed to Login! ' + JSON.stringify(response, null, 4));
+	console.log('Failed to Register! ' + JSON.stringify(response, null, 4));
 	return cb(response, false);
       }
     });
 
-  }, //login
+  }, //register
 
   // cb(err, groups)
   groups: function(cb) {
@@ -92,6 +87,72 @@ FastChat.prototype = {
     }
 
   }, //group
+
+  // cb(err, group)
+  newGroup: function(name, cb) {
+    
+    if (this.isLoggedIn()) {
+      $.post(url() + '/group', {'name': name} , function( response ) {
+	cb(null, response);
+      });
+    } else {
+      cb('You Must be logged in!');
+    }
+  },
+
+  // cb(err, success);
+  invite: function(email, groupId, cb) {
+
+    if (groupId === null || typeof groupId === 'undefined' || typeof groupId !== 'string') {
+      return cb('You must specify the Group ID!');
+    }
+
+    if (this.isLoggedIn()) {
+      $.ajax({
+	url: url() + '/group/' + groupId + '/invite',
+	type: 'PUT',
+	data: {'invitees':[email]},
+	success: function(response) {
+	  console.log('Invite Resonse: ' + JSON.stringify(response, null, 4));	
+	  cb(null, response);
+	}
+      });
+    } else {
+      return cb('You must be logged in!');
+    }
+  },
+
+  // cb(err, profile) //with invites!
+  profile: function(cb) {
+    
+    console.log('Getting Profile');
+    if (this.isLoggedIn()) {
+      console.log('Getting Profile 2');
+      $.get(url() + '/profile', function( response ) {
+	console.log('Profile: ' + JSON.stringify(response, null, 4));
+	cb(null, response.profile);
+      }).fail(function(err) {
+	console.log('Error: ' + JSON.stringify(err, null, 4));
+	cb(err);
+      });
+
+    } else {
+      cb('You must be logged in!');
+    }
+  }, //group
+
+  // cb(err, success)
+  acceptInvite: function(inviteNumber, cb) {
+    
+    $.post( url()+ '/user/accept', {'invite':inviteNumber}, function( response ) {
+      console.log('Response: ' + JSON.stringify(response, null, 4));
+      if (typeof response.error === 'undefined') {
+	cb(null, true);
+      } else {
+	cb(response, false)
+      }
+    });
+  },
 
   saveToken : function() {
     if( typeof(Storage) !== 'undefined') {

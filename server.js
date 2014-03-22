@@ -118,10 +118,11 @@ var messageRoutes = require('./routes/message');
 
 
 app.post('/login', userRoutes.loginPOST);
-app.get('/logout', userRoutes.logout); //delete?
+app.delete('/logout', userRoutes.logout);
 app.post('/register', userRoutes.register);
 app.get('/profile', ensureAuthenticated, userRoutes.profile);
 app.get('/group', ensureAuthenticated, groupRoutes.getGroups);
+app.post('/user/accept', ensureAuthenticated, userRoutes.acceptInvite);
 
 app.post('/group', ensureAuthenticated, groupRoutes.createGroup);
 app.get('/group/:id/messages', ensureAuthenticated, messageRoutes.getMessages);

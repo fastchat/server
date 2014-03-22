@@ -31,32 +31,6 @@ Then run:
 node server.js
 
 
-
-# Flow
-
-Thinking about the flow of the user. They can create, or be invited to, a group to chat in. Let's say they are in a group with 3 other people (4 total). They hop on their iPhone and send a message... what happens?
-
-1. They launch the iOS app. It loads a saved Session Token and immediatly tries to connect to the socket.
-2. The token is valid, and the user connects.n
-3. The app asks to join *all* the rooms the user is a part of.
-4. [The app also does some other loading of server side info (groups, etc)].
-5. The user opens the group they want to send the message too.
-6. The app asks the server for all messages since it's last message date.
-7. The server responds with the JSON messages.
-8. The app updates the conversation view with the new data, and caches it.
-9. [this can happen in a background thread when the app launches, so when the user navigates to the convo, it's automatically up to date].
-10. The user types their message.
-11. The user hits send.
-12. The message is sent to the socket. The socket gets that message and 'emits' it to all participants of the room. This is possible, the client just needs to send "hey, i'm sending info to this room." If the client says the wrong room that the client is also a part of... it'll go to the wrong group. Server side checks to ensure the client is actually in that room. (no guessing rooms!)
-13. All connected members get that message.
-
-Next:
-
-14. A callback for each member is initiated. We know if you read it.
-15. If you didn't read it, after 30 seconds...
-	16. Send a push notification to all devices.
-17. When you do acknowledge the messages, clear all push notifications.
-
 # End Points
 
 ## Register
@@ -86,6 +60,17 @@ Returns:
 	"session-token": "4582359082592875"
 }
 
+Note:
+The session token should be sent as a header 'session-token':'3492384092843' in each request. The server acts as an API and does not store sessions (it does, but that only helps the web app, so I don't use them anywhere). The session token is used to find each user. This means you can only be logged in to what device at a time (logging in again would reset the session token). We will have to fix this. Maybe return the current token.
+
+## Logout PARTIALLY IMPLEMENTED
+DELETE /logout
+
+Returns: 200 OK
+
+Note:
+Calls logout on the request, but that just destroys the session. Need to update it to actually remove the session token from the DB. Fix this AFTER you have fixed the 'multiple devices logged in at the same time issue.'
+
 ## Get Groups
 GET /group
 
@@ -106,7 +91,7 @@ Returns:
   {
     "__v": 0,
     "_id": "5325e090f82381db26000001",
-    "name": "Coolest Group",
+    "name": "Another Group",
     "invites": [],
     "messages": [],
     "members": [
@@ -116,7 +101,8 @@ Returns:
   }
 ]
 
-returns an array of all the groups you're in (and their settings?)
+Returns:
+An array of all the groups you're in.
 
 ## Create Group
 POST /group
@@ -125,17 +111,17 @@ POST /group
 	"invitees":[userid, userid]
 }
 
-Automatically adds the creator to the group.
-
 Returns:
 200 OK
+
+Note:
+Automatically adds the creator to the group. You don't need to send that user in the invitees array. That array doesn't actually do anythign yet.
 
 
 ## Delete Group NOT IMPLEMENTED YET
 DELETE /group/:id
 
 Only deletes if user has permission to do so.
-
 
 
 ## Change Settings for Group NOT IMPLEMENTED YET
@@ -159,10 +145,13 @@ PUT /group/:id/invite
 	"invitees": [email, email]
 }
 
-returns 200 OK
+Returns:
+200 OK
 
+Note:
+This puts the group's _id in the 'invite' array for each of the user's profiles. They will then have to 'accept' the invite.
 
-## Remove invite/person from Group
+## Remove invite/person from Group NOT IMPLEMENTED YET
 PUT /group/:id/uninvite
 
 {
@@ -171,11 +160,26 @@ PUT /group/:id/uninvite
 
 returns 200
 
+## Accept Invitation
+post /user/accept
+{
+	'invite':1
+}
+
+Returns:
+200 OK
+
+Note:
+The number is the number of the invite in the 'invites' array on the profile object. So you're saying, 'accept the invite at index X'. This will add the user to that group, and remove the invitation automatically.
 
 ## Messages
 
-## Get Messages from Group
+## Get Messages from Group PARTIALLY IMPLEMENTED
 
 GET /group/:id/messages?lastMessageDate
 
-Gets the messages of the group. Sorts by sent date. Only returns the last 30. (20?)
+Returns:
+An array of messages from the group.
+
+Note:
+So far it doesn't actually do anything with the lastMessageDate, and will return all messages regardless.

@@ -8,7 +8,7 @@
     <meta name="author" content="">
     <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
 
-    <title>Fast Chat</title>
+    <title>Fast Chat - Profile</title>
 
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -44,22 +44,21 @@
           </div>
           <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-              <li class="active"><a href="/index.html">Chat</a></li>
-              <li><a href="/login.html">Login</a></li>
-              <li><a href="/register.html">Register</a></li>
+              <li><a href="/index.html">Home</a></li>
+              <li><a href="/chat.html">Chat</a></li>
+              <li class="active"><a href="/profile.html">Profile</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div><!--/.container-fluid -->
       </div>
 
-      <div class="center-block">  <!-- Content -->
-	<p>Fast Chat is a fast and elegant solution to allow you to chat with friends, without restrictions. We work hard so you have the best experience possible..</p>
-
-	<p>
-	  To login or register, use the links above.
-	</p>
+      <p class="profile_name"></p>
+      <div id="profile_invites">
+	<ol id="profile_invites_list">
+	  
+	</ol>
       </div>
-
+      
 
     </div> <!-- /container -->
 
@@ -72,7 +71,8 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/app.js"></script>
-
+    <!-- Lastly, load the page specific JS. -->
+    <script src="js/profile.js"></script> 
   </body>
 </html>
 

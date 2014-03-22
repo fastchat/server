@@ -26,6 +26,21 @@
     <![endif]-->
   </head>
 
+  <style>
+.alignleft {
+    float: left;
+    text-align:left;
+    width:50%;
+}
+
+.alignright {
+    float: left;
+    text-align:right;
+    width:50%;
+}
+
+  </style>
+
   <body>
 
     <div class="container">
@@ -44,14 +59,19 @@
           </div>
           <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav" id="navigation_bar">
-              <li class="active"><a href="#">Chat</a></li>
+              <li class="active"><a href="/index.html">Chat</a></li>
+	      <li><a href="/profile.html">Profile</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div><!--/.container-fluid -->
       </div>
 
       <div class="center-block">  <!-- Content -->
-
+	<div id="group_info">
+	  <p class="alignleft" id="group_name">Group: </p>
+	  <p class="alignright" id="new_group"><a href="javascript:void(0)" onclick="inviteToGroup();">Invite to Group</a> <a href="/newgroup.html">New Group</a></p>
+	</div>
+	<div style="clear: both;"></div>​
 	<textarea id="main_chat" class="form-control" rows="10">
 
 	</textarea>

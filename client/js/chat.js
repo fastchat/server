@@ -21,11 +21,15 @@ $(document).ready(function() {
 	
       }
 
-  jQuery( '.nav-bar-group' )
-    .click(function() {
-      changeGroup(this);
-      return false;
-    });
+      jQuery( '.nav-bar-group' )
+	.click(function() {
+	  changeGroup(this);
+	  return false;
+	});
+
+      if (groups.length > 0) {
+	changeToGroup(0);
+      }
     }
   });
 
@@ -55,14 +59,24 @@ function changeGroup(link) {
 
 function changeToGroup(num) {
   currentGroup = num;
-  //update nav bar
+  console.log('Now in Group: ' + gps[currentGroup].name);
 
-  //later...
+  $('#group_name').text('Group: ' + gps[currentGroup].name);
+
   server = new socket.SocketServer(chat.token, function(message) {
-    
     var txt = $("#main_chat");
     txt.val( txt.val() + "\n" + message.from + ": " + message.text);
-
   });
-  
 };
+
+function inviteToGroup() {
+
+  var emailToInvite = prompt("Invite Email: ", "email");
+
+  if (emailToInvite) {
+    chat.invite(emailToInvite, gps[currentGroup]._id, function(err, success) {
+      console.log('Success? ' + success);
+    });
+  }
+};
+
