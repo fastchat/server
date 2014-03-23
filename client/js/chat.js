@@ -30,11 +30,12 @@ $(document).ready(function() {
       if (groups.length > 0) {
 	changeToGroup(0);
       }
+    } else if (err) {
+      if (err.status === 401) {
+	window.location.replace(url() + '/login.html');
+      }
     }
   });
-
-  
-
 });
 
 function sendMessage() {

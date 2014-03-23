@@ -1,6 +1,7 @@
 $(document).ready(function() {
 
   console.log('Chat: ' + JSON.stringify(chat, null, 4));
+  console.log('Chat TOKEN: ' + chat.token);
 
   if (!chat.isLoggedIn()) {
     showLogIn();
@@ -23,4 +24,10 @@ function login() {
     }
   });
   return false;
+};
+
+function showLogIn() {
+  console.log('Log in...');
+  
+  $('#login_form').show('slow');
 };

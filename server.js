@@ -52,13 +52,13 @@ passport.deserializeUser(function(id, done) {
 //   however, in this example we are using a baked-in set of users.
 
 passport.use(new LocalStrategy({
-    usernameField: 'email',
+    usernameField: 'username',
     passwordField: 'password'
-  }, function(email, password, done) {
-  User.findOne({ 'email': email.toLowerCase() }, function(err, user) {
+  }, function(username, password, done) {
+  User.findOne({ 'username': username.toLowerCase() }, function(err, user) {
     console.log("User: " + user);
     if (err) { return done(err); }
-    if (!user) { return done(null, false, { error: 'Unknown user ' + email }); }
+    if (!user) { return done(null, false, { error: 'Unknown user ' + username }); }
     user.comparePassword(password, function(err, isMatch) {
       if (err) return done(err);
       if(isMatch) {
@@ -118,7 +118,7 @@ var messageRoutes = require('./routes/message');
 
 
 app.post('/login', userRoutes.loginPOST);
-app.delete('/logout', userRoutes.logout);
+app.delete('/logout', ensureAuthenticated, userRoutes.logout);
 app.post('/register', userRoutes.register);
 app.get('/profile', ensureAuthenticated, userRoutes.profile);
 app.get('/group', ensureAuthenticated, groupRoutes.getGroups);
@@ -154,7 +154,7 @@ function ensureAuthenticated(req, res, next) {
       }
     });
   } else {
-    res.send(401, {'error' : 'You must have a session token!'});
+    res.send(401, {'error' : 'You are not logged in!'});
   }
 }
 

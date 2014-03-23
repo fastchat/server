@@ -7,7 +7,7 @@ var mongoose = require('mongoose')
 /// User should probably own an account object? Or somethign that organizes all account info
 ///
 var User = new Schema({
-  email: {type: String, required: true, unique: true},
+  username: {type: String, required: true, unique: true, lowercase: true},
   password: {type: String, required: true},
   accessToken: {type: String}, //Session Token
   groups: [{type: Schema.Types.ObjectId, ref: 'Group'}],
@@ -32,16 +32,12 @@ User.pre('save', function(next) {
 });
 
 // cb(err, user)
-User.statics.newUser = function(email, password, cb){
-  
-  // Create the home world .... somewhere
+User.statics.newUser = function(email, password, cb){  
   var usr = new this({ 'email': email, 'password': password });
   usr.save(function(err) {
     if(err) {
-      console.log(err);
       cb(err, null);
     } else {
-      console.log('user: ' + usr.email + " saved.");
       cb(null, usr);
     }
   });

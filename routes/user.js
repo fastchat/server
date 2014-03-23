@@ -2,7 +2,7 @@ var User = require('../model/user');
 var Group = require('../model/group');
 var passport = require('passport');
 var ObjectId = require('mongoose').Types.ObjectId; 
-
+var Errors = require('../model/errors');
 
 // POST /login
 // This is an alternative implementation that uses a custom callback to
@@ -34,17 +34,14 @@ exports.loginPOST = function(req, res, next) {
   })(req, res, next);
 };
 
-// POST Register
+// POST /register
 exports.register = function(req, res) {
   console.log('Body: ' + JSON.stringify(req.body, null, 4));
-  User.newUser(req.body.email.toLowerCase(), req.body.password, function(err, user) {
+  User.newUser(req.body.username, req.body.password, function(err, user) {
     if(err) {
-      console.log(err);
-      req.session.messages = [err.message];
-      return res.redirect('/register');
+      res.send(400, {'error' : Errors.parseRegisterError(err)});
     } else {
-      console.log('user: ' + user.email + " saved.");
-      res.send({'user':user.email});
+      res.send(201, user);
     }
   });
 };
@@ -104,7 +101,10 @@ exports.acceptInvite = function(req, res) {
 
 exports.logout = function(req, res){
   req.logout();
-  
-  res.send(200);
-//  res.redirect('/');
+  User.findOne( {'accessToken': req.headers['session-token'] }, function(err, usr) {
+    usr.set('accessToken', null);
+    usr.save(function(err) {
+      res.send(200);
+    });
+  });
 };

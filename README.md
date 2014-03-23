@@ -37,20 +37,25 @@ node server.js
 POST /register
 
 {
-	"email" : "youremail",
+	"username" : "uniqueusername",
 	"password" : "your password"
 }
 
-Returns:
+Returns the user:
 
 {
-	"user": "youremail"
+  "__v": 0,
+  "username": "MyUserName",
+  "password": "$2a$10$2SWFjLxmWO.0zmGL.BCDEOx2Ul78HWPptEpLnu8Zwgjasw4sgqVNy",
+  "_id": "532f21306bb3656b3e000001",
+  "invites": [],
+  "groups": []
 }
 
 ## Login
 POST /login
 {
-	"email" : "youremail",
+	"username" : "username",
 	"password" : "your password"
 }
 
@@ -63,13 +68,13 @@ Returns:
 Note:
 The session token should be sent as a header 'session-token':'3492384092843' in each request. The server acts as an API and does not store sessions (it does, but that only helps the web app, so I don't use them anywhere). The session token is used to find each user. This means you can only be logged in to what device at a time (logging in again would reset the session token). We will have to fix this. Maybe return the current token.
 
-## Logout PARTIALLY IMPLEMENTED
+## Logout
 DELETE /logout
 
 Returns: 200 OK
 
 Note:
-Calls logout on the request, but that just destroys the session. Need to update it to actually remove the session token from the DB. Fix this AFTER you have fixed the 'multiple devices logged in at the same time issue.'
+Destroys the users session token server side. You need to be logged in to call this.
 
 ## Get Groups
 GET /group

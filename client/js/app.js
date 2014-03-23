@@ -1,6 +1,6 @@
-//BASE_URL = 'http://localhost';
-BASE_URL = 'http://powerful-cliffs-9562.herokuapp.com';
-//BASE_PORT = '3000';
+BASE_URL = 'http://localhost';
+//BASE_URL = 'http://powerful-cliffs-9562.herokuapp.com';
+BASE_PORT = '3000';
 //BASE_PORT = '80';
 
 function url(env) {
@@ -26,7 +26,10 @@ FastChat.prototype = {
     }
 
     console.log('Session Token is: ' + chat.token);
-    return chat.token !== null && typeof chat.token !== 'undefined';
+    console.log('Token: ' + typeof(chat.token));
+    return chat.token;
+
+//    return (chat.token !== null) && typeof(chat.token) !== 'undefined' && typeof(chat.token) === 'string';
   },
   
   // cb(err, success)
@@ -50,19 +53,36 @@ FastChat.prototype = {
 
   }, //login
 
+  //cb(err, success)
+  logout: function(cb) {
+
+    if (this.isLoggedIn()) {
+      $.ajax({
+	url: url() + '/logout',
+	type: 'DELETE',
+	success: function(response) {
+	  console.log('Delete Resonse: ' + JSON.stringify(response, null, 4));	
+	  cb(null, true);
+	}
+      });
+    }
+  },
+
 //"user": "test@gmail.com"
   // cb(err, success)
-  register: function(email, pass, cb) {
-    
-    $.post( url()+ '/register', {'email': email, 'password': pass}, function( response ) {
+  register: function(email, pass, cb) {    
+    $.post( url()+ '/register', {'email': email, 'password': pass}, function( response ) {      
       var newUser = response['user'];
-      if (typeof newUser !== 'undefined') {	
+      if (typeof newUser !== 'undefined') {
 	console.log('Registered');
 	return cb(null, true);
       } else {
 	console.log('Failed to Register! ' + JSON.stringify(response, null, 4));
 	return cb(response, false);
       }
+    }).fail(function(err) {
+      console.log('ERR: ' + JSON.stringify(err, null, 4));
+      cb(err, false);
     });
 
   }, //register
@@ -163,16 +183,13 @@ FastChat.prototype = {
   getToken: function() {
     if( typeof(Storage) !== 'undefined') {
       chat.token = localStorage.getItem("com.fastchat.token");
+      if (chat.token === 'null') {
+	chat.token = null;
+      }
       console.log('Retrieved Token from Local Storage: ' + chat.token);
     }
   },
   
-};
-
-function showLogIn() {
-  console.log('Log in...');
-  
-  $('#login_form').show('slow');
 };
 
 

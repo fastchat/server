@@ -66,3 +66,12 @@ function acceptInvite(link) {
 function rejectInvite(link) {
   console.log('Reject');
 };
+
+function logout() {
+  chat.logout(function(err, success) {
+    console.log('Success: ' + success);
+    chat.token = null;
+    chat.saveToken();
+    window.location.replace(url() + '/index.html');
+  });
+};
