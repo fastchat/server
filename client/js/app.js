@@ -33,9 +33,9 @@ FastChat.prototype = {
   },
   
   // cb(err, success)
-  login: function(email, pass, cb) {
+  login: function(username, pass, cb) {
     
-    $.post( url()+ '/login', {'email':email, 'password':pass}, function( response ) {
+    $.post( url()+ '/login', {'username': username, 'password': pass}, function( response ) {
       var token = response['session-token'];
       if (typeof token !== 'undefined') {
 	chat.token = token;
@@ -70,16 +70,9 @@ FastChat.prototype = {
 
 //"user": "test@gmail.com"
   // cb(err, success)
-  register: function(email, pass, cb) {    
-    $.post( url()+ '/register', {'email': email, 'password': pass}, function( response ) {      
-      var newUser = response['user'];
-      if (typeof newUser !== 'undefined') {
-	console.log('Registered');
-	return cb(null, true);
-      } else {
-	console.log('Failed to Register! ' + JSON.stringify(response, null, 4));
-	return cb(response, false);
-      }
+  register: function(username, pass, cb) {    
+    $.post( url()+ '/register', {'username': username, 'password': pass}, function( response ) {
+      return cb(null, true);
     }).fail(function(err) {
       console.log('ERR: ' + JSON.stringify(err, null, 4));
       cb(err, false);

@@ -3,9 +3,14 @@ var mongoose = require('mongoose')
   , bcrypt = require('bcrypt')
   , SALT_WORK_FACTOR = 10;
 
-///
-/// User should probably own an account object? Or somethign that organizes all account info
-///
+/**
+ * User Model
+ * Stores all the information about the user. Users are required to have a username
+ * that must be unique. The password is hashed and stored using bcrypt. The accessToken
+ * is used to authenticate the user on API calls.
+ *
+ * Each users knows of it's groups and also knows of any pending invites.
+ */
 var User = new Schema({
   username: {type: String, required: true, unique: true, lowercase: true},
   password: {type: String, required: true},
@@ -32,8 +37,8 @@ User.pre('save', function(next) {
 });
 
 // cb(err, user)
-User.statics.newUser = function(email, password, cb){  
-  var usr = new this({ 'email': email, 'password': password });
+User.statics.newUser = function(username, password, cb){  
+  var usr = new this({ 'username': username, 'password': password });
   usr.save(function(err) {
     if(err) {
       cb(err, null);
@@ -53,7 +58,13 @@ User.statics.fromToken = function(token, cb) {
   });
 };
 
-// Password verification
+/**
+ * Compares a given password with the user's password.
+ * Uses bcrypt and hashes the given password.
+ *
+ * @candidatePassword The given password to compare
+ * @cb The callback with the result. cb(error, isMatch)
+ */
 User.methods.comparePassword = function(candidatePassword, cb) {
   bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
     if(err) return cb(err);
@@ -61,18 +72,19 @@ User.methods.comparePassword = function(candidatePassword, cb) {
   });
 };
 
-// Session Token implementation helper method
-// This should probably be re-implemented as a secure method
-// http://stackoverflow.com/questions/8855687/secure-random-token-in-node-js
-User.methods.generateRandomToken = function () {
-  var user = this,
-  chars = "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
-  token = new Date().getTime() + '_';
-  for ( var x = 0; x < 16; x++ ) {
-    var i = Math.floor( Math.random() * 62 );
-    token += chars.charAt( i );
-  }
-  return token;
+
+/**
+ * Creates the session token for the user.
+ * Utilizes the crypto library to generate the token, from the docs it:
+ * 'Generates cryptographically strong pseudo-random data'
+ * We then change that to a hex string for nice representation.
+ *
+ * @cb A callback with the given token. cb(token)
+ */
+User.methods.generateRandomToken = function (cb) {
+  require('crypto').randomBytes(48, function(ex, buf) {
+    cb(buf.toString('hex'));
+  });
 };
 
 module.exports = mongoose.model('User', User);

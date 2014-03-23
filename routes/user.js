@@ -24,11 +24,11 @@ exports.loginPOST = function(req, res, next) {
       ///
       /// Set session-token to DB, not session
       ///
-      var token = user.generateRandomToken();
-      user.set('accessToken', token);
-
-      user.save( function(err) {
-	res.send( {'session-token': user.get('accessToken')} );	
+      user.generateRandomToken(function(token) {
+	user.set('accessToken', token);
+	user.save( function(err) {
+	  res.send( {'session-token': user.get('accessToken')} );
+	});
       });
     });
   })(req, res, next);
