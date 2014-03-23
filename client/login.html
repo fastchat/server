@@ -52,11 +52,12 @@
         </div><!--/.container-fluid -->
       </div>
 
-      <div id="login_form" style="display: none">
+      <div id="login_errors" class="alert alert-danger" style="display:none;"></div>
+      <div id="login_form">
 	<form role="form" onsubmit="return login();" method="post">
 	  <div class="form-group">
-	    <label for="email">Email address</label>
-	    <input type="email" class="form-control" id="input_email" placeholder="Enter email">
+	    <label for="username">Username</label>
+	    <input type="text" class="form-control" id="input_username" placeholder="Enter username">
 	  </div>
 	  <div class="form-group">
 	    <label for="password">Password</label>

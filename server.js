@@ -53,13 +53,13 @@ passport.use(new LocalStrategy({
   }, function(username, password, done) {
   User.findOne({ 'username': username.toLowerCase() }, function(err, user) {
     if (err) { return done(err); }
-    if (!user) { return done(null, false, { error: 'Unknown user ' + username }); }
+    if (!user) { return done(null, false, { error: 'Incorrect username or password '}); }
     user.comparePassword(password, function(err, isMatch) {
       if (err) return done(err);
       if(isMatch) {
         return done(null, user);
       } else {
-        return done(null, false, { error: 'Invalid password' });
+        return done(null, false, { error: 'Incorrect username or password' });
       }
     });
   });
@@ -132,9 +132,6 @@ app.put('/group/:id/uninvite', ensureAuthenticated, groupRoutes.uninvite);
 //   the request will proceed.  Otherwise, the user will be redirected to the
 //   login page.
 function ensureAuthenticated(req, res, next) {
-  //  if ( req.isAuthenticated() ) {
-  //    return next();
-  //  } else {
   console.log('Checking ' + JSON.stringify(req.headers, null, 4));
   if (req.headers['session-token'] !== undefined) {
     console.log('Found header!');

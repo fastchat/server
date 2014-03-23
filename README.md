@@ -113,7 +113,7 @@ An array of all the groups you're in.
 POST /group
 {
 	"name":"group_name",
-	"invitees":[userid, userid]
+	"invitees":[username, username]
 }
 
 Returns:
@@ -147,7 +147,7 @@ people to the group (by adjusting the invitees array.)
 PUT /group/:id/invite
 
 {
-	"invitees": [email, email]
+	"invitees": [username, username]
 }
 
 Returns:
@@ -160,7 +160,7 @@ This puts the group's _id in the 'invite' array for each of the user's profiles.
 PUT /group/:id/uninvite
 
 {
-	"uninvites": [email, email]
+	"uninvites": [username, username]
 }
 
 returns 200

@@ -16,7 +16,7 @@ exports.loginPOST = function(req, res, next) {
     console.log('INFO: ' + info);
     if (err) { return next(err) }
     if (!user) {
-      return res.send(401, {'error' : 'Unknown user'});
+      return res.send(401, {'error' : 'Incorrect username or password!'});
     }
     req.logIn(user, function(err) {
       if (err) { return next(err); }

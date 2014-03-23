@@ -24,8 +24,8 @@ function profile() {
 };
 
 function setFields(profile) {
-  console.log('email: ' + profile['email']);
-  $('.profile_name').text('Email: ' + profile['email']);
+  console.log('username: ' + profile['username']);
+  $('.profile_name').text('Username: ' + profile['username']);
 
   invites = profile.invites;
   for (var i = 0; i < invites.length; i++) {

@@ -45,12 +45,12 @@ exports.invite = function(req, res) {
     return res.send(200);
   }
 
-  Group.findOne( { _id : new ObjectId(groupId) }, function(err, group) {    
+  Group.findOne( { _id : new ObjectId(groupId) }, function(err, group) {
     if (err || !group) return res.send(400, {'error' : 'Group was not found!'});
 
     console.log('Found Group: ' + JSON.stringify(group, null, 4));
-    async.each(invites, function(email, cb) {
-      User.findOne( { 'email': email }, function (err, usr) {
+    async.each(invites, function(username, cb) {
+      User.findOne( { 'username': username }, function (err, usr) {
 	console.log('Found User: ' + JSON.stringify(usr, null, 4));
 	if (usr) {
 	  
@@ -96,9 +96,9 @@ exports.uninvite = function(req, res) {
 
     if (err || !group) return res.send(400, {'error' : 'Group was not found!'});
     
-    async.each(uninvites, function(email, cb) {
+    async.each(uninvites, function(username, cb) {
     
-      User.findOne( { 'email': email }, function (err, usr) {
+      User.findOne( { 'username': username }, function (err, usr) {
 	if (usr) {
 	  var index = group.members.indexOf(usr._id);
 	  if (index !== -1) {

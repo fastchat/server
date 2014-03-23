@@ -8,6 +8,7 @@ function register() {
     if (success) {
       chat.login(username, password, function(err, success) {
 	window.location.replace(url() + '/chat.html');
+	$('#register_errors').hide();
       });
     } else {
       console.log('Did not register!');

@@ -1,4 +1,3 @@
-
 $(document).ready(function() {
 
   chat.groups(function(err, groups) {
@@ -36,19 +35,26 @@ $(document).ready(function() {
       }
     }
   });
+
+  chat.profile(function(err, profile) {
+    if (profile) {
+      currentProfile = profile;
+      console.log('Got current profile: ' + JSON.stringify(profile, null, 4));
+    }
+  });
 });
 
 function sendMessage() {
   
   var messageField = $('#message');
   var message = messageField.val();
-  messageField.val('');
-
-  var txt = $("#main_chat");
-  txt.val( txt.val() + "\n" + 'You' + ": " + message);
-
-  server.send({'from': 'Web!', 'text': message}, gps[currentGroup]._id);
-
+  if (message) {
+    messageField.val('');
+    var txt = $("#main_chat");
+    txt.val( txt.val() + "\n" + currentProfile.username + ": " + message);
+    server.send({'from': currentProfile.username, 'text': message}, gps[currentGroup]._id);  
+    keepToBottom();
+  }
   return false;
 };
 
@@ -67,17 +73,24 @@ function changeToGroup(num) {
   server = new socket.SocketServer(chat.token, function(message) {
     var txt = $("#main_chat");
     txt.val( txt.val() + "\n" + message.from + ": " + message.text);
+    keepToBottom();
   });
 };
 
 function inviteToGroup() {
 
-  var emailToInvite = prompt("Invite Email: ", "email");
+  var userToInvite = prompt("Invite User: ", "username");
 
-  if (emailToInvite) {
-    chat.invite(emailToInvite, gps[currentGroup]._id, function(err, success) {
+  if (userToInvite) {
+    chat.invite(userToInvite, gps[currentGroup]._id, function(err, success) {
       console.log('Success? ' + success);
     });
   }
+};
+
+function keepToBottom() {
+  $(document).ready(function(){
+    $('#main_chat').scrollTop($('#main_chat')[0].scrollHeight);
+  });
 };
 

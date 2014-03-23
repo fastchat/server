@@ -28,29 +28,21 @@ FastChat.prototype = {
     console.log('Session Token is: ' + chat.token);
     console.log('Token: ' + typeof(chat.token));
     return chat.token;
-
-//    return (chat.token !== null) && typeof(chat.token) !== 'undefined' && typeof(chat.token) === 'string';
   },
   
   // cb(err, success)
-  login: function(username, pass, cb) {
-    
+  login: function(username, pass, cb) {    
     $.post( url()+ '/login', {'username': username, 'password': pass}, function( response ) {
       var token = response['session-token'];
-      if (typeof token !== 'undefined') {
-	chat.token = token;
-	chat.saveToken();
-	$.ajaxSetup({
-	  headers: { 'session-token': token }
-	});
-	console.log('Logged in, token is: ' + token);
-	return cb(null, true);
-      } else {
-	console.log('Failed to Login! ' + JSON.stringify(response, null, 4));
-	return cb(response, false);
-      }
+      chat.token = token;
+      chat.saveToken();
+      $.ajaxSetup({
+	headers: { 'session-token': token }
+      });
+      return cb(null, true);
+    }).fail(function(err) {
+      cb(err, false);
     });
-
   }, //login
 
   //cb(err, success)
@@ -114,7 +106,7 @@ FastChat.prototype = {
   },
 
   // cb(err, success);
-  invite: function(email, groupId, cb) {
+  invite: function(username, groupId, cb) {
 
     if (groupId === null || typeof groupId === 'undefined' || typeof groupId !== 'string') {
       return cb('You must specify the Group ID!');
@@ -124,7 +116,7 @@ FastChat.prototype = {
       $.ajax({
 	url: url() + '/group/' + groupId + '/invite',
 	type: 'PUT',
-	data: {'invitees':[email]},
+	data: {'invitees':[username]},
 	success: function(response) {
 	  console.log('Invite Resonse: ' + JSON.stringify(response, null, 4));	
 	  cb(null, response);
@@ -183,16 +175,6 @@ FastChat.prototype = {
     }
   },
   
-};
-
-
-
-function showChats() {
-  
-  //loads the UI for chats.
-  
-  $('#login_form').hide();
-  chat.groups();
 };
 
 
