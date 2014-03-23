@@ -72,7 +72,7 @@ var portNumber = Number(process.env.PORT || 3000);
 var app = express();
 server = http.createServer(app)
 server.listen(portNumber);
-io = io.listen(server);
+io = io.listen(server, {origins: '*:*'});
 
 
 app.set('port', portNumber);
