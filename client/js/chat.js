@@ -1,47 +1,64 @@
+var timer = "";
+var isBlurred=false;
+
+$(window).on('blur',function() {
+  isBlurred = true;
+}).on("focus",function() { 
+  isBlurred = false;
+  document.title = 'Fast Chat';
+  clearInterval(timer);
+});
+
+
+
 $(document).ready(function() {
 
-  chat.groups(function(err, groups) {
-    
-    if (!err && groups) {
-      gps = groups;
+  if (chat.isLoggedIn()) {
+    chat.groups(function(err, groups) {
       
-      for (var i = 0; i < groups.length; i++) {
-	var group = groups[i];
+      if (!err && groups) {
+	gps = groups;
 	
-	$('#navigation_bar').append(
-	  $('<li/>', {
-	  'class': 'nav-bar-group group' + i,
-            html: $('<a/>', {
-              href: '#',
-              text: group.name
+	for (var i = 0; i < groups.length; i++) {
+	  var group = groups[i];
+	  
+	  $('#navigation_bar').append(
+	    $('<li/>', {
+	      'class': 'nav-bar-group group' + i,
+              html: $('<a/>', {
+		href: '#',
+		text: group.name
+	      })
 	    })
-	  })
-	);
-	
-      }
+	  );
+	  
+	}
 
-      jQuery( '.nav-bar-group' )
-	.click(function() {
-	  changeGroup(this);
-	  return false;
-	});
+	jQuery( '.nav-bar-group' )
+	  .click(function() {
+	    changeGroup(this);
+	    return false;
+	  });
 
-      if (groups.length > 0) {
-	changeToGroup(0);
+	if (groups.length > 0) {
+	  changeToGroup(0);
+	}
+      } else if (err) {
+	if (err.status === 401) {
+	  window.location.replace(url() + '/login.html');
+	}
       }
-    } else if (err) {
-      if (err.status === 401) {
-	window.location.replace(url() + '/login.html');
-      }
-    }
-  });
+    });
 
-  chat.profile(function(err, profile) {
-    if (profile) {
-      currentProfile = profile;
-      console.log('Got current profile: ' + JSON.stringify(profile, null, 4));
-    }
-  });
+    chat.profile(function(err, profile) {
+      if (profile) {
+	currentProfile = profile;
+	console.log('Got current profile: ' + JSON.stringify(profile, null, 4));
+      }
+    });
+  } else {
+    window.location.replace(url() + '/login.html');
+  }
 });
 
 function sendMessage() {
@@ -55,6 +72,8 @@ function sendMessage() {
     server.send({'from': currentProfile.username, 'text': message}, gps[currentGroup]._id);  
     keepToBottom();
   }
+
+  Notify.requestPermission();
   return false;
 };
 
@@ -74,7 +93,28 @@ function changeToGroup(num) {
     var txt = $("#main_chat");
     txt.val( txt.val() + "\n" + message.from + ": " + message.text);
     keepToBottom();
+
+    var messageNotification = new Notify(message.from, {
+      body: message.text,
+      notifyShow: onNotifyShow,
+      notifyClick: notifClicked
+    });
+    messageNotification.show();
+
+    if (isBlurred) {
+      timer = window.setInterval(function() {
+	document.title = document.title === 'Fast Chat' ? message.from + ' - Fast Chat' : 'Fast Chat';
+      }, 1000);
+    }   
   });
+};
+
+function onNotifyShow() {
+    console.log('notification was shown!');
+};
+
+function notifClicked() {
+  console.log('Notification was clicked!');
 };
 
 function inviteToGroup() {

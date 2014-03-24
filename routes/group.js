@@ -50,7 +50,7 @@ exports.invite = function(req, res) {
 
     console.log('Found Group: ' + JSON.stringify(group, null, 4));
     async.each(invites, function(username, cb) {
-      User.findOne( { 'username': username }, function (err, usr) {
+      User.findOne( { 'username': username.toLowerCase() }, function (err, usr) {
 	console.log('Found User: ' + JSON.stringify(usr, null, 4));
 	if (usr) {
 	  
