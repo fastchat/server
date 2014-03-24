@@ -3,17 +3,21 @@ var Group = require('../model/group');
 
 exports.getMessages = function(req, res) {
   var groupID = req.params.id;
-  User.fromToken( req.headers['session-token'], function (usr) {
-    Group.find( { '_id': groupID, 'members' : usr._id })
-      .populate('messages')
-      .exec(function (err, groups) {
-	if (err || groups.length == 0) return res.send(401, {error: err});
+  User.findOne( {'accessToken': req.headers['session-token'] }, function(err, usr) {
 
-	var group = groups[0];
-	console.log('Group? ' + JSON.stringify(group, null, 4));
+    console.log('FOUND USER: ' + JSON.stringify(usr, null, 4));
+    
+    Group.findOne( { '_id': groupID, 'members' : usr._id })
+      .populate('messages')
+      .exec(function (err, group) {
+
+	console.log('Grouppppp: ' + JSON.stringify(group, null, 4));
+
+	if (err) return res.send(404, {error: 'Group not found!'});
+
 	res.send(group.messages);
       });
-  });    
+  });
 };
 
 

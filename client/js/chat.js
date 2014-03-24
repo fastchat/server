@@ -73,7 +73,7 @@ function sendMessage() {
     messageField.val('');
     var txt = $("#main_chat");
     txt.val( txt.val() + "\n" + currentProfile.username + ": " + message);
-    server.send({'from': currentProfile.username, 'text': message}, gps[currentGroup]._id);  
+    server.send({'from': currentProfile.username, 'text': message, 'groupId' : gps[currentGroup]._id}, gps[currentGroup]._id);  
     keepToBottom();
   }
 

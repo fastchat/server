@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 var http = require('http');
 var io = require('socket.io');
 var config = require('./config');
+var ObjectId = require('mongoose').Types.ObjectId; 
 
 ///
 /// Models
@@ -196,15 +197,29 @@ io.on('connection', function (socket) {
 
     socket.broadcast.to(room).emit('message', message) //emit to 'room' except this socket
 
+    //fix this so you can't add to groups you don't know of
+
     ///
     /// Make a new message and add it to the group
     ///
-/*
-    var aMessage = new Message(message);
+    var aMessage = new Message({'from' : socketUser._id,
+				'group': new ObjectId(room),
+				'text' : message.text,
+				'sent' : new Date()
+			       });
     aMessage.save(function(err) {
-      //saved
+      console.log('Saved Message ' + room);
+      console.log('Error: ' + JSON.stringify(err, null, 4));
+      Group.findOne({'_id' : room}, function(err, group) {
+	if (group) {
+	  group.messages.push(aMessage);
+	  group.save(function(err) {
+	    console.log('Saved Group.');
+	  });
+	}
+      });
     });
-*/
+
 
   });
 
