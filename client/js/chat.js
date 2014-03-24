@@ -1,12 +1,16 @@
-var timer = "";
+var timer = '';
 var isBlurred=false;
+var notSeenMessages = 0;
 
-$(window).on('blur',function() {
+$(window).on("blur", function() {
   isBlurred = true;
-}).on("focus",function() { 
+}).on("focus", function() {
+  clearInterval(timer);
+  console.log('ON FOCUUSSSSS');
   isBlurred = false;
   document.title = 'Fast Chat';
-  clearInterval(timer);
+  timer = '';
+  notSeenMessages = 0;
 });
 
 
@@ -102,9 +106,16 @@ function changeToGroup(num) {
     messageNotification.show();
 
     if (isBlurred) {
-      timer = window.setInterval(function() {
-	document.title = document.title === 'Fast Chat' ? message.from + ' - Fast Chat' : 'Fast Chat';
-      }, 1000);
+      console.log('IS BLURRED');
+      notSeenMessages++;
+      console.log('Not Seen: ' + notSeenMessages);
+      if (!timer) {
+	console.log('NOT TIMER');
+	timer = window.setInterval(function() {
+	  console.log('BLINK');
+	  document.title = document.title === 'Fast Chat' ? '(' + notSeenMessages + ')' + ' - Fast Chat' : 'Fast Chat';
+	}, 1000);
+      }
     }   
   });
 };

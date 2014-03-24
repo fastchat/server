@@ -15,7 +15,7 @@ function login() {
   chat.login(username, password, function(err, success) {
     if (success) {
       $('#login_errors').hide();
-      window.location.replace(url() + '/chat.html');
+      window.location.replace(url() + '/chat.html');b
     } else {
       $('#login_errors').text(err.responseJSON.error);
       $('#login_errors').show();

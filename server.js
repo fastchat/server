@@ -24,7 +24,7 @@ db.once('open', function callback() {
   console.log('Successfully connected to Mongo.');
 });
 
-// Passport session setup. 
+// Passport session setup. g
 // To support persistent login sessions, Passport needs to be able to
 // serialize users into and deserialize users out of the session.  Typically,
 // this will be as simple as storing the user ID when serializing, and finding
