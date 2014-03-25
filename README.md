@@ -34,7 +34,7 @@ node server.js
 # End Points
 
 ## Register
-POST /register
+POST /user
 
 {
 	"username" : "uniqueusername",
@@ -67,6 +67,22 @@ Returns:
 
 Note:
 The session token should be sent as a header 'session-token':'3492384092843' in each request. The server acts as an API and does not store sessions (it does, but that only helps the web app, so I don't use them anywhere). The session token is used to find each user. This means you can only be logged in to what device at a time (logging in again would reset the session token). We will have to fix this. Maybe return the current token.
+
+## Profile
+GET /user
+
+Returns:
+
+{
+  "__v": 0,
+  "username": "MyUserName",
+  "password": "$2a$10$2SWFjLxmWO.0zmGL.BCDEOx2Ul78HWPptEpLnu8Zwgjasw4sgqVNy",
+  "_id": "532f21306bb3656b3e000001",
+  "invites": [],
+  "groups": []
+}
+
+The Logged in user
 
 ## Logout
 DELETE /logout
@@ -166,7 +182,7 @@ PUT /group/:id/uninvite
 returns 200
 
 ## Accept Invitation
-post /user/accept
+POST /user/accept
 {
 	'invite':1
 }

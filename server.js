@@ -112,19 +112,22 @@ if ('development' == app.get('env')) {
 var userRoutes = require('./routes/user');
 var groupRoutes = require('./routes/group');
 var messageRoutes = require('./routes/message');
-
+var deviceRoutes = require('./routes/device');
 
 app.post('/login', userRoutes.loginPOST);
 app.delete('/logout', ensureAuthenticated, userRoutes.logout);
-app.post('/register', userRoutes.register);
-app.get('/profile', ensureAuthenticated, userRoutes.profile);
-app.get('/group', ensureAuthenticated, groupRoutes.getGroups);
+app.post('/user', userRoutes.register);
+app.get('/user', ensureAuthenticated, userRoutes.profile);
 app.post('/user/accept', ensureAuthenticated, userRoutes.acceptInvite);
 
+app.get('/group', ensureAuthenticated, groupRoutes.getGroups);
 app.post('/group', ensureAuthenticated, groupRoutes.createGroup);
 app.get('/group/:id/messages', ensureAuthenticated, messageRoutes.getMessages);
 app.put('/group/:id/invite', ensureAuthenticated, groupRoutes.invite);
 app.put('/group/:id/uninvite', ensureAuthenticated, groupRoutes.uninvite);
+
+app.get('/user/device', ensureAuthenticated, deviceRoutes.getDevices);
+app.post('/user/device', ensureAuthenticated, deviceRoutes.postDevice);
 
 
 // Simple route middleware to ensure user is authenticated.

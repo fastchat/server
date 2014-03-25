@@ -17,6 +17,7 @@ var User = new Schema({
   accessToken: {type: String}, //Session Token
   groups: [{type: Schema.Types.ObjectId, ref: 'Group'}],
   invites: [{type: Schema.Types.ObjectId, ref: 'Group'}],
+  devices: [{type: Schema.Types.ObjectId, ref: 'Device'}]
 });
 
 // Bcrypt middleware
