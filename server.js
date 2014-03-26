@@ -13,6 +13,7 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var User = require('./model/user');
 var Group = require('./model/group');
 var Message = require('./model/message');
+var Device = require('./model/device');
 
 ///
 /// Database Setup
@@ -222,6 +223,16 @@ io.on('connection', function (socket) {
 	}
       });
     });
+
+    /// Send Notifications
+    Device.find({'user':socketUser._id}, function(err, devices) {
+      var firstDevice = devices.length > 0 ? devices[0] : null;
+      if (firstDevice) {
+	firstDevice.send(message.text);
+      }
+    });
+
+    
 
 
   });

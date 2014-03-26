@@ -1,6 +1,6 @@
-//BASE_URL = 'http://localhost';
-BASE_URL = 'http://powerful-cliffs-9562.herokuapp.com';
-//BASE_PORT = '3000';
+BASE_URL = 'http://localhost';
+//BASE_URL = 'http://powerful-cliffs-9562.herokuapp.com';
+BASE_PORT = '3000';
 //BASE_PORT = '80';
 
 function url(env) {
@@ -63,7 +63,7 @@ FastChat.prototype = {
 //"user": "test@gmail.com"
   // cb(err, success)
   register: function(username, pass, cb) {    
-    $.post( url()+ '/register', {'username': username, 'password': pass}, function( response ) {
+    $.post( url()+ '/user', {'username': username, 'password': pass}, function( response ) {
       return cb(null, true);
     }).fail(function(err) {
       console.log('ERR: ' + JSON.stringify(err, null, 4));
@@ -133,7 +133,7 @@ FastChat.prototype = {
     console.log('Getting Profile');
     if (this.isLoggedIn()) {
       console.log('Getting Profile 2');
-      $.get(url() + '/profile', function( response ) {
+      $.get(url() + '/user', function( response ) {
 	console.log('Profile: ' + JSON.stringify(response, null, 4));
 	cb(null, response.profile);
       }).fail(function(err) {
