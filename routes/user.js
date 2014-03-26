@@ -38,10 +38,11 @@ exports.loginPOST = function(req, res, next) {
   })(req, res, next);
 };
 
-// POST /register
+// POST /user
 exports.register = function(req, res) {
   console.log('Body: ' + JSON.stringify(req.body, null, 4));
   User.newUser(req.body.username, req.body.password, function(err, user) {
+    console.log('ERROR: ' + JSON.stringify(err, null, 4));
     if(err) {
       res.send(400, {'error' : Errors.parseRegisterError(err)});
     } else {
@@ -50,7 +51,7 @@ exports.register = function(req, res) {
   });
 };
 
-// Get /profile
+// GET /user
 exports.profile = function(req, res) {
 
   User.findOne( {'_id' : req.user._id } )
@@ -105,9 +106,9 @@ exports.acceptInvite = function(req, res) {
 };
 
 exports.logout = function(req, res){
-  req.logout();
   req.user.set('accessToken', null);
   req.user.save(function(err) {
-    res.send(200);
+    req.logout();
+    res.json(200, {});
   });
 };

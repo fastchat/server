@@ -19,6 +19,7 @@ var Device = require('./model/device');
 /// Database Setup
 ///
 var mongoUri = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || 'mongodb://localhost/dev';
+console.log('Connecting to DB: ' + mongoUri);
 mongoose.connect( mongoUri );
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Connection Error (Connecting to Mongo). Did you run "mongod"?:'));
@@ -141,7 +142,7 @@ function ensureAuthenticated(req, res, next) {
 	req.user = usr;
 	return next();
       } else {
-	res.send(401);
+	res.json(401, {'error' : 'You are not logged in!'});
       }
     });
   } else {

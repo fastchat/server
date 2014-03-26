@@ -31,6 +31,16 @@ Then run:
 node server.js
 
 
+# Test
+
+Start the server to hit the test database:
+MONGOLAB_URI=mongodb://localhost/test node server.js
+
+Then, in a new tab, run the tests:
+npm test
+
+
+
 # End Points
 
 ## Register
