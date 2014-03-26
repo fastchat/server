@@ -224,16 +224,39 @@ io.on('connection', function (socket) {
       });
     });
 
-    /// Send Notifications
-    Device.find({'user':socketUser._id}, function(err, devices) {
-      var firstDevice = devices.length > 0 ? devices[0] : null;
-      if (firstDevice) {
-	firstDevice.send(message.text);
+
+    var clients = io.sockets.clients(room);
+    var roomUsers = [];
+    for (var i = 0; i < clients.length; i++) {
+      roomUsers.push(clients[i].handshake.user);
+    }
+
+    console.log('All Users In Room: ' + JSON.stringify(roomUsers, null, 4));
+    // Find all users who are in the group
+    // Find Users who groups include 'room'
+    User.find({groups: { $in : [room] } }, function(err, users) {
+      console.log('All Users In Group: ' + JSON.stringify(users, null, 4));
+
+      var usersNotInRoom = [];
+      for (var i = 0; i < users.length; i++) {
+	var foundUser = false;
+	for (var j = 0; j < roomUsers.length; j++) {
+	  console.log('Comparing: ' + roomUsers[j]._id + ' to: ' + users[i]._id);
+	  if (roomUsers[j]._id.equals(users[i]._id)) {
+	    console.log('FOUND USER');
+	    foundUser = true;
+	  }
+	}
+	if (!foundUser) usersNotInRoom.push(users[i]);
+      }
+
+      console.log('users NOT in room: ' + JSON.stringify(usersNotInRoom, null, 4));
+      /// Okay, we have the users not in the room.
+      // SEnd a message to them.
+      for (var i = 0; i < usersNotInRoom.length; i++) {
+	usersNotInRoom[i].push(message);
       }
     });
-
-    
-
 
   });
 

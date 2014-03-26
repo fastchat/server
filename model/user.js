@@ -2,6 +2,7 @@ var mongoose = require('mongoose')
   , Schema = mongoose.Schema
   , bcrypt = require('bcrypt')
   , SALT_WORK_FACTOR = 10;
+var Device = require('./device');
 
 /**
  * User Model
@@ -85,6 +86,15 @@ User.methods.comparePassword = function(candidatePassword, cb) {
 User.methods.generateRandomToken = function (cb) {
   require('crypto').randomBytes(48, function(ex, buf) {
     cb(buf.toString('hex'));
+  });
+};
+
+User.methods.push = function(message) {
+
+  Device.find({ 'user': this._id }, function(err, devices) {
+    for (var i = 0; i < devices.length; i++) {
+      devices[i].send(message.text);
+    }
   });
 };
 
