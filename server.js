@@ -78,9 +78,6 @@ io = io.listen(server, {origins: '*:*'});
 
 
 app.set('port', portNumber);
-//app.set('views', path.join(__dirname, 'views'));
-//app.set('view engine', 'ejs');
-//app.engine('ejs', require('ejs-locals'));
 app.use(express.favicon());
 app.use(express.logger('dev'));
 app.use(express.json());
@@ -93,13 +90,8 @@ app.use(passport.session());
 app.use(app.router);
 app.use(express.static(__dirname + '/client'));
 
-/*
-app.all('/', function(req,res,next) {
-  res.header("Access-Control-Allow-Origin","*");
-  res.header("Access-Control-Allow-Headers","X-Requested-With");
-  next();
-});
-*/
+
+
 
 /**
  * Update how these are set to use app.set('development', stuff);
@@ -136,6 +128,7 @@ app.post('/user/device', ensureAuthenticated, deviceRoutes.postDevice);
 //   the request is authenticated (typically via a persistent login session),
 //   the request will proceed.  Otherwise, the user will be redirected to the
 //   login page.
+//   Stores the user in the req for fast access later on.
 function ensureAuthenticated(req, res, next) {
   console.log('Checking ' + JSON.stringify(req.headers, null, 4));
   if (req.headers['session-token'] !== undefined) {
@@ -145,9 +138,9 @@ function ensureAuthenticated(req, res, next) {
     User.findOne( { accessToken: token }, function (err, usr) {
       console.log('User: ' + usr);
       if (usr && !err) {
+	req.user = usr;
 	return next();
       } else {
-	//401
 	res.send(401);
       }
     });

@@ -2,6 +2,14 @@ var mongoose = require('mongoose')
   , Schema = mongoose.Schema;
 var apn = require('apn');
 
+/**
+ * Holds the information about a device. This is used to be able to run smart
+ * notifications. We can send notifications to the "last active device" and
+ * then wait to send to the rest.
+ *
+ * type Should be either 'ios' or 'android'. Used to send notifications to the
+ * correct gateways. More can be added later.
+ */
 var Device = new Schema({
   user: {type: Schema.Types.ObjectId, ref: 'User'},
   token: String,
@@ -10,6 +18,12 @@ var Device = new Schema({
   failedAttempts: Number
 });
 
+/**
+ * Sends a string to the device.
+ * Sets some nice defaults, and takes care of sending to APN or GCM.
+ *
+ * @message A string to send to the user in a notification.
+ */
 Device.methods.send = function(message) {
   var options = { 
     'gateway': 'gateway.sandbox.push.apple.com'

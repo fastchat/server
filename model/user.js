@@ -21,7 +21,10 @@ var User = new Schema({
   devices: [{type: Schema.Types.ObjectId, ref: 'Device'}]
 });
 
-// Bcrypt middleware
+/**
+ * BCrypt Middleware to hash the password given before the user is saved.
+ * This is never called explicitly.
+ */
 User.pre('save', function(next) {
   var user = this;
   
@@ -38,7 +41,15 @@ User.pre('save', function(next) {
   });
 });
 
-// cb(err, user)
+
+/*
+ * Creates a new user from a username and password.
+ * This will create the user and return the user in a callback, or error.
+ *
+ * @username The username for the user.
+ * @password The password for the user.
+ * @cb callback(Error, User)
+ */
 User.statics.newUser = function(username, password, cb){  
   var usr = new this({ 'username': username, 'password': password });
   usr.save(function(err) {
@@ -50,9 +61,14 @@ User.statics.newUser = function(username, password, cb){
   });
 };
 
-// cb(usr) - or null if no user is found
+/**
+ * Finds the user from a token.
+ * Will return the user or null if none found.
+ *
+ * @token The token to find the user.
+ * @cb callback(User) or null if no user found.
+ */
 User.statics.fromToken = function(token, cb) {
-
   if (!token) return cb(null);
   
   this.findOne( { 'accessToken': token }, function (err, usr) {
@@ -89,6 +105,15 @@ User.methods.generateRandomToken = function (cb) {
   });
 };
 
+/**
+ * Pushes a message to each device this user controls.
+ * We will want this to be 'smarter' in the future, but this is a good first
+ * pass. Smarter implementations will understand which device the user used
+ * last and will send the notification to that device first, wait some time,
+ * then send a notification to the other devices.
+ *
+ * @message The message from the server. Should have 'text' property.
+ */
 User.methods.push = function(message) {
 
   Device.find({ 'user': this._id }, function(err, devices) {

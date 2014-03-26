@@ -2,23 +2,19 @@ var User = require('../model/user');
 var Device = require('../model/device');
 
 exports.getDevices = function(req, res) {
-  User.fromToken( req.headers['session-token'], function (usr) {
-    if (usr) {
-      Device.find({'user': usr._id}, function(err, devices) {
-	if (err) {
-	  return res.send(500, {'error':'There was an error with your request!'});
-	} else {
-	  return res.send(devices);
-	}
-      });
+  Device.find({'user': req.user._id}, function(err, devices) {
+    if (err) {
+      return res.send(500, {'error':'There was an error with your request!'});
     } else {
-      res.send(401, {'error': 'User was not found!'});
+      return res.send(devices);
     }
   });
 };
 
+
 exports.postDevice = function(req, res) {
 
+  var usr = req.user;
   var token = req.body.token;
   if (!token) {
     console.log('Didnt find token: ' + token);
@@ -32,34 +28,26 @@ exports.postDevice = function(req, res) {
   }
 
   Device.find({'token' : token}, function(err, devices) {
-    if (err || devices) return res.json(200, {});
-    /// This device has not yet been registered!
+    if (err || devices) return res.json(200, {}); //assume it's already registered
 
-    User.fromToken( req.headers['session-token'], function (usr) {
-      if (usr) {
-	var device = new Device({'token': token,
-				 'type': type,
-				 'user': usr._id
-				});
-	device.save(function(err) {
-	  if (!err) {
-	    usr.devices.push(device);
-	    usr.save(function(err) {
-	      if (err) {
-		return res.send(500, {'error':'There was an error saving the device!'});
-	      } else {
-		return res.json(201, {});
-	      }
-	    });
-	  } else {
-	    console.log('Error Saving Device: ' + JSON.stringify(err, null, 4));
+    var device = new Device({'token': token,
+			     'type': type,
+			     'user': usr._id
+			    });
+    device.save(function(err) {
+      if (!err) {
+	usr.devices.push(device);
+	usr.save(function(err) {
+	  if (err) {
 	    return res.send(500, {'error':'There was an error saving the device!'});
-	  }	
+	  } else {
+	    return res.json(201, {});
+	  }
 	});
       } else {
-	res.send(401, {'error': 'User was not found!'});
-      }
+	console.log('Error Saving Device: ' + JSON.stringify(err, null, 4));
+	return res.send(500, {'error':'There was an error saving the device!'});
+      }	
     });
-
   });
 };

@@ -1,7 +1,9 @@
-
-
-
-
+/**
+ * A simple object for turning nasty errors into user friendly errors.
+ * This method should be used for the register errors.
+ *
+ * @error The error object to be parsed.
+ */
 exports.parseRegisterError = function(error) {
   var message = error.message;
   console.log('MESSAGE: '+ message);
