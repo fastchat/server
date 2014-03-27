@@ -1,11 +1,3 @@
-$(document).ready(function() {
-
-  console.log('Chat: ' + JSON.stringify(chat, null, 4));
-  console.log('Chat TOKEN: ' + chat.token);
-
-});
-
-
 function login() {
   
   console.log('Logged in!');
