@@ -1331,6 +1331,11 @@ section * {
     height: 160px;
   }
 }
+
+.header-11-sub .btn {
+    background-color: #2ecc71;
+}
+
 /* price */
 .ribbon {
   display: block;
@@ -1761,4 +1766,18 @@ section * {
 .footer-3 {
   background-color: #1B1F23;
   color: #7F8C8D;
+}
+
+body {
+    background-color:#1B1F23;
+}
+
+.popover-title {
+    font-size: 14px !important;
+    color: #2c3e50 !important;
+    margin: 0 !important;
+}
+
+.editable-cancel {
+    background-color: #bdc3c7 !important;
 }

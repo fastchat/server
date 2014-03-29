@@ -13,9 +13,9 @@ function register() {
   if (password && confirmation && password !== confirmation) errors.push('Your passwords do not match!');
 
   if (errors.length === 0) {
-    chat.register(username, password, function(err, success) {
+    API.register(username, password, function(err, success) {
       if (success) {
-	chat.login(username, password, function(err, success) {
+	API.login(username, password, function(err, success) {
 	  window.location.replace(url() + '/chat.html');
 	  $('#register_errors').hide();
 	});

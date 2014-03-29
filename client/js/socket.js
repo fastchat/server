@@ -1,12 +1,7 @@
 (function() {
 
-  function SocketServer(token, cb) {
-    this.socket = io.connect(BASE_URL, { query: 'token=' + token }); 
-    this.socket.on('message', function(message) {
-      console.log('Received: ' + JSON.stringify(message, null, 4));
-      cb(message);
-    });
-
+  function SocketServer(token) {
+    this.socket = io.connect(BASE_URL, { query: 'token=' + token });
   };
 
 
@@ -17,12 +12,17 @@
       this.socket.emit('message', message);
     },
 
-    
+    addListener: function(type, listener) {
+      console.log('SOCKET: ' + this.socket);
+      this.socket.removeAllListeners(type);
+      this.socket.on(type, listener);
+    },
+
   };
 
 
   window.socket = window.socket || {};
-  window.socket.SocketServer = SocketServer;
+  window.socket.SocketServer = new SocketServer(API.getToken());
 
 })();
 

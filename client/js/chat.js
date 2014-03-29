@@ -17,53 +17,111 @@ $(window).on("blur", function() {
 
 $(document).ready(function() {
 
-  if (chat.isLoggedIn()) {
-    chat.groups(function(err, groups) {
-      
-      if (!err && groups) {
-	gps = groups;
-	
-	for (var i = 0; i < groups.length; i++) {
-	  var group = groups[i];
-	  
-	  $('#navigation_bar').append(
-	    $('<li/>', {
-	      'class': 'nav-bar-group group' + i,
-              html: $('<a/>', {
-		href: '#',
-		text: group.name
-	      })
-	    })
-	  );
-	  
-	}
-
-	jQuery( '.nav-bar-group' )
-	  .click(function() {
-	    changeGroup(this);
-	    return false;
-	  });
-
-	if (groups.length > 0) {
-	  changeToGroup(0);
-	}
-      } else if (err) {
-	if (err.status === 401) {
-	  window.location.replace(url() + '/login.html');
-	}
+  $('#invite_user').editable({
+    value: '',
+    autotext: 'never',
+    emptytext: '',
+    display: false,
+    url: function(params) {
+      var q = new $.Deferred;
+      if(params.value && params.value.trim() === '') {
+        return q.reject('Username is required!');
+      } else {
+	chat.invite(params.value, gps[currentGroup]._id, function(err, success) {
+	  if (err) return q.reject(err);
+	  return q.resolve();
+	});
       }
-    });
+    },
+    success: function(response, newValue) {
+      $('#invite_user').editable('setValue', null)
+        .editable('option', 'pk', null);
+    }
+  });
 
-    chat.profile(function(err, profile) {
-      if (profile) {
-	currentProfile = profile;
-	console.log('Got current profile: ' + JSON.stringify(profile, null, 4));
+  $('#new_group').editable({
+    value: '',
+    autotext: 'never',
+    emptytext: '',
+    display: false,
+    url: function(params) {
+      var q = new $.Deferred;
+      if(params.value && params.value.trim() === '') {
+        return q.reject('Group Name is required!');
+      } else {
+	chat.newGroup(params.value, function(err, group) {
+	  if (!err && group) {
+	    getGroupsAndUpdateUI();
+	    getProfile();
+	    q.resolve();
+	  } else {
+	    q.reject(err);
+	  }
+	});
       }
-    });
+    },
+    success: function(response, newValue) {
+      $('#new_group').editable('setValue', null)
+        .editable('option', 'pk', null);
+    }
+  });
+
+  if (API.isLoggedIn()) {
+    getGroupsAndUpdateUI();
+    getProfile();
   } else {
     window.location.replace(url() + '/login.html');
   }
 });
+
+function getGroupsAndUpdateUI() {
+  API.groups(function(err, groups) {
+    
+    if (!err && groups) {
+      gps = groups;
+
+      $('#group-nav').empty();
+      
+      for (var i = 0; i < groups.length; i++) {
+	var group = groups[i];
+	
+	$('#group-nav').append(
+	  $('<li/>', {
+	    'class': 'nav-bar-group group' + i,
+            html: $('<a/>', {
+	      href: '#',
+	      text: group.name
+	    })
+	  })
+	);
+	
+      }
+
+      jQuery( '.nav-bar-group' )
+	.click(function() {
+	  changeGroup(this);
+	  return false;
+	});
+
+      if (groups.length > 0) {
+	changeToGroup(0);
+      }
+    } else if (err) {
+      if (err.status === 401) {
+//	window.location.replace(url() + '/login.html');
+      }
+    }
+  });
+}
+
+function getProfile() {
+  API.profile(function(err, profile) {
+    if (profile) {
+      currentProfile = profile;
+      console.log('Got current profile: ' + JSON.stringify(profile, null, 4));
+    }
+  });
+}
 
 function sendMessage() {
   
@@ -71,10 +129,8 @@ function sendMessage() {
   var message = messageField.val();
   if (message) {
     messageField.val('');
-    var txt = $("#main_chat");
-    txt.val( txt.val() + "\n" + currentProfile.username + ": " + message);
-    server.send({'from': currentProfile.username, 'text': message, 'groupId' : gps[currentGroup]._id}, gps[currentGroup]._id);  
-    keepToBottom();
+    window.socket.SocketServer.send({'from': currentProfile.username, 'text': message, 'groupId' : gps[currentGroup]._id}, gps[currentGroup]._id);
+    appendMessage(currentProfile.username, message);
   }
 
   Notify.requestPermission();
@@ -91,12 +147,15 @@ function changeToGroup(num) {
   currentGroup = num;
   console.log('Now in Group: ' + gps[currentGroup].name);
 
+  for(var i = 0; i < gps.length; i++) {
+    $('.group' + i).removeClass('active');
+  }
+
+  $('.group' + num).addClass('active');
   $('#group_name').text('Group: ' + gps[currentGroup].name);
 
-  server = new socket.SocketServer(chat.token, function(message) {
-    var txt = $("#main_chat");
-    txt.val( txt.val() + "\n" + message.from + ": " + message.text);
-    keepToBottom();
+  window.socket.SocketServer.addListener('message', function(message) {
+    appendMessage(message.from, message.text);
 
     var messageNotification = new Notify(message.from, {
       body: message.text,
@@ -116,8 +175,14 @@ function changeToGroup(num) {
 	  document.title = document.title === 'Fast Chat' ? '(' + notSeenMessages + ')' + ' - Fast Chat' : 'Fast Chat';
 	}, 1000);
       }
-    }   
+    }
   });
+};
+
+function appendMessage(from, text) {
+  var txt = $("#main_chat");
+  txt.val( txt.val() + "\n" + from + ": " + text);
+  keepToBottom();
 };
 
 function onNotifyShow() {
@@ -133,9 +198,7 @@ function inviteToGroup() {
   var userToInvite = prompt("Invite User: ", "username");
 
   if (userToInvite) {
-    chat.invite(userToInvite, gps[currentGroup]._id, function(err, success) {
-      console.log('Success? ' + success);
-    });
+
   }
 };
 
@@ -145,3 +208,18 @@ function keepToBottom() {
   });
 };
 
+
+function newGroup() {
+  
+  console.log('New Group!');
+
+  var groupName = document.getElementById("input_name").value;
+
+  return false;
+};
+
+function logout() {
+  API.logout(function(err, success) {
+    window.location.replace(url() + '/index.html');
+  });
+};

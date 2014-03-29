@@ -2,8 +2,8 @@ var invites = null;
 
 $(document).ready(function() {
 
-  if (!chat.isLoggedIn()) {
-    showLogIn();
+  if (!API.isLoggedIn()) {
+//    showLogIn();
   } else {
     profile();
   }
@@ -15,7 +15,7 @@ function profile() {
   
   console.log('Getting profile!');
 
-  chat.profile(function(err, profile) {
+  API.profile(function(err, profile) {
     if (err) return;
     setFields(profile);
   });
@@ -68,10 +68,7 @@ function rejectInvite(link) {
 };
 
 function logout() {
-  chat.logout(function(err, success) {
-    console.log('Success: ' + success);
-    chat.token = null;
-    chat.saveToken();
+  API.logout(function(err, success) {
     window.location.replace(url() + '/index.html');
   });
 };

@@ -10,35 +10,37 @@ function url(env) {
   return BASE_URL + ':' + BASE_PORT;
 };
 
-function FastChat(token) {
-  this.token = token;
+
+function API() {
+  this.token = this.getToken();
+
+  if (this.isLoggedIn()) {
+    this.setup();
+  }
+
+  console.log('API TOKEN: ' + this.token);
+
 };
 
-FastChat.prototype = {
+API.prototype = {
 
   isLoggedIn : function() {
+    return this.token;
+  }, //isLoggedIn
 
-    if (chat.token === null || typeof chat.token === 'undefined') {
-      this.getToken();
-      $.ajaxSetup({
-	headers: { 'session-token': chat.token }
-      });
-    }
-
-    console.log('Session Token is: ' + chat.token);
-    console.log('Token: ' + typeof(chat.token));
-    return chat.token;
-  },
+  setup : function() {
+    $.ajaxSetup({
+      headers: { 'session-token': this.token }
+    });
+  }, //setup
   
   // cb(err, success)
   login: function(username, pass, cb) {    
+    var that = this;
     $.post( url()+ '/login', {'username': username, 'password': pass}, function( response ) {
       var token = response['session-token'];
-      chat.token = token;
-      chat.saveToken();
-      $.ajaxSetup({
-	headers: { 'session-token': token }
-      });
+      that.setToken(token);
+      that.setup();
       return cb(null, true);
     }).fail(function(err) {
       cb(err, false);
@@ -47,18 +49,21 @@ FastChat.prototype = {
 
   //cb(err, success)
   logout: function(cb) {
-
     if (this.isLoggedIn()) {
+      var that = this;
       $.ajax({
 	url: url() + '/logout',
 	type: 'DELETE',
 	success: function(response) {
 	  console.log('Delete Resonse: ' + JSON.stringify(response, null, 4));	
+	  that.setToken(null);
+	  that.token = null;
+	  that.setup();
 	  cb(null, true);
 	}
       });
     }
-  },
+  }, //logou
 
 //"user": "test@gmail.com"
   // cb(err, success)
@@ -79,8 +84,8 @@ FastChat.prototype = {
 
     if (this.isLoggedIn()) {
       console.log('Getting groups 2');
-      var jqxhr = $.get(url() + '/group', function( response ) {
-	console.log('Groups: ' + JSON.stringify(response, null, 4));      
+      $.get(url() + '/group', function( response ) {
+	console.log('Groups: ' + JSON.stringify(response, null, 4));  
 	cb(null, response);
       }).fail(function(err) {
 	console.log('Error: ' + JSON.stringify(err, null, 4));
@@ -159,23 +164,26 @@ FastChat.prototype = {
     });
   },
 
-  saveToken : function() {
+  setToken : function(token) {
     if( typeof(Storage) !== 'undefined') {
-      localStorage.setItem("com.fastchat.token", chat.token);
+      localStorage.setItem("com.fastchat.token", token);
     }
+    this.token = token;
   },
 
   getToken: function() {
     if( typeof(Storage) !== 'undefined') {
-      chat.token = localStorage.getItem("com.fastchat.token");
-      if (chat.token === 'null') {
-	chat.token = null;
+      var token = localStorage.getItem("com.fastchat.token");
+      if (token === 'null') {
+	token = null;
       }
-      console.log('Retrieved Token from Local Storage: ' + chat.token);
+      console.log('Retrieved Token from Local Storage: ' + token);
+      return token;
+    } else {
+      return null;
     }
-  },
+  }, // getToken
   
 };
 
-
-chat = new FastChat(null);
+API = new API();
