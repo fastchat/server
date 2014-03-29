@@ -27,7 +27,10 @@ exports.postDevice = function(req, res) {
     return res.send(400, {'error' : 'Type must be "ios" or "android"!'});
   }
 
-  Device.find({'token' : token}, function(err, devices) {
+  Device.find({'token' : token, 'user' : usr._id}, function(err, devices) {
+    console.log('Devices Found with Token: ' + JSON.stringify(devices, null, 4));
+    console.log('Devices Error: ' + err);
+
     if (err || devices.length > 0) return res.json(200, {}); //assume it's already registered
 
     var device = new Device({'token': token,
