@@ -157,14 +157,14 @@ function changeToGroup(num) {
   window.socket.SocketServer.addListener('message', function(message) {
     appendMessage(message.from, message.text);
 
-    var messageNotification = new Notify(message.from, {
-      body: message.text,
-      notifyShow: onNotifyShow,
-      notifyClick: notifClicked
-    });
-    messageNotification.show();
-
     if (isBlurred) {
+      var messageNotification = new Notify(message.from, {
+	body: message.text,
+	notifyShow: onNotifyShow,
+	notifyClick: notifClicked
+      });
+      messageNotification.show();
+
       console.log('IS BLURRED');
       notSeenMessages++;
       console.log('Not Seen: ' + notSeenMessages);
