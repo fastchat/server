@@ -39,6 +39,8 @@ Device.methods.send = function(message) {
   note.alert = message;
   note.payload = {'messageFrom': 'Someone'};
 
+  console.log('FIRING AWAY: ' + JSON.stringify(note, null, 4) + ' TO: ' + this.token);
+
   apnConnection.pushNotification(note, device);
 };
 
