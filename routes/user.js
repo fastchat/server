@@ -9,7 +9,6 @@ var Errors = require('../model/errors');
 // acheive the same functionality.
 exports.loginPOST = function(req, res, next) {
   console.log('Logging in user');
-  console.log('Info: ' + JSON.stringify(req.body, null, 4));
   passport.authenticate('local', function(err, user, info) {
     console.log('Error: ' + err);
     console.log('user: ' + user);
@@ -40,7 +39,6 @@ exports.loginPOST = function(req, res, next) {
 
 // POST /user
 exports.register = function(req, res) {
-  console.log('Body: ' + JSON.stringify(req.body, null, 4));
   User.newUser(req.body.username, req.body.password, function(err, user) {
     console.log('ERROR: ' + JSON.stringify(err, null, 4));
     if(err) {
