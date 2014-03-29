@@ -27,7 +27,7 @@ $(document).ready(function() {
       if(params.value && params.value.trim() === '') {
         return q.reject('Username is required!');
       } else {
-	chat.invite(params.value, gps[currentGroup]._id, function(err, success) {
+	API.invite(params.value, gps[currentGroup]._id, function(err, success) {
 	  if (err) return q.reject(err);
 	  return q.resolve();
 	});
@@ -49,7 +49,7 @@ $(document).ready(function() {
       if(params.value && params.value.trim() === '') {
         return q.reject('Group Name is required!');
       } else {
-	chat.newGroup(params.value, function(err, group) {
+	API.newGroup(params.value, function(err, group) {
 	  if (!err && group) {
 	    getGroupsAndUpdateUI();
 	    getProfile();
