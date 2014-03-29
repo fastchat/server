@@ -17,7 +17,7 @@ exports.postDevice = function(req, res) {
   var usr = req.user;
   var token = req.body.token;
   if (!token) {
-    console.log('Didnt find token: ' + token);
+    console.log('Didnt send Token: ' + token);
     return res.send(400, {'error' : 'You must specify a token to register a device!'});
   }
 
@@ -28,7 +28,7 @@ exports.postDevice = function(req, res) {
   }
 
   Device.find({'token' : token}, function(err, devices) {
-    if (err || devices) return res.json(200, {}); //assume it's already registered
+    if (err || devices.length > 0) return res.json(200, {}); //assume it's already registered
 
     var device = new Device({'token': token,
 			     'type': type,
