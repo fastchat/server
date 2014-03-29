@@ -1,6 +1,7 @@
 var timer = '';
 var isBlurred=false;
 var notSeenMessages = 0;
+var notifications = [];
 
 $(window).on("blur", function() {
   isBlurred = true;
@@ -11,6 +12,12 @@ $(window).on("blur", function() {
   document.title = 'Fast Chat';
   timer = '';
   notSeenMessages = 0;
+
+  for (var i = 0; i < notifications.length; i++) {
+    var note = notifications[i];
+    note.close();
+  }
+  notifications.length = 0;
 });
 
 
@@ -163,6 +170,7 @@ function changeToGroup(num) {
 	notifyShow: onNotifyShow,
 	notifyClick: notifClicked
       });
+      notifications.push(messageNotification);
       messageNotification.show();
 
       console.log('IS BLURRED');
