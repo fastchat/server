@@ -52,7 +52,7 @@ function acceptInvite(link) {
 
   if (invite > -1) {
     console.log('Link Clicked: ' + invite);
-    chat.acceptInvite(invite, function(err, success) {
+    API.acceptInvite(invite, function(err, success) {
       console.log('Success? ' + success);
       if (success) {
 	profile();
