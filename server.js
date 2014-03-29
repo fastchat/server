@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 var http = require('http');
 var io = require('socket.io');
 var config = require('./config');
+var apn = require('apn');
 var ObjectId = require('mongoose').Types.ObjectId; 
 
 ///
@@ -254,4 +255,18 @@ io.on('connection', function (socket) {
     // do something with notifications?
   })
   
+});
+
+
+var options = {
+  "batchFeedback": true,
+  "interval": 300
+};
+
+var feedback = new apn.Feedback(options);
+feedback.on("feedback", function(devices) {
+  devices.forEach(function(item) {
+    console.log('FEEDBACK: ' + JSON.stringify(item, null, 4));
+    // Do something with item.device and item.time;
+  });
 });
