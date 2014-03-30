@@ -21,7 +21,7 @@ function register() {
 	});
       } else {
 	console.log('Did not register!');
-	showError([err.responseJSON.error]);
+	showErrors([err.responseJSON.error]);
       }
     });
   } else {
