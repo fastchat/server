@@ -39,6 +39,14 @@ exports.loginPOST = function(req, res, next) {
 
 // POST /user
 exports.register = function(req, res) {
+  
+  var regexp = /^[a-zA-Z0-9-_.]+$/;
+  var username = req.body.username;
+
+  if (username && username.search(regexp) == -1) {
+    return res.send(400, {'error' : 'Invalid username! Only alphanumeric values are allowed, with -, _, and .'});
+  }
+
   User.newUser(req.body.username, req.body.password, function(err, user) {
     console.log('ERROR: ' + JSON.stringify(err, null, 4));
     if(err) {
