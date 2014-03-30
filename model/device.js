@@ -26,7 +26,7 @@ var Device = new Schema({
  */
 Device.methods.send = function(message) {
   var options = { 
-    'gateway': 'gateway.sandbox.push.apple.com'
+//    'gateway': 'gateway.sandbox.push.apple.com'
   };
 
   var apnConnection = new apn.Connection(options);
