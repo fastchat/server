@@ -202,6 +202,7 @@ function changeToGroup(num) {
       });
       notifications.push(messageNotification);
       messageNotification.show();
+
       setInterval(function() {
 	messageNotification.close();
       }, 3000);
