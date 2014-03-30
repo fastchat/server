@@ -117,8 +117,9 @@ User.methods.generateRandomToken = function (cb) {
 User.methods.push = function(message) {
 
   console.log('Attempting to send to: '+ this.username);
+  var that = this;
   Device.find({ 'user': this._id }, function(err, devices) {
-    console.log('Found Devices for: '+ this.username + ' Devices: ' + JSON.stringify(devices, null, 4));
+    console.log('Found Devices for: '+ that.username + ' Devices: ' + JSON.stringify(devices, null, 4));
     for (var i = 0; i < devices.length; i++) {
       devices[i].send(message.text);
     }
