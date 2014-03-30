@@ -154,12 +154,42 @@ function changeToGroup(num) {
   currentGroup = num;
   console.log('Now in Group: ' + gps[currentGroup].name);
 
+  /// Remove the text
+  $("#main_chat").val("");
+
   for(var i = 0; i < gps.length; i++) {
     $('.group' + i).removeClass('active');
   }
 
   $('.group' + num).addClass('active');
   $('#group_name').text('Group: ' + gps[currentGroup].name);
+
+  currentGroupMembers = {};
+  for (var i = 0; i < gps[currentGroup].members.length; i++) {
+    var aMember = gps[currentGroup].members[i];
+    currentGroupMembers[aMember._id] = aMember.username;
+  }
+
+  API.messages(gps[currentGroup]._id, function(err, messages) {
+
+    function compare(a,b) {
+      if (new Date(a.sent).getTime() < new Date(b.sent).getTime())
+	return -1;
+      if (new Date(a.sent).getTime() > new Date(b.sent).getTime())
+	return 1;
+      return 0;
+    }
+
+    messages.sort(compare);
+    
+    for (var i = 0; i < messages.length; i++) {
+      var mes = messages[i];
+      appendMessage(currentGroupMembers[mes.from], mes.text);
+
+    }
+    
+    console.log('Got messages');
+  });
 
   window.socket.SocketServer.addListener('message', function(message) {
     appendMessage(message.from, message.text);

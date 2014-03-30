@@ -98,6 +98,22 @@ API.prototype = {
 
   }, //group
 
+  //cb(err, messages)
+  messages: function(groupId, cb) {
+    if (this.isLoggedIn()) {
+      $.get(url() + '/group/' + groupId + '/messages', function( response ) {
+	console.log('Messages: ' + JSON.stringify(response, null, 4));  
+	cb(null, response);
+      }).fail(function(err) {
+	console.log('Error: ' + JSON.stringify(err, null, 4));
+	cb(err);
+      });
+
+    } else {
+      cb('You must be logged in!');
+    }
+  },
+
   // cb(err, group)
   newGroup: function(name, cb) {
     

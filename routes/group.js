@@ -4,12 +4,14 @@ var async = require('async');
 var ObjectId = require('mongoose').Types.ObjectId; 
 
 exports.getGroups = function(req, res) {
-  User.fromToken( req.headers['session-token'], function (usr) {
-    Group.find( { 'members' : usr._id }, function(err, groups) {
-      if (err) res.send(500, {'error' : 'string'});
+  var usr = req.user;
+  Group.find( { 'members' : usr._id })
+    .populate('members', 'username')
+    .exec(function(err, groups) {
+      if (err) res.send(500, {'error' : 'There was an error getting groups!'});
       res.send(groups);
-    });    
-  });
+    });
+
 };
 
 exports.createGroup = function(req, res) {
