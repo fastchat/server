@@ -2,6 +2,7 @@ var timer = '';
 var isBlurred=false;
 var notSeenMessages = 0;
 var notifications = [];
+var page = 0;
 
 $(window).on("blur", function() {
   isBlurred = true;
@@ -71,6 +72,38 @@ $(document).ready(function() {
       $('#new_group').editable('setValue', null)
         .editable('option', 'pk', null);
     }
+  });
+
+  $( "#main_chat" ).scroll(function() {
+    if ($("#main_chat").scrollTop() < 20) {
+      page++;
+
+      API.messages(gps[currentGroup]._id, page, function(err, messages) {
+
+	function compare(a,b) {
+	  if (new Date(a.sent).getTime() < new Date(b.sent).getTime())
+	    return -1;
+	  if (new Date(a.sent).getTime() > new Date(b.sent).getTime())
+	    return 1;
+	  return 0;
+	}
+
+	messages.sort(compare);
+	
+//	console.log('WHAT IS THIS: ' + messages);
+	for (var i = messages.length - 1; i > 0; i--) {
+	  console.log('WHAT IS i: ' + i);
+	  var mes = messages[i];
+	  console.log('MESSAGE ' + JSON.stringify(mes, null, 4));
+	  prependMessage(currentGroupMembers[mes.from], mes.text);
+	}
+    
+	console.log('Got messages');
+      });      
+      
+
+    }
+
   });
 
   if (API.isLoggedIn()) {
@@ -170,7 +203,7 @@ function changeToGroup(num) {
     currentGroupMembers[aMember._id] = aMember.username;
   }
 
-  API.messages(gps[currentGroup]._id, function(err, messages) {
+  API.messages(gps[currentGroup]._id, 0, function(err, messages) {
 
     function compare(a,b) {
       if (new Date(a.sent).getTime() < new Date(b.sent).getTime())
@@ -224,6 +257,12 @@ function changeToGroup(num) {
 function appendMessage(from, text) {
   var txt = $("#main_chat");
   txt.val( txt.val() + "\n" + from + ": " + text);
+  keepToBottom();
+};
+
+function prependMessage(from, text) {
+  var txt = $("#main_chat");
+  txt.val( from + ": " + text + "\n" + txt.val());
   keepToBottom();
 };
 

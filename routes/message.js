@@ -1,22 +1,22 @@
 var User = require('../model/user');
-var Group = require('../model/group');
+var Message = require('../model/message');
+var PER_PAGE = 30;
 
 exports.getMessages = function(req, res) {
-  var groupID = req.params.id;
-  User.findOne( {'accessToken': req.headers['session-token'] }, function(err, usr) {
+  var groupId = req.params.id;
 
-    console.log('FOUND USER: ' + JSON.stringify(usr, null, 4));
+  var page = req.query.page;
+  if (!page) page = 0;
+  
+  var usr = req.user;
+  
+  //MyModel.find(query, fields, { skip: 10, limit: 5 }, function(err, results) { ... });
+  Message.find( {group: groupId}, {}, {sort: {sent: -1}, skip: page * PER_PAGE, limit: PER_PAGE}, function(err, messages) {
+    console.log('ERR: ' + err);
     
-    Group.findOne( { '_id': groupID, 'members' : usr._id })
-      .populate('messages')
-      .exec(function (err, group) {
+    if (err) return res.send(404, {error: 'Group not found!'});
 
-	console.log('Grouppppp: ' + JSON.stringify(group, null, 4));
-
-	if (err) return res.send(404, {error: 'Group not found!'});
-
-	res.send(group.messages);
-      });
+    res.send(messages);
   });
 };
 
