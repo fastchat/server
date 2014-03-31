@@ -15,14 +15,15 @@ exports.getGroups = function(req, res) {
 };
 
 exports.createGroup = function(req, res) {
-  User.fromToken( req.headers['session-token'], function (usr) {
-    
-    Group.newGroup(req.body, usr, function(err, group) {
-      if (err) return res.send(400, {error: err});
 
-      res.send(group);	       
-    });
+  var usr = req.user;
+    
+  Group.newGroup(req.body, usr, function(err, group) {
+    if (err) return res.send(400, {error: err});
+
+    res.send(group);
   });
+
 };
 
 exports.deleteGroup = function(req, res) {

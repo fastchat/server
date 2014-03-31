@@ -3,6 +3,7 @@ var mongoose = require('mongoose')
   , bcrypt = require('bcrypt')
   , SALT_WORK_FACTOR = 10;
 var Device = require('./device');
+var Group = require('./group');
 
 /**
  * User Model
@@ -44,7 +45,9 @@ User.pre('save', function(next) {
 
 /*
  * Creates a new user from a username and password.
- * This will create the user and return the user in a callback, or error.
+ * This will create the user and make a default group for them to chat
+ * in (which they can rename or invite someone too), and then it will return
+ * the user.
  *
  * @username The username for the user.
  * @password The password for the user.
@@ -53,11 +56,13 @@ User.pre('save', function(next) {
 User.statics.newUser = function(username, password, cb){  
   var usr = new this({ 'username': username, 'password': password });
   usr.save(function(err) {
-    if(err) {
-      cb(err, null);
-    } else {
+    if (err) return cb(err);
+    
+    Group.newGroup({name: 'Your First Group'}, usr, function(err, group) {
+      if (err) return res.send(400, {error: err});
+
       cb(null, usr);
-    }
+    });
   });
 };
 
