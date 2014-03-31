@@ -35,7 +35,7 @@ Device.methods.send = function(message) {
 
   note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
   note.badge = 1;
-  note.sound = "ping.aiff";
+  note.sound = "sms_alert_hello.caf";
   note.alert = message;
   note.payload = {'messageFrom': 'Someone'};
 
