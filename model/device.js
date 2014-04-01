@@ -1,6 +1,7 @@
 var mongoose = require('mongoose')
   , Schema = mongoose.Schema;
 var apn = require('apn');
+var apnConnection = new apn.Connection({});
 
 /**
  * Holds the information about a device. This is used to be able to run smart
@@ -29,15 +30,15 @@ Device.methods.send = function(message) {
 //    'gateway': 'gateway.sandbox.push.apple.com'
   };
 
-  var apnConnection = new apn.Connection(options);
+//  var apnConnection = new apn.Connection(options);
   var device = new apn.Device(this.token);
   var note = new apn.Notification();
 
   note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
   note.badge = 1;
-  note.sound = "sms_alert_hello.caf";
+  note.sound = "ping.aiff";
   note.alert = message;
-  note.payload = {'messageFrom': 'Someone'};
+//  note.payload = {'messageFrom': 'Someone'};
 
   console.log('FIRING AWAY: ' + JSON.stringify(note, null, 4) + ' TO: ' + this.token);
 

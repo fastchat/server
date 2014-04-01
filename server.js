@@ -6,7 +6,7 @@ var http = require('http');
 var io = require('socket.io');
 var config = require('./config');
 var apn = require('apn');
-var ObjectId = require('mongoose').Types.ObjectId; 
+var ObjectId = require('mongoose').Types.ObjectId;
 
 ///
 /// Models
