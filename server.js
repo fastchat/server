@@ -211,7 +211,6 @@ io.on('connection', function (socket) {
 	if (group) {
 	  group.messages.push(aMessage);
 	  group.save(function(err) {
-
 	  });
 	}
       });
@@ -223,6 +222,13 @@ io.on('connection', function (socket) {
     for (var i = 0; i < clients.length; i++) {
       roomUsers.push(clients[i].handshake.user);
     }
+
+    for (var j = 0; j < roomUsers.length; j++) {
+      if (roomUsers[j]._id.equals(socketUser._id) ) {
+	message.fromUser = roomUsers[j];
+	break;
+      }
+    }   
 
     // Find all users who are in the group
     // Find Users who groups include 'room'
@@ -244,7 +250,6 @@ io.on('connection', function (socket) {
       // SEnd a message to them.
       for (var i = 0; i < usersNotInRoom.length; i++) {
 	var aUserNotInRoom = usersNotInRoom[i];
-	console.log('Number: ' + aUserNotInRoom.unreadCount);
 	aUserNotInRoom.unreadCount++;
 	aUserNotInRoom.push(message);
 	aUserNotInRoom.save();

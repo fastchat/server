@@ -16,7 +16,7 @@ var Group = require('./group');
 var User = new Schema({
   username: {type: String, required: true, unique: true, lowercase: true},
   password: {type: String, required: true},
-  accessToken: {type: String}, //Session Token
+  accessToken: {type: [String], default: []}, //Session Token
   groups: [{type: Schema.Types.ObjectId, ref: 'Group'}],
   invites: [{type: Schema.Types.ObjectId, ref: 'Group'}],
   devices: [{type: Schema.Types.ObjectId, ref: 'Device'}],
@@ -127,7 +127,7 @@ User.methods.push = function(message) {
   Device.find({ 'user': this._id }, function(err, devices) {
     console.log('Found Devices for: '+ that.username + ' Devices: ' + JSON.stringify(devices, null, 4));
     for (var i = 0; i < devices.length; i++) {
-      devices[i].send(message.text, that.unreadCount);
+      devices[i].send(message.fromUser.username + ': ' + message.text, that.unreadCount);
     }
   });
 };

@@ -23,16 +23,12 @@ exports.loginPOST = function(req, res, next) {
       ///
       /// Set session-token to DB, not session
       ///
-      if (!user.accessToken) {
-	user.generateRandomToken(function(token) {
-	  user.set('accessToken', token);
-	  user.save( function(err) {
-	    res.send( {'session-token': user.get('accessToken')} );
-	  });
-	});	
-      } else {
-	res.send( {'session-token': user.get('accessToken')} );
-      }
+      user.generateRandomToken(function(token) {
+	user.accessToken.push(token);
+	user.save( function(err) {
+	  res.send( {'session-token': token} );
+	});
+      });
     });
   })(req, res, next);
 };
@@ -111,8 +107,14 @@ exports.acceptInvite = function(req, res) {
 
 };
 
-exports.logout = function(req, res){
-  req.user.set('accessToken', null);
+exports.logout = function(req, res) {
+  
+  var usr = req.user;
+  var index = usr.accessToken.indexOf(req.headers['session-token']);
+  if (index > -1) {
+    usr.accessToken.splice(index, 1);
+  }
+
   req.user.save(function(err) {
     req.logout();
     res.json(200, {});
