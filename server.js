@@ -244,6 +244,7 @@ io.on('connection', function (socket) {
       // SEnd a message to them.
       for (var i = 0; i < usersNotInRoom.length; i++) {
 	var aUserNotInRoom = usersNotInRoom[i];
+	console.log('Number: ' + aUserNotInRoom.unreadCount);
 	aUserNotInRoom.unreadCount++;
 	aUserNotInRoom.push(message);
 	aUserNotInRoom.save();

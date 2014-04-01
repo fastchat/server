@@ -20,7 +20,7 @@ var User = new Schema({
   groups: [{type: Schema.Types.ObjectId, ref: 'Group'}],
   invites: [{type: Schema.Types.ObjectId, ref: 'Group'}],
   devices: [{type: Schema.Types.ObjectId, ref: 'Device'}],
-  unreadCount: Number
+  unreadCount: {type: Number, default: 0}
 });
 
 /**
