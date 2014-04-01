@@ -25,20 +25,21 @@ var Device = new Schema({
  *
  * @message A string to send to the user in a notification.
  */
-Device.methods.send = function(message) {
+Device.methods.send = function(message, badge, sound) {
   var options = { 
 //    'gateway': 'gateway.sandbox.push.apple.com'
   };
 
-//  var apnConnection = new apn.Connection(options);
+  if (!badge) badge = 0;
+  if (!sound) sound = 'ping.aiff';
+ 
   var device = new apn.Device(this.token);
   var note = new apn.Notification();
 
   note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
-  note.badge = 1;
-  note.sound = "ping.aiff";
+  note.badge = badge;
+  note.sound = sound;
   note.alert = message;
-//  note.payload = {'messageFrom': 'Someone'};
 
   console.log('FIRING AWAY: ' + JSON.stringify(note, null, 4) + ' TO: ' + this.token);
 

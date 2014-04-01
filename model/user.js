@@ -127,7 +127,7 @@ User.methods.push = function(message) {
   Device.find({ 'user': this._id }, function(err, devices) {
     console.log('Found Devices for: '+ that.username + ' Devices: ' + JSON.stringify(devices, null, 4));
     for (var i = 0; i < devices.length; i++) {
-      devices[i].send(message.text);
+      devices[i].send(message.text, that.unreadCount);
     }
   });
 };

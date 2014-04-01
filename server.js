@@ -243,7 +243,10 @@ io.on('connection', function (socket) {
       /// Okay, we have the users not in the room.
       // SEnd a message to them.
       for (var i = 0; i < usersNotInRoom.length; i++) {
-	usersNotInRoom[i].push(message);
+	var aUserNotInRoom = usersNotInRoom[i];
+	aUserNotInRoom.unreadCount++;
+	aUserNotInRoom.push(message);
+	aUserNotInRoom.save();
       }
     });
 
