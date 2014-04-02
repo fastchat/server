@@ -227,6 +227,9 @@ function changeToGroup(num) {
   });
 
   window.socket.SocketServer.addListener('message', function(message) {
+    console.log('Message: ' + JSON.stringify(message, null, 4));
+    console.log('Group: ' + JSON.stringify(gps[currentGroup], null, 4));
+
     if (message.group === gps[currentGroup]._id) {
       appendMessage(message.from, message.text);
     }
