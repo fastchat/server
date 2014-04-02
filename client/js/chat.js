@@ -230,7 +230,7 @@ function changeToGroup(num) {
     console.log('Message: ' + JSON.stringify(message, null, 4));
     console.log('Group: ' + JSON.stringify(gps[currentGroup], null, 4));
 
-    if (message.group === gps[currentGroup]._id) {
+    if (message.groupId === gps[currentGroup]._id) {
       appendMessage(message.from, message.text);
     }
 
