@@ -102,6 +102,22 @@ Returns: 200 OK
 Note:
 Destroys the users session token server side. You need to be logged in to call this.
 
+## Device Token
+
+GET /user/device
+
+Returns:
+The devices that have been registered to that user.
+
+POST /user/device
+{
+	token: '3424424324324adfdsfsd',
+	type: 'ios'
+}
+
+Note:
+'type' can either be 'ios' or 'android'. Anything else returns a 400.
+
 ## Get Groups
 GET /group
 
