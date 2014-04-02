@@ -32,7 +32,8 @@
     "hashish": "0.0.4",
     "passport-localapikey": "0.0.3",
     "async": "0.2.10",
-    "apn": "1.4.4"
+    "apn": "1.4.4",
+    "node-gcm": "0.9.10"
   },
   "devDependencies": {
     "mocha": "1.18.2",

@@ -1,7 +1,10 @@
 var mongoose = require('mongoose')
   , Schema = mongoose.Schema;
 var apn = require('apn');
+var gcm = require('node-gcm');
+
 var apnConnection = new apn.Connection({});
+var sender = new gcm.Sender('AIzaSyCmtVuvS3OlV801Mlq8IJDXOnsOXA502xA');
 
 /**
  * Holds the information about a device. This is used to be able to run smart
@@ -26,24 +29,46 @@ var Device = new Schema({
  * @message A string to send to the user in a notification.
  */
 Device.methods.send = function(message, badge, sound) {
-  var options = { 
-//    'gateway': 'gateway.sandbox.push.apple.com'
-  };
 
-  if (!badge) badge = 0;
-  if (!sound) sound = 'ping.aiff';
- 
-  var device = new apn.Device(this.token);
-  var note = new apn.Notification();
+  if (this.type === 'android') {
 
-  note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
-  note.badge = badge;
-  note.sound = sound;
-  note.alert = message;
+    var message = new gcm.Message({
+      data: {
+        text: message,
+	alert: badge,
+        sound: sound,
+      }
+    });
 
-  console.log('FIRING AWAY: ' + JSON.stringify(note, null, 4) + ' TO: ' + this.token);
+    var registrationIds = [];
+    registrationIds.push(this.token); 
 
-  apnConnection.pushNotification(note, device);
+    console.log('Android Message: ' + JSON.stringify(message, null, 4));
+    
+    sender.send(message, registrationIds, 4, function (err, result) {
+      console.log('GCM: ' + result + ' Err? ' + err);
+    });
+
+  } else {
+    var options = { 
+      //    'gateway': 'gateway.sandbox.push.apple.com'
+    };
+
+    if (!badge) badge = 0;
+    if (!sound) sound = 'ping.aiff';
+    
+    var device = new apn.Device(this.token);
+    var note = new apn.Notification();
+
+    note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
+    note.badge = badge;
+    note.sound = sound;
+    note.alert = message;
+
+    console.log('FIRING AWAY: ' + JSON.stringify(note, null, 4) + ' TO: ' + this.token);
+
+    apnConnection.pushNotification(note, device);
+  }
 };
 
 module.exports = mongoose.model('Device', Device);
