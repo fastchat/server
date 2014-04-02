@@ -227,7 +227,9 @@ function changeToGroup(num) {
   });
 
   window.socket.SocketServer.addListener('message', function(message) {
-    appendMessage(message.from, message.text);
+    if (message.group === gps[currentGroup]._id) {
+      appendMessage(message.from, message.text);
+    }
 
     if (isBlurred) {
       var messageNotification = new Notify(message.from, {
