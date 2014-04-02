@@ -14,6 +14,8 @@ $(window).on("blur", function() {
   timer = '';
   notSeenMessages = 0;
 
+  $("#message").focus();
+
   for (var i = 0; i < notifications.length; i++) {
     var note = notifications[i];
     note.close();
