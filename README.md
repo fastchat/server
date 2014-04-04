@@ -111,15 +111,42 @@ GET /user
 Returns:
 
 {
-  "__v": 0,
-  "username": "MyUserName",
-  "password": "$2a$10$2SWFjLxmWO.0zmGL.BCDEOx2Ul78HWPptEpLnu8Zwgjasw4sgqVNy",
-  "_id": "532f21306bb3656b3e000001",
-  "invites": [],
-  "groups": []
+  "profile": {
+    "__v": 15,
+    "_id": "5330b446a65891c019000001",
+    "password": "$2a$10$H6z.3GE7UEMqXQAufcLSdOpH1eeuRc.wlaWWOcfOQvkol2qSp49K2",
+    "username": "ethan",
+    "unreadCount": 0,
+    "devices": [
+      "53374cd8d92a00cb65000001"
+    ],
+    "invites": [],
+    "groups": [
+      {
+        "_id": "5330b472a65891c019000002",
+        "name": "Ethan Group"
+      },
+      {
+        "_id": "5334a89752ee52933d00001d",
+        "name": "Second Test Group"
+      },
+      {
+        "_id": "5334eda952ee52933d00001f",
+        "name": "Ogame"
+      },
+      {
+        "_id": "5334edfb52ee52933d000020",
+        "name": "Test"
+      }
+    ],
+    "accessToken": [
+      "0140adedc6e9e97e67d811fc3c6e3f627cdbedbd64d2eb11bbb6f29885f04cd78f7be6e318eeeb86a4c5bc7942387344"
+    ]
+  }
 }
 
-The Logged in user
+Returns:
+The currently logged in user.
 
 ## Logout
 DELETE /logout
@@ -134,7 +161,19 @@ Destroys the users session token server side. You need to be logged in to call t
 GET /user/device
 
 Returns:
+
+[
+  {
+    "token": "b96902355946b148ff3910bd4453d96bc3eb104780e227ff830f83a8cfb8228c",
+    "type": "ios",
+    "user": "5330b446a65891c019000001",
+    "_id": "53374cd8d92a00cb65000001",
+    "__v": 0
+  }
+]
+
 The devices that have been registered to that user.
+
 
 POST /user/device
 {
@@ -152,33 +191,91 @@ Returns:
 
 [
   {
-    "__v": 0,
-    "_id": "5325e046c68db1c326000001",
-    "name": "Coolest Group",
-    "invites": [],
-    "messages": [],
+    "__v": 3,
+    "_id": "5334a89752ee52933d00001d",
+    "name": "Second Test Group",
+    "invites": [
+      "53345a8752ee52933d000003",
+      "53345a8752ee52933d000003"
+    ],
+    "messages": [
+      "5336eb810abda2ab55000001"
+    ],
     "members": [
-      "532505565fbd8abe15000001",
-      "53250530271351af15000001"
+      {
+        "_id": "5330b446a65891c019000001",
+        "username": "ethan"
+      }
     ]
   },
   {
-    "__v": 0,
-    "_id": "5325e090f82381db26000001",
-    "name": "Another Group",
+    "__v": 2,
+    "_id": "5334eda952ee52933d00001f",
+    "name": "Ogame",
     "invites": [],
-    "messages": [],
+    "messages": [
+      "5336f3400abda2ab5500000f",
+      "533b22648390664404000001"
+    ],
     "members": [
-      "532505565fbd8abe15000001",
-      "53250530271351af15000001"
+      {
+        "_id": "5330b446a65891c019000001",
+        "username": "ethan"
+      }
+    ]
+  },
+  {
+    "__v": 5,
+    "_id": "5334edfb52ee52933d000020",
+    "name": "Test",
+    "invites": [],
+    "messages": [
+      "533b61aab885c9e606000001",
+      "533b61f14857acf106000001",
+      "533b62188da1b4fa06000001"
+    ],
+    "members": [
+      {
+        "_id": "5330b446a65891c019000001",
+        "username": "ethan"
+      },
+      {
+        "_id": "5338d3a52deb3a4383000002",
+        "username": ".."
+      }
+    ]
+  },
+  {
+    "__v": 122,
+    "_id": "5330b472a65891c019000002",
+    "name": "Ethan Group",
+    "invites": [],
+    "messages": [
+      "53322ce2246c08e72d000001",
+      "53322cf7246c08e72d000002",
+      "533e1395ff9ce8fd23000003",
+      "533e13adff9ce8fd23000004",
+      "533e13b8ff9ce8fd23000005"
+    ],
+    "members": [
+      {
+        "_id": "5330b446a65891c019000001",
+        "username": "ethan"
+      },
+      {
+        "_id": "532f270c232bff8e3f000002",
+        "username": "t1"
+      }
     ]
   }
 ]
 
+
 Returns:
-An array of all the groups you're in.
+An array of all the groups you're in. It also returns the members of the group (id's to usernames), which you can use to map the "from" field you are getting.
 
 ## Create Group
+# CHANGING SOON
 POST /group
 {
 	"name":"group_name",
@@ -189,7 +286,9 @@ Returns:
 200 OK
 
 Note:
-Automatically adds the creator to the group. You don't need to send that user in the invitees array. That array doesn't actually do anythign yet.
+Group Name will soon be optional. It will default to the person's name you are sending it to (and they will see the other name?)
+
+People who are you inviting will be automatically added to the group (the sender is always added). Messages you send will immediatly be delivered to the other parties. You will not need to accept or reject invites.
 
 
 ## Delete Group NOT IMPLEMENTED YET
@@ -213,6 +312,7 @@ silencing notifications for that group. It updates your settings for the group. 
 people to the group (by adjusting the invitees array.)
 
 ## Invite Person to Group
+# Depcrecated
 PUT /group/:id/invite
 
 {
@@ -226,6 +326,7 @@ Note:
 This puts the group's _id in the 'invite' array for each of the user's profiles. They will then have to 'accept' the invite.
 
 ## Remove invite/person from Group NOT IMPLEMENTED YET
+# Depcrecated
 PUT /group/:id/uninvite
 
 {
@@ -235,6 +336,7 @@ PUT /group/:id/uninvite
 returns 200
 
 ## Accept Invitation
+# Depcrecated
 POST /user/accept
 {
 	'invite':1
