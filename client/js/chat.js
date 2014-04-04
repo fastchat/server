@@ -167,7 +167,7 @@ function sendMessage() {
   var message = messageField.val();
   if (message) {
     messageField.val('');
-    window.socket.SocketServer.send({'text': message, 'groupId' : gps[currentGroup]._id});
+    window.socket.SocketServer.send({'text': message, 'group' : gps[currentGroup]._id});
     appendMessage(currentProfile.username, message);
   }
 
