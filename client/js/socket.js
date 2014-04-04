@@ -7,8 +7,7 @@
 
   SocketServer.prototype = {
     
-    send: function(message, groupId) {
-      console.log('Sent Message');
+    send: function(message) {
       this.socket.emit('message', message);
     },
 
