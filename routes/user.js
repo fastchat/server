@@ -110,9 +110,17 @@ exports.acceptInvite = function(req, res) {
 exports.logout = function(req, res) {
   
   var usr = req.user;
-  var index = usr.accessToken.indexOf(req.headers['session-token']);
-  if (index > -1) {
-    usr.accessToken.splice(index, 1);
+
+  var all = req.query.all;
+  var shouldLogoutAll = all === 'true';
+
+  if (shouldLogoutAll) {
+    usr.accessToken.length = 0;
+  } else {
+    var index = usr.accessToken.indexOf(req.headers['session-token']);
+    if (index > -1) {
+      usr.accessToken.splice(index, 1);
+    }
   }
 
   req.user.save(function(err) {
