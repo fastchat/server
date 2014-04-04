@@ -149,12 +149,13 @@ Returns:
 The currently logged in user.
 
 ## Logout
-DELETE /logout
+DELETE /logout[?all=true]
 
 Returns: 200 OK
 
 Note:
-Destroys the users session token server side. You need to be logged in to call this.
+Destroys the users session-tokens server side. You need to be logged in to call this.
+You may pass ?all=true if you want to log out of ALL devices. This will remove ALL session-tokens associated with the user.
 
 ## Device Token
 
