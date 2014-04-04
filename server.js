@@ -190,9 +190,17 @@ io.on('connection', function (socket) {
   }
   socket.emit('connected', 'FastChat');
 
+  socket.on('typing', function(typing) {
+    var room = message.group;
+    var toSend = { 'typing': typing.typing == true };
+    if (socketUser.hasGroup(room)) {
+      socket.broadcast.to(room).emit('typing', toSend);
+    }
+  });
+
   socket.on('message', function(message) {
     console.log('Received Message: ' + JSON.stringify(message, null, 4));
-    var room = message.groupId;
+    var room = message.group;
 
     if (socketUser.hasGroup(room)) {
       var createdMessage = {

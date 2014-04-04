@@ -360,3 +360,88 @@ An array of messages from the group.
 
 Note:
 So far it doesn't actually do anything with the lastMessageDate, and will return all messages regardless.
+
+
+# Socket.io
+
+The instantaneous aspect of Fast Chat is delivered by Socket.io.
+
+## Connection
+
+To connect, you should send the user's session-token in the query field. A typical connection request will look like:
+
+<code>
+{
+  "headers": {
+  "host": "powerful-cliffs-9562.herokuapp.com",
+		"connection": "close",
+    "cache-control": "max-age=0",
+         "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36",
+         "accept": "*/*",
+         "referer": "http://powerful-cliffs-9562.herokuapp.com/chat.html",
+         "accept-encoding": "gzip,deflate,sdch",
+         "accept-language": "en-US,en;q=0.8",
+         "cookie": "connect.sid=s%3AYYX5EA3EeqcjTX1dfQsB26kf.DV3XDMiVmK51PaGp3%2F4LInOYhhZVscCE50NLR8mWIQY; arp_scroll_position=0",
+         "x-request-id": "585b97f9-4893-4cf2-8e3d-908660475c27",
+         "x-forwarded-for": "74.74.239.91",
+         "x-forwarded-proto": "http",
+         "x-forwarded-port": "80",
+         "via": "vegur",
+         "connect-time": "1",
+         "total-route-time": "0",
+         "content-length": "0"
+     },
+     "address": {
+         "address": "10.220.195.127",
+         "port": 60980
+     },
+     "time": "Fri Apr 04 2014 03:43:20 GMT+0000 (UTC)",
+     "query": {
+         "token": "e0edd1af47e27897995bec8b9834292a3a91274dee24ce847fefa480f4c213df7478985b87406f5fb731c9daebadc789",
+         "t": "1396583000894"
+     },
+     "url": "/socket.io/1/?token=e0edd1af47e27897995bec8b9834292a3a91274dee24ce847fefa480f4c213df7478985b87406f5fb731c9daebadc789&t=1396583000894",
+     "xdomain": false,
+     "issued": 1396583000932
+ }
+</code>
+
+## Sending messages
+Socket.io has different ways of communication, but we are using the events functionality. This means the message has a event name, and the data associated with it.
+
+To send a message, the event is called 'messsage'. The associated data should be:
+{
+	"text":"this is my message!",
+	"group": "5330b472a65891c019000002"
+}
+
+Where the group is pointing to the ID of the group.
+
+## Receiving Messages
+When connected to Socket.io, you will recieve messages. They will be sent to the 'message' endpoint, and will be of the format:
+
+{
+	'text': 'Some text!',
+	'from': '39423432942304',
+	'group': '3452532523535',
+	'sent': '2014-04-04T03:17:14.144Z'
+};
+
+Keep in mind that the server fills in the 'from', 'group', 'sent' fields. Sending those fields will do nothing.
+
+## Typing
+Socket.io sends messages when someone is typing, so other users in the conversation can get real time feedback.
+
+To send a typing event, send 'typing'. The data you send will tell others if the user has started or stopped typing.
+
+Is typing:
+{
+	'typing': true
+}
+
+Is no longer typing:
+{
+	'typing': false
+}
+
+Listening on the 'typing' event will let you hear these events.
