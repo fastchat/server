@@ -216,7 +216,7 @@ function changeToGroup(num) {
     }
 
     if (isBlurred) {
-      var messageNotification = new Notify(message.from, {
+      var messageNotification = new Notify(memberLookup[message.from], {
 	body: message.text,
 	notifyShow: onNotifyShow,
 	notifyClick: notifClicked
