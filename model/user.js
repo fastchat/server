@@ -141,6 +141,9 @@ User.methods.push = function(message) {
  * user is in.
  */
 User.methods.hasGroup = function(group) {
+
+  if (!group) return false;
+
   var groupId = group;
   if (typeof(group) === 'string') groupId = new ObjectId(group);
 
