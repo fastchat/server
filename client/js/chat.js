@@ -3,6 +3,7 @@ var isBlurred=false;
 var notSeenMessages = 0;
 var notifications = [];
 var page = 0;
+var memberLookup = {};
 
 $(window).on("blur", function() {
   isBlurred = true;
@@ -81,23 +82,11 @@ $(document).ready(function() {
       page++;
 
       API.messages(gps[currentGroup]._id, page, function(err, messages) {
-
-	function compare(a,b) {
-	  if (new Date(a.sent).getTime() < new Date(b.sent).getTime())
-	    return -1;
-	  if (new Date(a.sent).getTime() > new Date(b.sent).getTime())
-	    return 1;
-	  return 0;
-	}
-
-	messages.sort(compare);
+	var messages = messages.reverse();
 	
-//	console.log('WHAT IS THIS: ' + messages);
 	for (var i = messages.length - 1; i > 0; i--) {
-	  console.log('WHAT IS i: ' + i);
 	  var mes = messages[i];
-	  console.log('MESSAGE ' + JSON.stringify(mes, null, 4));
-	  prependMessage(currentGroupMembers[mes.from], mes.text);
+	  prependMessage(memberLookup[mes.from], mes.text);
 	}
     
 	console.log('Got messages');
@@ -121,6 +110,13 @@ function getGroupsAndUpdateUI() {
     
     if (!err && groups) {
       gps = groups;
+
+      for (var j = 0; j < gps.length; j++) {
+	for (var i = 0; i < gps[j].members.length; i++) {
+	  var aMember = gps[j].members[i];
+	  memberLookup[aMember._id] = aMember.username;
+	}
+      }
 
       $('#group-nav').empty();
       
@@ -199,28 +195,13 @@ function changeToGroup(num) {
   $('.group' + num).addClass('active');
   $('#group_name').text('Group: ' + gps[currentGroup].name);
 
-  currentGroupMembers = {};
-  for (var i = 0; i < gps[currentGroup].members.length; i++) {
-    var aMember = gps[currentGroup].members[i];
-    currentGroupMembers[aMember._id] = aMember.username;
-  }
-
   API.messages(gps[currentGroup]._id, 0, function(err, messages) {
-
-    function compare(a,b) {
-      if (new Date(a.sent).getTime() < new Date(b.sent).getTime())
-	return -1;
-      if (new Date(a.sent).getTime() > new Date(b.sent).getTime())
-	return 1;
-      return 0;
-    }
-
-    messages.sort(compare);
     
+    var messages = messages.reverse();
+
     for (var i = 0; i < messages.length; i++) {
       var mes = messages[i];
-      appendMessage(currentGroupMembers[mes.from], mes.text);
-
+      appendMessage(memberLookup[mes.from], mes.text);
     }
     
     console.log('Got messages');
@@ -230,8 +211,8 @@ function changeToGroup(num) {
     console.log('Message: ' + JSON.stringify(message, null, 4));
     console.log('Group: ' + JSON.stringify(gps[currentGroup], null, 4));
 
-    if (message.groupId === gps[currentGroup]._id) {
-      appendMessage(message.from, message.text);
+    if (message.group === gps[currentGroup]._id) {
+      appendMessage(memberLookup[message.from], message.text);
     }
 
     if (isBlurred) {
@@ -268,9 +249,12 @@ function appendMessage(from, text) {
 };
 
 function prependMessage(from, text) {
+  var currentHeight = $('#main_chat')[0].scrollHeight;
+
   var txt = $("#main_chat");
   txt.val( from + ": " + text + "\n" + txt.val());
-  keepToBottom();
+
+  $('#main_chat').scrollTop(currentHeight);
 };
 
 function onNotifyShow() {
