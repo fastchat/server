@@ -436,12 +436,14 @@ To send a typing event, send 'typing'. The data you send will tell others if the
 
 Is typing:
 {
-	'typing': true
+	'typing': true,
+	'from' : '5525239423'
 }
 
 Is no longer typing:
 {
-	'typing': false
+	'typing': false,
+	'from' : '5525239423'
 }
 
 Listening on the 'typing' event will let you hear these events.
