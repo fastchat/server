@@ -1,3 +1,30 @@
+# New Version
+
+You no longer will need to "accept" an invite to be put into a group.
+You can awlays leave the group, or block the user, or silence notifications.
+
+Soooo, to faciliate this, we will have users upload their contacts to the server to find their friends using Fast Chat. This will take their names, phone numbers, and emails and save them. Then it will look through the database for matches on their phone number or emails, and return the users who are on the server.
+
+They type in "Mike" and it shows the mike's who are using our app first that they have in their contacts, and then the mike's who are not using in our system below that. If they select any of them (via phone number or email), we'll send them a text/email asking to join fast chat.
+
+Let's assume they select Mike that's in our system, known as "mike". They they send a message to Mike.
+
+This will automatically:
+1. Create a new group and add the user "ethan" and "mike" to it.
+2. It will Send the message to all participants in the group - but since "mike" is not in the group yet (he's not looking at it), he'll get a push notification.
+3. The conversation will continue as usual at this point
+
+## To Change
+
+This means, when you create a new group, you can optionally send some text along with the POST request (your first message, with images, etc), and it will create the group and then send the message to it.
+
+This will send out pushes to anyone in it, and send a text/email notification to those people not in it.
+
+This isn't that big a change really. Fix the other shit first.
+
+
+
+
 # About
 
 This is the server. It's written in Node.js for fast concurrency. It can handle 10 users at once.

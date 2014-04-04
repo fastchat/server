@@ -188,73 +188,81 @@ io.on('connection', function (socket) {
   for (var i = 0; i < socketUser.groups.length; i++) {
     socket.join(socketUser.groups[i]); //Group ID
   }
-  socket.emit('ready', 'To go');
+  socket.emit('connected', 'FastChat');
 
   socket.on('message', function(message) {
     console.log('Received Message: ' + JSON.stringify(message, null, 4));
     var room = message.groupId;
 
-    socket.broadcast.to(room).emit('message', message) //emit to 'room' except this socket
+    if (socketUser.hasGroup(room)) {
+      var createdMessage = {
+	text: message.text,
+	from: socketUser._id,
+	group: room,
+	sent: new Date()
+      };
 
-    //fix this so you can't add to groups you don't know of
+      socket.broadcast.to(room).emit('message', createdMessage);
 
-    ///
-    /// Make a new message and add it to the group
-    ///
-    var aMessage = new Message({'from' : socketUser._id,
-				'group': new ObjectId(room),
-				'text' : message.text,
-				'sent' : new Date()
-			       });
-    aMessage.save(function(err) {
-      Group.findOne({'_id' : room}, function(err, group) {
-	if (group) {
-	  group.messages.push(aMessage);
-	  group.save(function(err) {
-	  });
+      ///
+      /// Make a new message and add it to the group
+      ///
+      var aMessage = new Message({'from' : socketUser._id,
+				  'group': new ObjectId(room),
+				  'text' : message.text,
+				  'sent' : new Date()
+				 });
+
+      aMessage.save(function(err) {
+	Group.findOne({'_id' : room}, function(err, group) {
+	  if (group) {
+	    group.messages.push(aMessage);
+	    group.save();
+	  }
+	});
+      });
+
+
+      var clients = io.sockets.clients(room);
+      var roomUsers = [];
+      for (var i = 0; i < clients.length; i++) {
+	roomUsers.push(clients[i].handshake.user);
+      }
+
+      for (var j = 0; j < roomUsers.length; j++) {
+	if (roomUsers[j]._id.equals(socketUser._id) ) {
+	  message.fromUser = roomUsers[j];
+	  break;
+	}
+      }   
+
+      // Find all users who are in the group
+      // Find Users who groups include 'room'
+      User.find({groups: { $in : [room] } }, function(err, users) {
+
+	var usersNotInRoom = [];
+	for (var i = 0; i < users.length; i++) {
+	  var foundUser = false;
+	  for (var j = 0; j < roomUsers.length; j++) {
+	    if (roomUsers[j]._id.equals(users[i]._id)) {
+	      foundUser = true;
+	    }
+	  }
+	  if (!foundUser) usersNotInRoom.push(users[i]);
+	}
+
+	console.log('users NOT in room: ' + JSON.stringify(usersNotInRoom, null, 4));
+	/// Okay, we have the users not in the room.
+	// SEnd a message to them.
+	for (var i = 0; i < usersNotInRoom.length; i++) {
+	  var aUserNotInRoom = usersNotInRoom[i];
+	  aUserNotInRoom.unreadCount++;
+	  aUserNotInRoom.push(message);
+	  aUserNotInRoom.save();
 	}
       });
-    });
 
-
-    var clients = io.sockets.clients(room);
-    var roomUsers = [];
-    for (var i = 0; i < clients.length; i++) {
-      roomUsers.push(clients[i].handshake.user);
     }
-
-    for (var j = 0; j < roomUsers.length; j++) {
-      if (roomUsers[j]._id.equals(socketUser._id) ) {
-	message.fromUser = roomUsers[j];
-	break;
-      }
-    }   
-
-    // Find all users who are in the group
-    // Find Users who groups include 'room'
-    User.find({groups: { $in : [room] } }, function(err, users) {
-
-      var usersNotInRoom = [];
-      for (var i = 0; i < users.length; i++) {
-	var foundUser = false;
-	for (var j = 0; j < roomUsers.length; j++) {
-	  if (roomUsers[j]._id.equals(users[i]._id)) {
-	    foundUser = true;
-	  }
-	}
-	if (!foundUser) usersNotInRoom.push(users[i]);
-      }
-
-      console.log('users NOT in room: ' + JSON.stringify(usersNotInRoom, null, 4));
-      /// Okay, we have the users not in the room.
-      // SEnd a message to them.
-      for (var i = 0; i < usersNotInRoom.length; i++) {
-	var aUserNotInRoom = usersNotInRoom[i];
-	aUserNotInRoom.unreadCount++;
-	aUserNotInRoom.push(message);
-	aUserNotInRoom.save();
-      }
-    });
 
   });
 

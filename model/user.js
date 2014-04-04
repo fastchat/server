@@ -4,6 +4,7 @@ var mongoose = require('mongoose')
   , SALT_WORK_FACTOR = 10;
 var Device = require('./device');
 var Group = require('./group');
+var ObjectId = require('mongoose').Types.ObjectId;
 
 /**
  * User Model
@@ -130,6 +131,25 @@ User.methods.push = function(message) {
       devices[i].send(message.fromUser.username + ': ' + message.text, that.unreadCount);
     }
   });
+};
+
+/**
+ * A convenience method that will return if the user is in the group
+ * requested.
+ *
+ * @group The group as a String or ObjectId that you want to see if the
+ * user is in.
+ */
+User.methods.hasGroup = function(group) {
+  var groupId = group;
+  if (typeof(group) === 'string') groupId = new ObjectId(group);
+
+  for (var i = 0; i < this.groups.length; i++) {
+    if ( this.groups[i].equals(groupId) ) {
+      return true;
+    }
+  }
+  return false;
 };
 
 module.exports = mongoose.model('User', User);
