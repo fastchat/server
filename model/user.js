@@ -141,11 +141,16 @@ User.methods.push = function(message) {
  * user is in.
  */
 User.methods.hasGroup = function(group) {
-
   if (!group) return false;
 
   var groupId = group;
-  if (typeof(group) === 'string') groupId = new ObjectId(group);
+  if (typeof(group) === 'string') {
+    try {
+      groupId = new ObjectId(group);
+    } catch (err) {
+      return false;
+    }
+  }
 
   for (var i = 0; i < this.groups.length; i++) {
     if ( this.groups[i].equals(groupId) ) {
