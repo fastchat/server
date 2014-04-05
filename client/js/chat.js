@@ -28,6 +28,10 @@ $(window).on("blur", function() {
 
 $(document).ready(function() {
 
+  window.socket.SocketServer.addListener('new_group', function(group) {
+    console.log('NEW GROUP MESSAGE: ' + JSON.stringify(group, null, 4));
+  });
+
   $('#invite_user').editable({
     value: '',
     autotext: 'never',
@@ -98,14 +102,29 @@ $(document).ready(function() {
   });
 
   if (API.isLoggedIn()) {
-    getGroupsAndUpdateUI();
-    getProfile();
+    getProfile(function() {
+      getGroupsAndUpdateUI();
+    });
   } else {
     window.location.replace(url() + '/login.html');
   }
 });
 
-function getGroupsAndUpdateUI() {
+function groupName(members) {
+  var name = '';
+  members.forEach(function(user) {
+    if (user._id !== currentProfile._id) {
+      name += user.username + ', ';
+    }
+  });
+
+  if (name.length > 2) {
+    return name.substr(0, name.length - 2);
+  }
+  return name;
+};
+
+function getGroupsAndUpdateUI(cb) {
   API.groups(function(err, groups) {
     
     if (!err && groups) {
@@ -123,6 +142,12 @@ function getGroupsAndUpdateUI() {
       for (var i = 0; i < groups.length; i++) {
 	var group = groups[i];
 	
+	if (!group.name) {
+	  group.name = groupName(group.members);
+	}
+
+	console.log('USING NAME: ' + group.name);
+
 	$('#group-nav').append(
 	  $('<li/>', {
 	    'class': 'nav-bar-group group' + i,
@@ -144,6 +169,10 @@ function getGroupsAndUpdateUI() {
       if (groups.length > 0) {
 	changeToGroup(0);
       }
+      
+      if (cb) {
+	cb();
+      }
     } else if (err) {
       if (err.status === 401) {
 //	window.location.replace(url() + '/login.html');
@@ -152,11 +181,12 @@ function getGroupsAndUpdateUI() {
   });
 }
 
-function getProfile() {
+function getProfile(cb) {
   API.profile(function(err, profile) {
     if (profile) {
       currentProfile = profile;
       console.log('Got current profile: ' + JSON.stringify(profile, null, 4));
+      cb();
     }
   });
 }

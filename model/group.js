@@ -11,8 +11,8 @@ var mongoose = require('mongoose')
  */
 var Group = new Schema({
   members : [{ type: Schema.Types.ObjectId, ref: 'User' }],
-  messages : [{type: Schema.Types.ObjectId, ref: 'Message'}],
-  name : String,
+  messages : {type: [Schema.Types.ObjectId], ref: 'Message', default: []},
+  name : {type: String, default: ''},
   invites : [{type: Schema.Types.ObjectId, ref: 'User'}]
 });
 
@@ -26,16 +26,20 @@ var Group = new Schema({
  * @user The user who creates the group. He is added to the group by default.
  * @cb Callback(Error, Group)
  */
-Group.statics.newGroup = function(data, user, cb) {  
-  var options = Hash.merge({name: 'New Group', members: [user._id], messages: []}, data || {});
-  var group = new this(options);
+Group.statics.newGroup = function(data, cb) {
+
+  var members = data.members;
+
+  var group = new this(data);
   group.save(function(groupErr) {
     if (groupErr) return cb(groupErr);
 
-    user.groups.push(group._id);
-    user.save(function(userErr) {
-      cb(userErr, group);
+    members.forEach(function(user) {
+      user.groups.push(group._id);
+      user.save();
     });
+    
+    cb(null, group);
   });
 };
 

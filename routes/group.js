@@ -1,7 +1,9 @@
 var User = require('../model/user');
 var Group = require('../model/group');
+var Message = require('../model/message');
 var async = require('async');
 var ObjectId = require('mongoose').Types.ObjectId; 
+var io = require('../socket');
 
 exports.getGroups = function(req, res) {
   var usr = req.user;
@@ -15,15 +17,87 @@ exports.getGroups = function(req, res) {
 };
 
 exports.createGroup = function(req, res) {
-
   var usr = req.user;
-    
-  Group.newGroup(req.body, usr, function(err, group) {
-    if (err) return res.send(400, {error: err});
 
-    res.send(group);
+  console.log('BODY: ' + JSON.stringify(req.body, null, 4));
+  
+  var members = req.body.members;
+  if (!members || !(members instanceof Array) || members.length == 0) {
+    return res.send(400, {'error': 'The "members" value must be a valid array of length 1!'});
+  }
+
+  var message = req.body.text;
+  if (!message) {
+    return res.send(400, {'error': 'You must send a message with the new group!'});
+  }
+
+
+  var cb = function(err, group) {
+    if (err) return res.send(400, {'error': err});
+    res.send(201, group);
+  };
+
+  var name = req.body.name;
+
+  User.find({'username': { $in: members } }, function(err, users) {
+    if (err || users.length == 0) {
+      return res.send(400, {'error': 'No users were found with those usernames!'});
+    }
+
+    var otherMembers = [];
+    users.forEach(function(user) {
+      if (!user._id.equals(usr._id)) {
+	otherMembers.push(user);
+      }
+    });
+
+    newGroup(name, otherMembers, message, usr, cb);
   });
 
+};
+
+function newGroup(groupName, members, message, creator, cb) {
+
+  members.push(creator);
+
+  Group.newGroup({'name': groupName, 'members': members}, function(err, group) {
+    if (err) return cb(err);
+    
+    var aMessage = new Message({'from' : creator._id,
+				'group': group._id,
+				'text' : message,
+				'sent' : new Date()
+			       });
+
+    aMessage.save(function(err) {
+      group.messages.push(aMessage._id);
+      group.save();
+
+      ///
+      /// Emit a new message to socket users
+      ///
+      var usersNotOn = [];
+      members.forEach(function(user) {
+	if ( !user._id.equals(creator._id) ) { //Don't emit to creator
+	  var socket = io.socketForId(user._id);
+	  if (socket) {
+	    socket.emit('new_group', group);
+	  } else {
+	    usersNotOn.push(user);
+	  }
+	}
+      });
+
+      aMessage.fromUser = creator;
+      usersNotOn.forEach(function(user) {
+	user.push(aMessage);
+      });
+
+
+      cb(null, group);
+    });
+    
+  });
 };
 
 exports.deleteGroup = function(req, res) {

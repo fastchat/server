@@ -4,9 +4,10 @@ var User = require('./model/user');
 var Message = require('./model/message');
 var Group = require('./model/group');
 
+var sockets = {};
+
 exports.setup = function(server) {
   io = io.listen(server, {origins: '*:*'});
-
 
   ///
   /// Setup Socket IO
@@ -40,9 +41,13 @@ exports.setup = function(server) {
   io.on('connection', function (socket) {
 
     var socketUser = socket.handshake.user;
-    for (var i = 0; i < socketUser.groups.length; i++) {
-      socket.join(socketUser.groups[i]); //Group ID
-    }
+
+    sockets[socketUser._id] = socket;
+
+    socketUser.groups.forEach(function(group) {
+      socket.join(group);
+    });
+
     socket.emit('connected', 'FastChat');
 
     socket.on('typing', function(typing) {
@@ -58,46 +63,45 @@ exports.setup = function(server) {
       var room = message.group;
 
       if (socketUser.hasGroup(room)) {
-	var createdMessage = {
-	  text: message.text,
-	  from: socketUser._id,
-	  group: room,
-	  sent: new Date()
-	};
-
-	socket.broadcast.to(room).emit('message', createdMessage);
-
 	///
 	/// Make a new message and add it to the group
 	///
-	var aMessage = new Message({'from' : socketUser._id,
-				    'group': new ObjectId(room),
-				    'text' : message.text,
-				    'sent' : new Date()
-				   });
+	var mes = new Message({'from' : socketUser._id,
+			       'group': new ObjectId(room),
+			       'text' : message.text,
+			       'sent' : new Date()
+			      });
+	
+	///
+	/// Broadcast the message to everyone in the group instantly
+	///
+	socket.broadcast.to(room).emit('message', mes);
 
-	aMessage.save(function(err) {
+	///
+	/// Save the object we have, and add it to the group
+	///
+	mes.save(function(err) {
 	  Group.findOne({'_id' : room}, function(err, group) {
 	    if (group) {
-	      group.messages.push(aMessage);
+	      group.messages.push(mes);
 	      group.save();
 	    }
 	  });
 	});
 
+	///
+	/// Add a temporary property 'fromUser' with the actual user object.
+	///
+	mes.fromUser = socketUser;
 
+	///
+	/// Let's send some notifications to all people not in the room.
+	///
 	var clients = io.sockets.clients(room);
-	var roomUsers = [];
-	for (var i = 0; i < clients.length; i++) {
-	  roomUsers.push(clients[i].handshake.user);
-	}
-
-	for (var j = 0; j < roomUsers.length; j++) {
-	  if (roomUsers[j]._id.equals(socketUser._id) ) {
-	    message.fromUser = roomUsers[j];
-	    break;
-	  }
-	}   
+	var roomUsers = []; //all currently in the room
+	clients.forEach(function(client) {
+	  roomUsers.push(client.handshake.user);
+	});
 
 	// Find all users who are in the group
 	// Find Users who groups include 'room'
@@ -109,35 +113,39 @@ exports.setup = function(server) {
 	    for (var j = 0; j < roomUsers.length; j++) {
 	      if (roomUsers[j]._id.equals(users[i]._id)) {
 		foundUser = true;
+		break;
 	      }
 	    }
 	    if (!foundUser) usersNotInRoom.push(users[i]);
 	  }
 
 	  console.log('users NOT in room: ' + JSON.stringify(usersNotInRoom, null, 4));
-	  /// Okay, we have the users not in the room.
-	  // SEnd a message to them.
-	  for (var i = 0; i < usersNotInRoom.length; i++) {
-	    var aUserNotInRoom = usersNotInRoom[i];
-	    aUserNotInRoom.unreadCount++;
-	    aUserNotInRoom.push(message);
-	    aUserNotInRoom.save();
-	  }
-	});
 
-      }
+	  ///
+	  /// Okay, we have the users not in the room. Send a message to them.
+	  ///
+	  usersNotInRoom.forEach(function(user) {
+	    user.unreadCount++;
+	    user.push(mes);
+	    user.save();
+	  }); //usersNotinroom
+	}); //Find all users in group
 
-    });
+      } //If has group
 
-    
+    }); //On message
+
 
     socket.on('disconnect', function() {
-      // do something with notifications?
-    })
-    
-  });
+      delete sockets[socketUser._id];
+    });
 
 
+  }); //end on Socket.io connection
 
+};
 
+// this is an actual objectId
+exports.socketForId = function(userId) {
+  return sockets[userId];
 };
