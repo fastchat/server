@@ -59,12 +59,8 @@ User.statics.newUser = function(username, password, cb){
   var usr = new this({ 'username': username, 'password': password });
   usr.save(function(err) {
     if (err) return cb(err);
-    
-    Group.newGroup({name: 'Your First Group'}, usr, function(err, group) {
-      if (err) return res.send(400, {error: err});
 
-      cb(null, usr);
-    });
+    cb(null, usr);
   });
 };
 
