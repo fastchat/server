@@ -38,6 +38,7 @@ exports.postDevice = function(req, res) {
 	//update the session-token associated with it.
 	device.accessToken = req.headers['session-token'];
 	device.active = true;
+	device.loggedIn = true;
 	device.save();
       });
 
