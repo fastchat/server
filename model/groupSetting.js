@@ -6,9 +6,8 @@ var GroupSetting = new Schema({
   group: {type: Schema.Types.ObjectId, ref: 'Group'},
   lastRead: {type: Schema.Types.ObjectId, ref: 'Message'},
   notifications: {type: Boolean, default: true},
-  unread: {type: Number, default: 0},
-  deleted: {type: Boolean, default: false},
-  blocked: {type: Boolean, default: false}
+  left: {type: Boolean, default: false},
+  unread: {type: Number, default: 0}
 });
 
 

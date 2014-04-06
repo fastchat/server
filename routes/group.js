@@ -4,15 +4,36 @@ var Message = require('../model/message');
 var async = require('async');
 var ObjectId = require('mongoose').Types.ObjectId; 
 var io = require('../socket');
+var GroupSetting = require('../model/groupSetting');
 
 exports.getGroups = function(req, res) {
   var usr = req.user;
-  Group.find( { 'members' : usr._id })
-    .populate('members', 'username')
-    .exec(function(err, groups) {
-      if (err) res.send(500, {'error' : 'There was an error getting groups!'});
-      res.send(groups);
-    });
+
+  GroupSetting.find({'user': usr._id}, function(err, gses) {
+    Group.find( { 'members' : usr._id })
+      .populate('members', 'username')
+      .exec(function(err, groups) {
+	if (err) res.send(500, {'error' : 'There was an error getting groups!'});
+
+	gses.forEach(function(gs) {
+	  if (gs.deleted) {
+	    var index = -1;
+	    for (var i = 0; i < groups.length; i++) {
+	      var g = groups[i];
+	      if (g._id.equals(gs.group)) {
+		index  = i;
+		break;
+	      }
+	    }
+	    if (index > -1) {
+	      groups.splice(index, 1);
+	    }
+	  }
+	});
+
+	res.send(groups);
+      });
+  });
 
 };
 
@@ -100,7 +121,85 @@ function newGroup(groupName, members, message, creator, cb) {
   });
 };
 
-exports.deleteGroup = function(req, res) {
+// PUT /group/:id/leave
+exports.leaveGroup = function(req, res) {
+
+  var groupId = null;
+  try {
+    groupId = new ObjectId(req.params.id);
+  } catch (err) {
+    return res.send(400, {'error':'Group ID is not a valid ID!'});
+  }
+
+  var user = req.user;
+
+  // To leave a group, we must:
+  // put them in the leftMembers array in the group
+  // remove them from the members array in the group
+  // add the group to leftGroups in the profile
+  // remove the group from groups in the profile
+  // change the groupSetting flag to 'left'
+
+  Group.findOne( { _id : groupId }, function(err, group) {
+    if (group) {
+      console.log('Finding: ' + JSON.stringify(user._id, null, 4));
+      console.log('In: ' + JSON.stringify(group, null, 4));
+      var index = group.members.indexOfEquals(user._id);
+      console.log('Index1: ' + index);
+      if (index > -1) { //The member is in the group
+
+	async.parallel([
+	  function(callback) {
+	    // update group
+	    group.members.splice(index, 1);
+	    group.leftMembers.push(user._id);
+	    group.save(function(err) {
+	      callback(err);
+	    });
+	  },
+	  function(callback){
+	    // Update profile
+	    var groupIndex = user.groups.indexOfEquals(groupId);
+	    console.log('Index2: ' + groupIndex);
+	    if (groupIndex > -1) {
+	      user.groups.splice(groupIndex, 1);
+	      user.leftGroups.push(groupId);
+	      user.save(function(err) {
+		callback(err);
+	      });
+	    } else {
+	      callback();
+	    }
+	  },
+	  function(callback){
+	    // Update Group Setting
+	    GroupSetting.findOne({'user': user._id, 'group': groupId}, function(err, gs) {
+	      console.log('GS: ' + JSON.stringify(gs, null, 4));
+	      if (gs) {
+		gs.left = true;
+		gs.save(function(err) {
+		  callback(err);
+		});
+	      } else {
+		callback();
+	      }
+	    });
+	  },
+	],
+	// optional callback
+	function(err, results) {
+	  if (err) return res.send(400, {'error':err});
+
+	  res.send(200, {});
+	});
+
+      } else { //Member is not in this group
+	return res.send(404, {'error':'Group not found!'});
+      }
+    } else {
+      return res.send(404, {'error':'Group not found!'});
+    }
+  });
 
 };
 

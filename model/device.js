@@ -75,7 +75,7 @@ Device.methods.send = function(message, badge, sound) {
     note.sound = sound;
     note.alert = message;
     if (!message) {
-      note.payload = {'content-available': 1};
+      note.setContentAvailable(true);
     }
 
     console.log('FIRING AWAY: ' + JSON.stringify(note, null, 4) + ' TO: ' + this.token);

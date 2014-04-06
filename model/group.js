@@ -12,8 +12,9 @@ var GroupSetting = require('./groupSetting');
  */
 var Group = new Schema({
   members : [{ type: Schema.Types.ObjectId, ref: 'User' }],
-  messages : {type: [Schema.Types.ObjectId], ref: 'Message', default: []},
-  name : {type: String, default: ''}
+  leftMembers : [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
+  messages : [{type: Schema.Types.ObjectId, ref: 'Message', default: [] }],
+  name : {type: String, default: null}
 });
 
 

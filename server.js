@@ -6,6 +6,7 @@ var http = require('http');
 var config = require('./config');
 var apn = require('apn');
 var ObjectId = require('mongoose').Types.ObjectId;
+var helpers = require('./helpers');
 
 ///
 /// Models
@@ -115,6 +116,7 @@ app.post('/user/accept', ensureAuthenticated, userRoutes.acceptInvite);
 app.get('/group', ensureAuthenticated, groupRoutes.getGroups);
 app.post('/group', ensureAuthenticated, groupRoutes.createGroup);
 app.get('/group/:id/messages', ensureAuthenticated, messageRoutes.getMessages);
+app.put('/group/:id/leave', ensureAuthenticated, groupRoutes.leaveGroup);
 app.put('/group/:id/invite', ensureAuthenticated, groupRoutes.invite);
 app.put('/group/:id/uninvite', ensureAuthenticated, groupRoutes.uninvite);
 
