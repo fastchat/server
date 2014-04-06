@@ -10,26 +10,10 @@ exports.getGroups = function(req, res) {
   var usr = req.user;
 
   GroupSetting.find({'user': usr._id}, function(err, gses) {
-    Group.find( { 'members' : usr._id })
+    Group.find( { 'members' : usr._id }, '_id members leftMembers name')
       .populate('members', 'username')
       .exec(function(err, groups) {
 	if (err) res.send(500, {'error' : 'There was an error getting groups!'});
-
-	gses.forEach(function(gs) {
-	  if (gs.deleted) {
-	    var index = -1;
-	    for (var i = 0; i < groups.length; i++) {
-	      var g = groups[i];
-	      if (g._id.equals(gs.group)) {
-		index  = i;
-		break;
-	      }
-	    }
-	    if (index > -1) {
-	      groups.splice(index, 1);
-	    }
-	  }
-	});
 
 	res.send(groups);
       });
@@ -138,7 +122,6 @@ exports.leaveGroup = function(req, res) {
   // remove them from the members array in the group
   // add the group to leftGroups in the profile
   // remove the group from groups in the profile
-  // change the groupSetting flag to 'left'
 
   Group.findOne( { _id : groupId }, function(err, group) {
     if (group) {
@@ -170,20 +153,6 @@ exports.leaveGroup = function(req, res) {
 	    } else {
 	      callback();
 	    }
-	  },
-	  function(callback){
-	    // Update Group Setting
-	    GroupSetting.findOne({'user': user._id, 'group': groupId}, function(err, gs) {
-	      console.log('GS: ' + JSON.stringify(gs, null, 4));
-	      if (gs) {
-		gs.left = true;
-		gs.save(function(err) {
-		  callback(err);
-		});
-	      } else {
-		callback();
-	      }
-	    });
 	  },
 	],
 	// optional callback

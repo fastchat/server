@@ -148,7 +148,7 @@ User.methods.pushSilent = function(unread) {
 
   Device.find({ 'user': this._id }, function(err, devices) {
     devices.forEach(function(device) {
-      device.send(null, unread, '');
+      device.send(null, unread, 0);
     });
   });
 };
