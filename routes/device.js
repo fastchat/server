@@ -30,12 +30,24 @@ exports.postDevice = function(req, res) {
   Device.find({'token' : token, 'user' : usr._id}, function(err, devices) {
     console.log('Devices Found with Token: ' + JSON.stringify(devices, null, 4));
     console.log('Devices Error: ' + err);
+    if (err) return res.json(200, {});
 
-    if (err || devices.length > 0) return res.json(200, {}); //assume it's already registered
+    if (devices.length > 0) {
+      
+      devices.forEach(function(device) {
+	//update the session-token associated with it.
+	device.accessToken = req.headers['session-token'];
+	device.active = true;
+	device.save();
+      });
+
+      return res.json(200, {});
+    }
 
     var device = new Device({'token': token,
 			     'type': type,
-			     'user': usr._id
+			     'user': usr._id,
+			     'accessToken': req.headers['session-token']
 			    });
     device.save(function(err) {
       if (!err) {

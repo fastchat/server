@@ -16,6 +16,9 @@ var sender = new gcm.Sender('AIzaSyCmtVuvS3OlV801Mlq8IJDXOnsOXA502xA');
  */
 var Device = new Schema({
   user: {type: Schema.Types.ObjectId, ref: 'User'},
+  accessToken: {type: String, default: ''},
+  loggedIn: {type: Boolean, default: true},
+  active: {type: Boolean, default: true},
   token: String,
   type: String,
   lastActiveDate: Date,
@@ -29,6 +32,7 @@ var Device = new Schema({
  * @message A string to send to the user in a notification.
  */
 Device.methods.send = function(message, badge, sound) {
+  if (!this.active || !this.loggedIn) return;
 
   if (this.type === 'android') {
 

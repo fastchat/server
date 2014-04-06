@@ -3,6 +3,7 @@ var Group = require('../model/group');
 var passport = require('passport');
 var ObjectId = require('mongoose').Types.ObjectId; 
 var Errors = require('../model/errors');
+var Device = require('../model/device');
 
 // POST /login
 // This is an alternative implementation that uses a custom callback to
@@ -112,18 +113,30 @@ exports.logout = function(req, res) {
   var user = req.user;
   var shouldLogoutAll = req.query.all === 'true';
 
+  var tokens = [];
   if (shouldLogoutAll) {
-    user.accessToken.splice(0, req.user.accessToken.length);
+    tokens = tokens.concat(user.accessToken);
+    user.accessToken.splice(0, user.accessToken.length);
   } else {
     var index = user.accessToken.indexOf(req.headers['session-token']);
     if (index > -1) {
       user.accessToken.splice(index, 1);
+      tokens.push(req.headers['session-token']);
     }
   }
 
-  user.save(function(err) {
-    req.user = null;
-    req.logout();
-    res.json(200, {});
+  Device.find({'accessToken' : { $in: tokens} }, function(err, devices) {
+    console.log('Devices: ' + JSON.stringify(devices, null, 4));
+
+    devices.forEach(function(device) {
+      device.loggedIn = false;
+      device.save();
+    });
+
+    user.save(function(err) {
+      req.user = null;
+      req.logout();
+      res.json(200, {});
+    });
   });
 };

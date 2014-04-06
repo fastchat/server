@@ -19,7 +19,6 @@ var User = new Schema({
   password: {type: String, required: true},
   accessToken: {type: [String], default: []}, //Session Token
   groups: [{type: Schema.Types.ObjectId, ref: 'Group'}],
-  invites: [{type: Schema.Types.ObjectId, ref: 'Group'}],
   devices: [{type: Schema.Types.ObjectId, ref: 'Device'}],
   unreadCount: {type: Number, default: 0}
 });
