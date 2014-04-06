@@ -117,8 +117,8 @@ app.get('/group', ensureAuthenticated, groupRoutes.getGroups);
 app.post('/group', ensureAuthenticated, groupRoutes.createGroup);
 app.get('/group/:id/messages', ensureAuthenticated, messageRoutes.getMessages);
 app.put('/group/:id/leave', ensureAuthenticated, groupRoutes.leaveGroup);
-app.put('/group/:id/invite', ensureAuthenticated, groupRoutes.invite);
-app.put('/group/:id/uninvite', ensureAuthenticated, groupRoutes.uninvite);
+app.put('/group/:id/add', ensureAuthenticated, groupRoutes.add);
+app.put('/group/:id/settings', ensureAuthenticated, groupRoutes.changeSettings);
 
 app.get('/user/device', ensureAuthenticated, deviceRoutes.getDevices);
 app.post('/user/device', ensureAuthenticated, deviceRoutes.postDevice);

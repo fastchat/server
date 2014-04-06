@@ -178,23 +178,42 @@ exports.leaveGroup = function(req, res) {
 
 exports.changeSettings = function(req, res) {
 
+  var name = req.body.name;
+  var groupId = req.params.id;
+
+  try {
+    groupId = new ObjectId(groupId);
+  } catch (err) {
+    return res.send(400, {'error':'Group ID is not a valid ID!'});
+  }
+
+  Group.findOne( { _id : groupId }, function(err, group) {
+    if (err || !group) return res.send(400, {'error' : 'Group was not found!'});
+
+    group.name = name;
+    group.save(function(err) {
+      res.send(200, {});
+    });
+  });
 };
 
-exports.invite = function(req, res) {
+exports.add = function(req, res) {
   console.log('Invite Body: ' + JSON.stringify(req.body, null, 4));
   
   var invites = req.body.invitees;
   var groupId = req.params.id;
 
-  if (typeof groupId === 'undefined') {
-    return res.send(400, {'error' : 'groupId cannot be undefined!'});
+  try {
+    groupId = new ObjectId(groupId);
+  } catch (err) {
+    return res.send(400, {'error':'Group ID is not a valid ID!'});
   }
 
   if (invites.length == 0) {
-    return res.send(200);
+    return res.json(200, {});
   }
 
-  Group.findOne( { _id : new ObjectId(groupId) }, function(err, group) {
+  Group.findOne( { _id : groupId }, function(err, group) {
     if (err || !group) return res.send(400, {'error' : 'Group was not found!'});
 
     console.log('Found Group: ' + JSON.stringify(group, null, 4));
@@ -202,75 +221,27 @@ exports.invite = function(req, res) {
       User.findOne( { 'username': username.toLowerCase() }, function (err, usr) {
 	console.log('Found User: ' + JSON.stringify(usr, null, 4));
 	if (usr) {
-	  
-	  group.invites.push(usr._id);
-	  group.save(function (err) {
-	    if (err) return cb(err);
-	    //if error?
+	  ///
+	  /// Don't add to the group if the user has left the group
+	  ///
+	  var index = usr.leftGroups.indexOfEquals(group._id);
 
-	    usr.invites.push(group._id);
-	    usr.save( function (err) {
+	  if (index === -1) {
+	    // Don't invite, just add straight to group
+	    group.members.push(usr._id);
+
+	    group.save(function (err) {
 	      if (err) return cb(err);
-	      cb();
+
+	      usr.groups.push(group._id);
+	      usr.save( function (err) {
+		if (err) return cb(err);
+		cb();
+	      });
 	    });
-	  });
-	} else {
-	  cb();
-	}
-      });    
-    }, function(err){
-      if (err) res.send(400);
-      res.send(200);
-    });
-  });
-};
-
-exports.uninvite = function(req, res) {
-
-  var uninvites = req.body.uninvites;
-  var groupId = req.params.id;
-
-  if (typeof groupId === 'undefined') {
-    return res.send(400, {'error' : 'groupId cannot be undefined!'});
-  }
-
-  if (uninvites.length == 0) {
-    return res.send(200);
-  }
-
-  console.log('Group ID: ' + groupId);
-  
-  Group.findOne( { _id : new ObjectId(groupId) }, function(err, group) {
-    console.log('Err: ' + err + ' Group: ' + JSON.stringify(group, null, 4));
-
-    if (err || !group) return res.send(400, {'error' : 'Group was not found!'});
-    
-    async.each(uninvites, function(username, cb) {
-    
-      User.findOne( { 'username': username }, function (err, usr) {
-	if (usr) {
-	  var index = group.members.indexOf(usr._id);
-	  if (index !== -1) {
-	    group.members.splice(index, 1);
+	  } else {
+	    return cb();
 	  }
-
-	  group.save(function(err) {
-
-	    var groupIndex = user.groups.indexOf(group._id);
-	    var inviteIndex = user.invites.indexOf(group._id);
-	   
-	    if (groupIndex !== -1) {
-	      user.groups.splice(groupIndex, 1);
-	    }
-
-	    if (inviteIndex !== -1) {
-	      user.invites.splice(inviteIndex, 1);
-	    }
-
-	    user.save( function (err) {
-	      cb();
-	    });
-	  });
 	} else {
 	  cb();
 	}
