@@ -2,77 +2,113 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
+    <title>Fast Chat - New Group</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="stylesheet" href="/flat-ui/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="/flat-ui/css/flat-ui.css">
+    <link rel="stylesheet" href="/css/bootstrap-editable.css">
+    <!-- Using only with Flat-UI (free)-->
+    <link rel="stylesheet" href="/common-files/css/icon-font.css">
+    <!-- end -->
+    <link rel="stylesheet" href="css/style2.css">
 
-    <title>Fast Chat - Register</title>
-
-    <!-- Bootstrap core CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
-    <link href="css/navbar.css" rel="stylesheet">
-
-    <!-- Just for debugging purposes. Don't actually copy this line! -->
-    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
   </head>
 
   <body>
+    <div class="page-wrapper">
+      <!-- header-10 -->
+      <header class="header-10">
+        <div class="container">
+          <div class="navbar col-sm-12" role="navigation">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle"></button>
+              <a class="brand" href="/index.html">Fast Chat</a>
 
-    <div class="container">
+	      <ul id="group-nav" class="nav pull-left">
+              </ul>
 
-      <!-- Static navbar -->
-      <div class="navbar navbar-default" role="navigation">
-        <div class="container-fluid">
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-              <span class="sr-only">Toggle navigation</span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#">Fast Chat</a>
+            </div>
+            <div class="collapse navbar-collapse pull-right">
+
+              <ul class="nav pull-left">
+                <li><a href="/chat.html">Chat</a></li>
+              </ul>
+              <form class="navbar-form pull-left">
+                <a class="btn btn-info" href="javascript:void(0)" onclick="logout();">Logout</a>
+              </form>
+            </div>
           </div>
-          <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-              <li><a href="/chat.html">Chat</a></li>
-              <li class="active"><a href="/newgroup.html">New Group</a></li>
-            </ul>
-          </div><!--/.nav-collapse -->
-        </div><!--/.container-fluid -->
-      </div>
+        </div>
+      </header>
 
-      <div id="new_group_form">
-	<form role="form" onsubmit="return newGroup();" method="post">
-	  <div class="form-group">
-	    <label for="name">Group Name</label>
-	    <input type="text" class="form-control" id="input_name" placeholder="Enter Group Name">
+      <section class="header-11-sub bg-midnight-blue">
+        <div class="background">
+          &nbsp;
+        </div>
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-4">
+              <h3>New Group</h3>
+              <div class="signup-form">
+		<div id="group_errors" class="alert alert-danger" style="display:none;white-space:pre-wrap;"></div>
+                <form onsubmit="return newGroup();" method="post">
+                  <div class="form-group">
+                    <input id="input_group_name" class="form-control" type="text" placeholder="Group Name (Optional)">
+                  </div>
+                  <div id="input_usernames" class="form-group">
+                    <div>
+                      <input id="input_user" type="text" class="form-control user spot0" placeholder="Username">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <button type="submit" class="btn btn-block btn-info">New Group</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="col-sm-7 col-sm-offset-1">
+	      <h3>Chat with your friends</p>
+	      <p>Creating a new group will let you chat easily with friends! You can chat with just one person, or many at once. If you every get annoyed, you can always leave a group.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- footer-3 -->
+      <footer class="footer-3">
+	<div class="container">
+	  <div class="row v-center">
+	    <div class="col-sm-2">
+              <a class="brand" href="/index.html">Fast Chat</a>
+	    </div>
+	    <div class="col-sm-7">
+              <div class="additional-links">
+		Be sure to take a look to our <a href="#">Terms of Use</a> and <a href="#">Privacy Policy</a>
+              </div>
+	    </div>
+	    <div class="col-sm-3">
+              <h6>Boston, MA</h6>
+              <div class="address">
+		Address Here st number<br>Boston, MA, 11111
+              </div>
+	    </div>
 	  </div>
-	  <button type="submit" class="btn btn-default">Submit</button>
-	</form>
-      </div>
+	</div>
+      </footer>
+    </div>
 
-    </div> <!-- /container -->
-
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <!-- Loading JS from body so it's faster. -->
-    <script src="js/jquery-1.11.0.min.js"></script>
+    <script src="/common-files/js/jquery-1.10.2.min.js"></script>
+    <script src="/flat-ui/js/bootstrap.min.js"></script>
+    <script src="/common-files/js/modernizr.custom.js"></script>
+    <script src="/common-files/js/startup-kit.js"></script>
+    <script src="/js/bootstrap-editable.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="js/bootstrap.min.js"></script>
     <script src="js/app.js"></script>
     <!-- Lastly, load the page specific JS. -->
-    <script src="js/newgroup.js"></script> 
+    <script src="js/newgroup.js"></script>
   </body>
 </html>

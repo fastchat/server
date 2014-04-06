@@ -44,6 +44,10 @@ exports.createGroup = function(req, res) {
 
   var name = req.body.name;
 
+  for (var i = 0; i < members.length; i++) {
+    members[i] = members[i].toLowerCase();
+  }
+
   User.find({'username': { $in: members } }, function(err, users) {
     if (err || users.length == 0) {
       return res.send(400, {'error': 'No users were found with those usernames!'});

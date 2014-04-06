@@ -54,33 +54,6 @@ $(document).ready(function() {
     }
   });
 
-  $('#new_group').editable({
-    value: '',
-    autotext: 'never',
-    emptytext: '',
-    display: false,
-    url: function(params) {
-      var q = new $.Deferred;
-      if(params.value && params.value.trim() === '') {
-        return q.reject('Group Name is required!');
-      } else {
-	API.newGroup(params.value, function(err, group) {
-	  if (!err && group) {
-	    getGroupsAndUpdateUI();
-	    getProfile();
-	    q.resolve();
-	  } else {
-	    q.reject(err);
-	  }
-	});
-      }
-    },
-    success: function(response, newValue) {
-      $('#new_group').editable('setValue', null)
-        .editable('option', 'pk', null);
-    }
-  });
-
   $( "#main_chat" ).scroll(function() {
     if ($("#main_chat").scrollTop() < 20) {
       page++;

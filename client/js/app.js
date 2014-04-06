@@ -116,11 +116,18 @@ API.prototype = {
   },
 
   // cb(err, group)
-  newGroup: function(name, cb) {
+  newGroup: function(name, text, members, cb) {
     
+    var options = {};
+    if (name) options['name'] = name;
+    options.members = members;
+    options.text = text;
+
     if (this.isLoggedIn()) {
-      $.post(url() + '/group', {'name': name} , function( response ) {
+      $.post(url() + '/group', options , function( response ) {
 	cb(null, response);
+      }).fail(function(err) {
+	cb(err);
       });
     } else {
       cb('You Must be logged in!');
