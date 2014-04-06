@@ -3,6 +3,8 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var User = require('./model/user');
 var Message = require('./model/message');
 var Group = require('./model/group');
+var GroupSetting = require('./model/groupSetting');
+var async = require('async');
 
 var sockets = {};
 
@@ -124,11 +126,31 @@ exports.setup = function(server) {
 	  ///
 	  /// Okay, we have the users not in the room. Send a message to them.
 	  ///
-	  usersNotInRoom.forEach(function(user) {
-	    user.unreadCount++;
-	    user.push(mes);
-	    user.save();
-	  }); //usersNotinroom
+	  async.each(usersNotInRoom, function(user, callback) {
+	    
+	    GroupSetting.find({'user': user._id}, function(err, gses) {
+	      console.log('FOUND: ' + JSON.stringify(gses, null, 4));
+
+	      var thisGs = GroupSetting.forGroup(gses, new ObjectId(room));
+
+	      console.log('THIS IS: ' + JSON.stringify(thisGs, null, 4));
+	      if (thisGs) {
+		thisGs.unread++;
+		user.push(mes, GroupSetting.totalUnread(gses));
+		thisGs.save(function(err) {
+		  callback();
+		});
+	      } else {
+		user.push(mes);
+		callback();
+	      }
+	    });
+	  }, function(err){
+	    if( err ) {
+	      console.log('Error Occured in sending push notifications: ' + err);
+	    } 
+	  });
+
 	}); //Find all users in group
 
       } //If has group

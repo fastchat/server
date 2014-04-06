@@ -59,15 +59,24 @@ Device.methods.send = function(message, badge, sound) {
     };
 
     if (!badge) badge = 0;
-    if (!sound) sound = 'ping.aiff';
     
-    var device = new apn.Device(this.token);
+    var device = null;
+    try {
+      device = new apn.Device(this.token);
+    } catch (err) {
+      return;
+    }
+
     var note = new apn.Notification();
 
     note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
+
     note.badge = badge;
     note.sound = sound;
     note.alert = message;
+    if (!message) {
+      note.payload = {'content-available': 1};
+    }
 
     console.log('FIRING AWAY: ' + JSON.stringify(note, null, 4) + ' TO: ' + this.token);
 

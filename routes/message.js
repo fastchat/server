@@ -1,5 +1,7 @@
 var User = require('../model/user');
 var Message = require('../model/message');
+var GroupSetting = require('../model/groupSetting');
+var ObjectId = require('mongoose').Types.ObjectId;
 var PER_PAGE = 30;
 
 exports.getMessages = function(req, res) {
@@ -15,6 +17,19 @@ exports.getMessages = function(req, res) {
     console.log('ERR: ' + err);
     
     if (err) return res.send(404, {error: 'Group not found!'});
+
+    ///
+    /// Assuming we found the messages, we should also clear the 'unread' count for this group
+    ///
+    GroupSetting.find({'user': usr._id}, function(err, gses) {
+      
+      var thisGs = GroupSetting.forGroup(gses, new ObjectId(groupId));
+      if (thisGs) {
+	thisGs.unread = 0;
+	usr.pushSilent(GroupSetting.totalUnread(gses));
+	thisGs.save();
+      }
+    });
 
     res.send(messages);
   });

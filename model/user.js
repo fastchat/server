@@ -17,10 +17,10 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var User = new Schema({
   username: {type: String, required: true, unique: true, lowercase: true},
   password: {type: String, required: true},
-  accessToken: {type: [String], default: []}, //Session Token
+  accessToken: [{type: String, default: []}], //Session Token
   groups: [{type: Schema.Types.ObjectId, ref: 'Group'}],
   devices: [{type: Schema.Types.ObjectId, ref: 'Device'}],
-  unreadCount: {type: Number, default: 0}
+  groupSettings: [{type: Schema.Types.ObjectId, ref: 'GroupSetting', default: []}],
 });
 
 /**
@@ -120,15 +120,35 @@ User.methods.generateRandomToken = function (cb) {
  *
  * @message The message from the server. Should have 'text' property.
  */
-User.methods.push = function(message) {
+User.methods.push = function(message, unread) {
+
+  if (!unread) {
+    unread = 0;
+  }
 
   console.log('Attempting to send to: '+ this.username);
   var that = this;
   Device.find({ 'user': this._id }, function(err, devices) {
     console.log('Found Devices for: '+ that.username + ' Devices: ' + JSON.stringify(devices, null, 4));
-    for (var i = 0; i < devices.length; i++) {
-      devices[i].send(message.fromUser.username + ': ' + message.text, that.unreadCount);
-    }
+
+    devices.forEach(function(device) {
+      device.send(message.fromUser.username + ': ' + message.text, unread);
+    });
+  });
+};
+
+User.methods.pushSilent = function(unread) {
+
+  if (!unread) {
+    unread = 0;
+  }
+
+  console.log('Sending a silencing push notification!');
+
+  Device.find({ 'user': this._id }, function(err, devices) {
+    devices.forEach(function(device) {
+      device.send(null, unread, '');
+    });
   });
 };
 

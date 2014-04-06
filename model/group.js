@@ -1,6 +1,7 @@
 var mongoose = require('mongoose')
   , Schema = mongoose.Schema
   , Hash = require('hashish');
+var GroupSetting = require('./groupSetting');
 
 /**
  * Group
@@ -35,7 +36,22 @@ Group.statics.newGroup = function(data, cb) {
 
     members.forEach(function(user) {
       user.groups.push(group._id);
-      user.save();
+
+      ///
+      /// Each member in the group gets a GroupSetting object
+      ///
+      var setting = new GroupSetting({
+	'user': user._id,
+	'group': group._id	
+      });
+
+      setting.save(function(err) {
+	console.log('Error: '+ err);
+      });
+      user.groupSettings.push(setting._id);
+      user.save(function(err) {
+	console.log('Error2: '+ err);
+      });
     });
     
     cb(null, group);

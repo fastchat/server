@@ -59,7 +59,9 @@ exports.profile = function(req, res) {
 
   User.findOne( {'_id' : req.user._id } )
     .populate('groups', 'name')
+    .populate('groupSettings')
     .exec(function(err, usr) {
+      console.log('ERR: ' + err);
       if (err || !usr) return res.send(400, {'error' : 'The user was not found!'});
       
       res.send({'profile': usr});
