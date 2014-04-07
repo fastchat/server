@@ -65,6 +65,8 @@ exports.setup = function(server) {
       console.log('Received Message: ' + JSON.stringify(message, null, 4));
       var room = message.group;
 
+      if (!message.text) return;
+
       if (socketUser.hasGroup(room)) {
 
 	var roomId = null;
