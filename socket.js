@@ -54,7 +54,7 @@ exports.setup = function(server) {
 
     socket.on('typing', function(typing) {
       var room = typing.group;
-      var toSend = { 'typing': typing['typing'] == true, 'from': socketUser._id };
+      var toSend = { 'typing': typing['typing'] == true, 'from': socketUser._id, 'group': room};
 
       if (socketUser.hasGroup(room)) {
 	socket.broadcast.to(room).emit('typing', toSend);
