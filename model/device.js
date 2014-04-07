@@ -36,13 +36,17 @@ Device.methods.send = function(group, message, badge, sound) {
 
   if (this.type === 'android') {
 
+
+    var data = {
+      text: message,
+      alert: badge,
+      sound: sound,
+    };
+
+    if (group) data.group = group._id;
+
     var message = new gcm.Message({
-      data: {
-        text: message,
-	alert: badge,
-        sound: sound,
-	group: group._id
-      }
+      'data': data
     });
 
     var registrationIds = [];
@@ -75,7 +79,8 @@ Device.methods.send = function(group, message, badge, sound) {
     if (badge) note.badge = badge;
     if (sound) note.sound = sound;
     note.alert = message;
-    note.payload = {'group': group._id};
+    
+    if (group) note.payload = {'group': group._id};
 
     if (!message) {
       note.setContentAvailable(true);
