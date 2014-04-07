@@ -94,7 +94,7 @@ function newGroup(groupName, members, message, creator, cb) {
 	  if (socket) {
 	    socket.emit('new_group', group);
 	  } else {
-	    usersNotOn.push(user, null, group);
+	    usersNotOn.push(user);
 	  }
 	}
       });
