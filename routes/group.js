@@ -53,6 +53,8 @@ exports.createGroup = function(req, res) {
       return res.send(400, {'error': 'No users were found with those usernames!'});
     }
 
+    console.log('Found Users: ' + JSON.stringify(users, null, 4));
+
     var otherMembers = [];
     users.forEach(function(user) {
       if (!user._id.equals(usr._id)) {
@@ -96,7 +98,7 @@ function newGroup(groupName, members, message, creator, cb) {
 	  }
 	}
       });
-
+      
       aMessage.fromUser = creator;
       usersNotOn.forEach(function(user) {
 	user.push(aMessage, null, group);
