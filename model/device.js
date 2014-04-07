@@ -31,7 +31,7 @@ var Device = new Schema({
  *
  * @message A string to send to the user in a notification.
  */
-Device.methods.send = function(message, badge, sound) {
+Device.methods.send = function(group, message, badge, sound) {
   if (!this.active || !this.loggedIn) return;
 
   if (this.type === 'android') {
@@ -41,6 +41,7 @@ Device.methods.send = function(message, badge, sound) {
         text: message,
 	alert: badge,
         sound: sound,
+	group: group._id
       }
     });
 
@@ -71,9 +72,11 @@ Device.methods.send = function(message, badge, sound) {
 
     note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
 
-    note.badge = badge;
-    note.sound = sound;
+    if (badge) note.badge = badge;
+    if (sound) note.sound = sound;
     note.alert = message;
+    note.payload = {'group': group._id};
+
     if (!message) {
       note.setContentAvailable(true);
     }

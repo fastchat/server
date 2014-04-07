@@ -117,7 +117,7 @@ User.methods.generateRandomToken = function (cb) {
  *
  * @message The message from the server. Should have 'text' property.
  */
-User.methods.push = function(message, unread) {
+User.methods.push = function(message, unread, group) {
 
   if (!unread) {
     unread = 0;
@@ -129,10 +129,11 @@ User.methods.push = function(message, unread) {
     console.log('Found Devices for: '+ that.username + ' Devices: ' + JSON.stringify(devices, null, 4));
 
     devices.forEach(function(device) {
-      device.send(message.fromUser.username + ': ' + message.text, unread);
+      device.send(group, message.fromUser.username + '@' + group.name + ': ' + message.text, unread);
     });
   });
 };
+
 
 User.methods.pushSilent = function(unread) {
 
@@ -144,7 +145,7 @@ User.methods.pushSilent = function(unread) {
 
   Device.find({ 'user': this._id }, function(err, devices) {
     devices.forEach(function(device) {
-      device.send(null, unread, 0);
+      device.send(null, null, unread, 0);
     });
   });
 };
@@ -160,20 +161,14 @@ User.methods.hasGroup = function(group) {
   if (!group) return false;
 
   var groupId = group;
-  if (typeof(group) === 'string') {
-    try {
-      groupId = new ObjectId(group);
-    } catch (err) {
-      return false;
-    }
+
+  try {
+    groupId = new ObjectId(group);
+  } catch (err) {
+    return false;
   }
 
-  for (var i = 0; i < this.groups.length; i++) {
-    if ( this.groups[i].equals(groupId) ) {
-      return true;
-    }
-  }
-  return false;
+  return this.groups.indexOfEquals(groupId) !== -1;
 };
 
 module.exports = mongoose.model('User', User);

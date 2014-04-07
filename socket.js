@@ -54,7 +54,8 @@ exports.setup = function(server) {
 
     socket.on('typing', function(typing) {
       var room = typing.group;
-      var toSend = { 'typing': typing.typing == true, 'from': socketUser._id};
+      var toSend = { 'typing': typing['typing'] == true, 'from': socketUser._id };
+
       if (socketUser.hasGroup(room)) {
 	socket.broadcast.to(room).emit('typing', toSend);
       }
@@ -65,11 +66,20 @@ exports.setup = function(server) {
       var room = message.group;
 
       if (socketUser.hasGroup(room)) {
+
+	var roomId = null;
+	try {
+	  roomId = new ObjectId(room);
+	} catch(err) {
+	  console.log('Tried to make the room ID and failed! ' + err);
+	  return;
+	}
+
 	///
 	/// Make a new message and add it to the group
 	///
 	var mes = new Message({'from' : socketUser._id,
-			       'group': new ObjectId(room),
+			       'group': roomId,
 			       'text' : message.text,
 			       'sent' : new Date()
 			      });
@@ -82,76 +92,79 @@ exports.setup = function(server) {
 	///
 	/// Save the object we have, and add it to the group
 	///
-	mes.save(function(err) {
-	  Group.findOne({'_id' : room}, function(err, group) {
-	    if (group) {
-	      group.messages.push(mes);
-	      group.save();
-	    }
-	  });
-	});
+	Group.findOne({'_id' : room}, function(err, group) {
+	  if (group) {
+	    group.messages.push(mes);
+	    group.save();
+	    mes.save();
 
-	///
-	/// Add a temporary property 'fromUser' with the actual user object.
-	///
-	mes.fromUser = socketUser;
+	    ///
+	    /// Add a temporary property 'fromUser' with the actual user object.
+	    ///
+	    mes.fromUser = socketUser;
 
-	///
-	/// Let's send some notifications to all people not in the room.
-	///
-	var clients = io.sockets.clients(room);
-	var roomUsers = []; //all currently in the room
-	clients.forEach(function(client) {
-	  roomUsers.push(client.handshake.user);
-	});
-
-	// Find all users who are in the group
-	// Find Users who groups include 'room'
-	User.find({groups: { $in : [room] } }, function(err, users) {
-
-	  var usersNotInRoom = [];
-	  for (var i = 0; i < users.length; i++) {
-	    var foundUser = false;
-	    for (var j = 0; j < roomUsers.length; j++) {
-	      if (roomUsers[j]._id.equals(users[i]._id)) {
-		foundUser = true;
-		break;
-	      }
-	    }
-	    if (!foundUser) usersNotInRoom.push(users[i]);
-	  }
-
-	  console.log('users NOT in room: ' + JSON.stringify(usersNotInRoom, null, 4));
-
-	  ///
-	  /// Okay, we have the users not in the room. Send a message to them.
-	  ///
-	  async.each(usersNotInRoom, function(user, callback) {
-	    
-	    GroupSetting.find({'user': user._id}, function(err, gses) {
-	      console.log('FOUND: ' + JSON.stringify(gses, null, 4));
-
-	      var thisGs = GroupSetting.forGroup(gses, new ObjectId(room));
-
-	      console.log('THIS IS: ' + JSON.stringify(thisGs, null, 4));
-	      if (thisGs) {
-		thisGs.unread++;
-		user.push(mes, GroupSetting.totalUnread(gses));
-		thisGs.save(function(err) {
-		  callback();
-		});
-	      } else {
-		user.push(mes);
-		callback();
-	      }
+	    ///
+	    /// Let's send some notifications to all people not in the room.
+	    ///
+	    var clients = io.sockets.clients(room);
+	    var roomUsers = []; //all currently in the room
+	    clients.forEach(function(client) {
+	      roomUsers.push(client.handshake.user);
 	    });
-	  }, function(err){
-	    if( err ) {
-	      console.log('Error Occured in sending push notifications: ' + err);
-	    } 
-	  });
 
-	}); //Find all users in group
+	    // Find all users who are in the group
+	    // Find Users who groups include 'room'
+	    User.find({groups: { $in : [room] } }, function(err, users) {
+
+	      var usersNotInRoom = [];
+	      for (var i = 0; i < users.length; i++) {
+		var foundUser = false;
+		for (var j = 0; j < roomUsers.length; j++) {
+		  if (roomUsers[j]._id.equals(users[i]._id)) {
+		    foundUser = true;
+		    break;
+		  }
+		}
+		if (!foundUser) usersNotInRoom.push(users[i]);
+	      }
+
+	      console.log('users NOT in room: ' + JSON.stringify(usersNotInRoom, null, 4));
+
+	      ///
+	      /// Okay, we have the users not in the room. Send a message to them.
+	      ///
+	      async.each(usersNotInRoom, function(user, callback) {
+		
+		GroupSetting.find({'user': user._id}, function(err, gses) {
+		  console.log('FOUND: ' + JSON.stringify(gses, null, 4));
+
+		  var thisGs = GroupSetting.forGroup(gses, roomId);
+
+		  console.log('THIS IS: ' + JSON.stringify(thisGs, null, 4));
+		  if (thisGs) {
+		    thisGs.unread++;
+		    user.push(mes, GroupSetting.totalUnread(gses), group);
+		    thisGs.save(function(err) {
+		      callback();
+		    });
+		  } else {
+		    user.push(mes);
+		    callback();
+		  }
+		});
+	      }, function(err){
+		if( err ) {
+		  console.log('Error Occured in sending push notifications: ' + err);
+		} 
+	      });
+
+	    }); //Find all users in group
+
+
+
+	  }
+	});
+
 
       } //If has group
 

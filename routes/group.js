@@ -92,14 +92,14 @@ function newGroup(groupName, members, message, creator, cb) {
 	  if (socket) {
 	    socket.emit('new_group', group);
 	  } else {
-	    usersNotOn.push(user);
+	    usersNotOn.push(user, null, group);
 	  }
 	}
       });
 
       aMessage.fromUser = creator;
       usersNotOn.forEach(function(user) {
-	user.push(aMessage);
+	user.push(aMessage, null, group);
       });
 
 
