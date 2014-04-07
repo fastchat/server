@@ -225,8 +225,9 @@ exports.add = function(req, res) {
 	  /// Don't add to the group if the user has left the group
 	  ///
 	  var index = usr.leftGroups.indexOfEquals(group._id);
+	  var index2 = usr.groups.indexOfEquals(group._id);
 
-	  if (index === -1) {
+	  if (index === -1 && index2 === -1) {
 	    // Don't invite, just add straight to group
 	    group.members.push(usr._id);
 
@@ -236,6 +237,14 @@ exports.add = function(req, res) {
 	      usr.groups.push(group._id);
 	      usr.save( function (err) {
 		if (err) return cb(err);
+
+		var socket = io.socketForId(usr._id);
+		if (socket) {
+		  socket.emit('new_group', group);
+		} else {
+
+		}
+
 		cb();
 	      });
 	    });

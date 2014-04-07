@@ -53,7 +53,7 @@ exports.setup = function(server) {
     socket.emit('connected', 'FastChat');
 
     socket.on('typing', function(typing) {
-      var room = message.group;
+      var room = typing.group;
       var toSend = { 'typing': typing.typing == true, 'from': socketUser._id};
       if (socketUser.hasGroup(room)) {
 	socket.broadcast.to(room).emit('typing', toSend);
