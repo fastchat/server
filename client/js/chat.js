@@ -179,7 +179,7 @@ function sendMessage() {
 };
 
 function changeGroup(link) {
-  var groupNumber = link.className.split(' ')[1].slice(-1);
+  var groupNumber = link.className.split(' ')[1].replace('group', '');
   console.log('Clicked: ' + groupNumber);
   changeToGroup(groupNumber);
 };
