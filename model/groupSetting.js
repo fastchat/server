@@ -20,10 +20,10 @@ GroupSetting.statics.totalUnread = function(gses) {
 
 GroupSetting.statics.forGroup = function(gses, groupId) {
 
-  console.log('ID: ' + JSON.stringify(groupId, null, 4));
+  console.log('GroupSettings: ID: ' + JSON.stringify(groupId, null, 4));
 
   for (var i = 0; i < gses.length; i++) {
-    console.log('WHAT: ' + JSON.stringify(gses[i], null, 4));
+    console.log('GroupSettings: WHAT: ' + JSON.stringify(gses[i], null, 4));
     if (gses[i].group.equals(groupId)) return gses[i];
   }
   return null;

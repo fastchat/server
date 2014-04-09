@@ -4,6 +4,21 @@ var passport = require('passport');
 var ObjectId = require('mongoose').Types.ObjectId; 
 var Errors = require('../model/errors');
 var Device = require('../model/device');
+var multiparty = require('multiparty');
+var fs = require('fs');
+var uuid = require('uuid');
+var knox = require('knox').createClient({
+    key: process.env.AWS_KEY,
+    secret: process.env.AWS_SECRET,
+    bucket: 'com.fastchat.dev.avatars'
+});
+
+var EXTENSION_LOOKUP = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/gif' : 'gif'
+};
+var mimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
 
 // POST /login
 // This is an alternative implementation that uses a custom callback to
@@ -141,4 +156,95 @@ exports.logout = function(req, res) {
       res.json(200, {});
     });
   });
+};
+
+exports.postAvatar = function(req, res) {
+
+  var user = req.user;
+
+  var form = new multiparty.Form();
+
+  form.parse(req, function(err, fields, files) {
+
+    console.log('Fields: ' + JSON.stringify(fields, null, 4));
+    console.log('FILES: ' + JSON.stringify(files, null, 4));
+
+    var file = files.avatar[0]
+    if (!file) return res.json(400, {'error' : 'File was not successfully uploaded!'});
+
+    var stream = fs.createReadStream(file.path)
+    var s3req;
+    var type = mimeTypes.indexOf(file.headers['content-type']);
+
+    if ( type > -1 ) {
+      var randomName = uuid.v4() + '.' + EXTENSION_LOOKUP[mimeTypes[type]];
+
+      console.log('Uploading to S3', JSON.stringify(file, null, 4));
+      
+      s3req = knox.putStream(stream, randomName, {
+	'Content-Type': file.headers['content-type'],
+	'Cache-Control': 'max-age=604800',
+	'x-amz-acl': 'public-read',
+	'Content-Length': file.size
+      },
+	function(err, result) {
+	  console.log('Result: ');
+	  console.log(result);
+	  console.log(result.req.path);
+	  console.log('ERROR? 1' + err);
+	  if (err) return res.send(400, {'error' : 'THere was an error uploading your image!'});
+
+	  /// Now we have uploaded their image to S3, so let's add it to their user profile.
+	  user.avatar =  result.req.path.replace(/^.*[\\\/]/, '');
+	  user.save(function(err) {
+	    console.log('RESPONSE 5: ');
+	    return res.json(200, {});
+	  });
+	});
+
+      s3req.on('response', function(s3res){
+
+	console.log('RESPONSE: ' + s3res.statusCode);
+
+	if (s3res.statusCode == 200) {
+
+	} else {
+	  console.log('RESPONSE 3: ' + s3res.statusCode);
+	  return res.json(s3res, {'error' : 'THere was an error uploading your image!'});
+	}
+
+      });
+      } else {
+	console.log('RESPONSE 7: ');
+	return res.json(400, {'error' : 'File is not a supported type!'});w
+      }
+  });
+};
+
+exports.getAvatar = function(req, res) {
+
+  var data = '';
+  var user = req.user;
+
+
+  console.log();
+
+  knox.get(user.avatar).on('response', function(s3res){
+
+    if (s3res.statusCode < 200 || s3res.statusCode > 300) {
+      return res.send(400, {'error':'There was an error fetching your image!'});
+    }
+
+    s3res.setEncoding('binary');
+    s3res.on('data', function(chunk){
+      data += chunk;
+    });
+
+    s3res.on('end', function() {
+      res.contentType('image/jpeg');
+      res.write(data, encoding='binary')
+      res.end()
+    });
+  }).end();
+
 };

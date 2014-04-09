@@ -86,6 +86,7 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(express.cookieParser('special turkey sauce is good'));
+//app.use(express.bodyParser()); // {uploadDir: './uploads'}
 app.use(express.session());
 app.use(passport.initialize());
 app.use(passport.session());
@@ -111,7 +112,9 @@ app.post('/login', userRoutes.loginPOST);
 app.delete('/logout', ensureAuthenticated, userRoutes.logout);
 app.post('/user', userRoutes.register);
 app.get('/user', ensureAuthenticated, userRoutes.profile);
-app.post('/user/accept', ensureAuthenticated, userRoutes.acceptInvite);
+app.get('/user/:id/', ensureAuthenticated, userRoutes.profile);
+app.post('/user/:id/avatar', ensureAuthenticated, userRoutes.postAvatar);
+app.get('/user/:id/avatar', ensureAuthenticated, userRoutes.getAvatar);
 
 app.get('/group', ensureAuthenticated, groupRoutes.getGroups);
 app.post('/group', ensureAuthenticated, groupRoutes.createGroup);

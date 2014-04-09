@@ -42,7 +42,7 @@ $(document).ready(function() {
       if(params.value && params.value.trim() === '') {
         return q.reject('Username is required!');
       } else {
-	API.invite(params.value, gps[currentGroup]._id, function(err, success) {
+	API.addToGroup(params.value, gps[currentGroup]._id, function(err, success) {
 	  if (err) return q.reject(err);
 	  return q.resolve();
 	});

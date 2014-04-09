@@ -22,6 +22,7 @@ var User = new Schema({
   leftGroups: [{type: Schema.Types.ObjectId, ref: 'Group', default: [] }],
   devices: [{type: Schema.Types.ObjectId, ref: 'Device', default: [] }],
   groupSettings: [{type: Schema.Types.ObjectId, ref: 'GroupSetting', default: []}],
+  avatar: {type: String, default: null}
 });
 
 /**

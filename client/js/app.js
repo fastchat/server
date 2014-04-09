@@ -1,6 +1,6 @@
-//BASE_URL = 'http://localhost';
-//BASE_PORT = '3000';
-BASE_URL = 'http://powerful-cliffs-9562.herokuapp.com';
+BASE_URL = 'http://localhost';
+BASE_PORT = '3000';
+//BASE_URL = 'http://powerful-cliffs-9562.herokuapp.com';
 //BASE_PORT = '80';
 
 function url(env) {
@@ -174,6 +174,22 @@ API.prototype = {
       cb('You must be logged in!');
     }
   }, //group
+
+  profileImage: function(userId, cb) {
+    console.log('Getting Profile Image');
+    if (this.isLoggedIn()) {
+      console.log('Getting Profile Image 2');
+      $.get(url() + '/user/' + userId + '/avatar', function( response ) {
+	cb(null, response);
+      }).fail(function(err) {
+	console.log('Error: ' + JSON.stringify(err, null, 4));
+	cb(err);
+      });
+
+    } else {
+      cb('You must be logged in!');
+    }
+  },
 
   // cb(err, success)
   acceptInvite: function(inviteNumber, cb) {
