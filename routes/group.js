@@ -12,6 +12,7 @@ exports.getGroups = function(req, res) {
   GroupSetting.find({'user': usr._id}, function(err, gses) {
     Group.find( { 'members' : usr._id }, '_id members leftMembers name')
       .populate('members', 'username')
+      .populate('leftMembers', 'username')
       .exec(function(err, groups) {
 	if (err) res.send(500, {'error' : 'There was an error getting groups!'});
 
