@@ -77,7 +77,8 @@ Device.methods.send = function(group, message, badge, sound) {
     note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
 
     if (badge) note.badge = badge;
-    if (sound) note.sound = sound;
+//    if (sound) note.sound = sound;
+    note.sound = "ping.aiff";
     note.alert = message;
     
     if (group) note.payload = {'group': group._id};
