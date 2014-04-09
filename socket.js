@@ -150,7 +150,8 @@ exports.setup = function(server) {
 		      callback();
 		    });
 		  } else {
-		    user.push(mes);
+		    //FIX
+//		    user.push(mes);
 		    callback();
 		  }
 		});

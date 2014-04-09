@@ -231,7 +231,23 @@ exports.add = function(req, res) {
 	  var index2 = usr.groups.indexOfEquals(group._id);
 
 	  if (index === -1 && index2 === -1) {
-	    // Don't invite, just add straight to group
+
+	    ///
+	    /// Each member in the group gets a GroupSetting object
+	    ///
+	    var setting = new GroupSetting({
+	      'user': usr._id,
+	      'group': group._id
+	    });
+
+	    setting.save(function(err) {
+	      console.log('Error: '+ err);
+	    });
+	    usr.groupSettings.push(setting._id);
+
+	    ///
+	    /// Don't invite, just add straight to group
+	    ///
 	    group.members.push(usr._id);
 
 	    group.save(function (err) {
@@ -245,9 +261,8 @@ exports.add = function(req, res) {
 		if (socket) {
 		  socket.emit('new_group', group);
 		} else {
-
+//		  usr.push({}, null, group);//
 		}
-
 		cb();
 	      });
 	    });
