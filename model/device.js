@@ -2,6 +2,7 @@ var mongoose = require('mongoose')
   , Schema = mongoose.Schema;
 var apn = require('apn');
 var gcm = require('node-gcm');
+var IOS_DEFAULT_SOUND = "ping.aiff";
 
 var apnConnection = new apn.Connection({});
 var sender = new gcm.Sender('AIzaSyCmtVuvS3OlV801Mlq8IJDXOnsOXA502xA');
@@ -31,19 +32,16 @@ var Device = new Schema({
  *
  * @message A string to send to the user in a notification.
  */
-Device.methods.send = function(group, message, badge, sound) {
+Device.methods.send = function(group, message, badge, contentAvailable) {
   if (!this.active || !this.loggedIn) return;
 
   if (this.type === 'android') {
 
-
-    var data = {
-      text: message,
-      alert: badge,
-      sound: sound,
-    };
-
+    var data = {};
     if (group) data.group = group._id;
+    if (message) data.text = message;
+    if (badge) data.alert = badge;
+    if (sound) data.sound = IOS_DEFAULT_SOUND;
 
     var message = new gcm.Message({
       'data': data
@@ -59,9 +57,9 @@ Device.methods.send = function(group, message, badge, sound) {
     });
 
   } else {
-    var options = { 
-      //    'gateway': 'gateway.sandbox.push.apple.com'
-    };
+//    var options = { 
+//      'gateway': 'gateway.sandbox.push.apple.com'
+//    };
 
     if (!badge) badge = 0;
     
@@ -73,20 +71,13 @@ Device.methods.send = function(group, message, badge, sound) {
     }
 
     var note = new apn.Notification();
-
     note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
-
-    if (badge) note.badge = badge;
-//    if (sound) note.sound = sound;
-    note.sound = "ping.aiff";
-    note.alert = message;
-    
+    note.sound = IOS_DEFAULT_SOUND;
+    if (badge || badge === 0) note.badge = badge;
+    if (message) note.alert = message;
     if (group) note.payload = {'group': group._id};
-
-    if (!message) {
-      note.setContentAvailable(true);
-    }
-
+    if (contentAvailable) note.setContentAvailable(true);
+    
     console.log('FIRING AWAY: ' + JSON.stringify(note, null, 4) + ' TO: ' + this.token);
 
     apnConnection.pushNotification(note, device);

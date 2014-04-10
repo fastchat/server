@@ -36,7 +36,8 @@
     "node-gcm": "0.9.10",
     "multiparty" : "3.2.4",
     "knox": "0.8.9",
-    "uuid": "1.4.1"
+    "uuid": "1.4.1",
+    "console-trace": "Wayfarer247/console-trace"
   },
   "devDependencies": {
     "mocha": "1.18.2",

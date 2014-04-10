@@ -26,7 +26,7 @@ exports.getMessages = function(req, res) {
       var thisGs = GroupSetting.forGroup(gses, new ObjectId(groupId));
       if (thisGs) {
 	thisGs.unread = 0;
-	usr.pushSilent(GroupSetting.totalUnread(gses));
+	usr.push(null, null, GroupSetting.totalUnread(gses), true);
 	thisGs.save();
       }
     });

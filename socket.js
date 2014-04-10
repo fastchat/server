@@ -43,15 +43,33 @@ exports.setup = function(server) {
   io.on('connection', function (socket) {
 
     var socketUser = socket.handshake.user;
-
+    
+    ///
+    /// Store the socket for later so we can emit events to it.
+    ///
     sockets[socketUser._id] = socket;
 
+    ///
+    /// Upon connecting, join every room that you should be in.
+    ///
     socketUser.groups.forEach(function(group) {
       socket.join(group);
     });
 
+    ///
+    /// Default event to send back to the client to let them know they are all set
+    ///
     socket.emit('connected', 'FastChat');
 
+    /**
+     * An event to make communication more dynamic. The typing event is immediatly fired
+     * to other clients listening on the room to let them know when someone is typing.
+     * Format:
+     * {
+     *   group: '342342343',
+     *   typing: true[false]
+     * }
+     */
     socket.on('typing', function(typing) {
       var room = typing.group;
       var toSend = { 'typing': typing['typing'] == true, 'from': socketUser._id, 'group': room};
@@ -61,6 +79,16 @@ exports.setup = function(server) {
       }
     });
 
+    /**
+     * Called when a message is sent to a group. It will send it to all people in the group
+     * and then save it for later retreiving, and then send a push notification to those
+     * people who are not in the group.
+     * Format:
+     * {
+     *   group: '342342343',
+     *   text: 'This is a message!'
+     * }
+     */ 
     socket.on('message', function(message) {
       console.log('Received Message: ' + JSON.stringify(message, null, 4));
       var room = message.group;
@@ -145,13 +173,15 @@ exports.setup = function(server) {
 		  console.log('THIS IS: ' + JSON.stringify(thisGs, null, 4));
 		  if (thisGs) {
 		    thisGs.unread++;
-		    user.push(mes, GroupSetting.totalUnread(gses), group);
+
+		    var text = message.fromUser.username + '@' + group.name + ': ' + message.text;
+		    user.push(group, text, GroupSetting.totalUnread(gses), false);
 		    thisGs.save(function(err) {
 		      callback();
 		    });
 		  } else {
-		    //FIX
-//		    user.push(mes);
+		    console.log('This should never be called. ');
+		    console.trace();
 		    callback();
 		  }
 		});
@@ -163,11 +193,8 @@ exports.setup = function(server) {
 
 	    }); //Find all users in group
 
-
-
 	  }
 	});
-
 
       } //If has group
 
@@ -176,14 +203,45 @@ exports.setup = function(server) {
 
     socket.on('disconnect', function() {
       delete sockets[socketUser._id];
-    });
+    }); //end on disconnect
 
 
   }); //end on Socket.io connection
 
 };
 
-// this is an actual objectId
-exports.socketForId = function(userId) {
-  return sockets[userId];
+/**
+ * This method sends a message (@see message.js) to the group
+ * from no one in particular. It will simply send it out to all members of the group.
+ * This is useful for system events, such as someone joining or leaving the group.
+ */
+exports.messageToGroup = function(groupId, event, message) {
+  io.sockets.in(groupId).emit(event, message)
+};
+
+/**
+ * Have the given user join the room. This is useful for if the user has been
+ * invited to a group and they are currently chatting with people live. We will
+ * add them to the group so they can start receiving messages without having
+ * to disconnect and reconnect
+ */
+exports.joinGroup = function(groupId, userId) {
+  var userSocket = sockets[userId];
+
+  /// If this is false, then they were not on. Oh well.
+  if (userSocket) {
+    userSocket.join(groupId);
+    return true;
+  }
+  return false;
+};
+
+exports.emitNewGroup = function(userId, group) {
+  var userSocket = sockets[userId];
+
+  if (userSocket) {
+    socket.emit('new_group', group);
+    return true;
+  }
+  return false;
 };

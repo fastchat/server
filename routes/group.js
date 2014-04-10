@@ -91,20 +91,17 @@ function newGroup(groupName, members, message, creator, cb) {
       var usersNotOn = [];
       members.forEach(function(user) {
 	if ( !user._id.equals(creator._id) ) { //Don't emit to creator
-	  var socket = io.socketForId(user._id);
-	  if (socket) {
-	    socket.emit('new_group', group);
-	  } else {
+	  var didSend = io.emitNewGroup(user._id, group);
+	  if (!didSend) {
 	    usersNotOn.push(user);
 	  }
 	}
       });
       
-      aMessage.fromUser = creator;
+      var text = creator.username + '@' + group.name + ': ' + message;
       usersNotOn.forEach(function(user) {
-	user.push(aMessage, null, group);
+	user.push(group, text, null, false);
       });
-
 
       cb(null, group);
     });
@@ -161,6 +158,18 @@ exports.leaveGroup = function(req, res) {
 	      callback();
 	    }
 	  },
+	  function(callback) {
+	    // send a message to the group notifying them that the person left
+	    var aMessage = new Message({'from' : null,
+					'group': group._id,
+					'text' : user.username + ' has left the group.',
+					'sent' : new Date(),
+					'type' : 'system'
+				       });
+	    aMessage.save();
+	    io.messageToGroup(group._id, 'member_left', aMessage);
+	    callback();
+	  }
 	],
 	// optional callback
 	function(err, results) {
@@ -195,6 +204,16 @@ exports.changeSettings = function(req, res) {
 
     group.name = name;
     group.save(function(err) {
+
+      var aMessage = new Message({'from' : null,
+				  'group': group._id,
+				  'text' : 'Group is now called ' + name,
+				  'sent' : new Date(),
+				  'type' : 'system'
+				 });
+      aMessage.save();
+      io.messageToGroup(group._id, 'group_name', aMessage);
+
       res.send(200, {});
     });
   });
@@ -257,11 +276,17 @@ exports.add = function(req, res) {
 	      usr.save( function (err) {
 		if (err) return cb(err);
 
-		var socket = io.socketForId(usr._id);
-		if (socket) {
-		  socket.emit('new_group', group);
-		} else {
-//		  usr.push({}, null, group);//
+		var aMessage = new Message({'from' : null,
+					    'group': group._id,
+					    'text' : usr.username + ' has joined the group.',
+					    'sent' : new Date(),
+					    'type' : 'system'
+					   });
+		aMessage.save();
+		io.messageToGroup(group._id, 'member_joined', aMessage);
+		var didSend = io.emitNewGroup(usr._id, group);
+		if (!didSend) {
+		  usr.push(null, 'You have been added to the group: ' + group.name, null, false);
 		}
 		cb();
 	      });
@@ -275,6 +300,7 @@ exports.add = function(req, res) {
       });    
     }, function(err){
       if (err) res.send(400);
+
       res.send(200);
     });
   });

@@ -118,38 +118,17 @@ User.methods.generateRandomToken = function (cb) {
  *
  * @message The message from the server. Should have 'text' property.
  */
-User.methods.push = function(message, unread, group) {
-
-  if (!unread) {
-    unread = 0;
-  }
+User.methods.push = function(group, message, unread, contentAvailable) {
 
   console.log('Attempting to send to: '+ this.username);
-  var that = this;
   Device.find({ 'user': this._id }, function(err, devices) {
-    console.log('Found Devices for: '+ that.username + ' Devices: ' + JSON.stringify(devices, null, 4));
-
     devices.forEach(function(device) {
-      device.send(group, message.fromUser.username + '@' + group.name + ': ' + message.text, unread);
+      device.send(group, message, unread, contentAvailable);
     });
   });
 };
 
-
-User.methods.pushSilent = function(unread) {
-
-  if (!unread) {
-    unread = 0;
-  }
-
-  console.log('Sending a silencing push notification!');
-
-  Device.find({ 'user': this._id }, function(err, devices) {
-    devices.forEach(function(device) {
-      device.send(null, null, unread, 0);
-    });
-  });
-};
+//message.fromUser.username + '@' + group.name + ': ' + message.text
 
 /**
  * A convenience method that will return if the user is in the group

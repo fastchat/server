@@ -1,3 +1,22 @@
+///
+/// Error Catching on production
+///
+if (process.env === 'production') {
+  var d = require('domain').create();
+  d.on('error', function(err) {
+    // handle the error safely
+    // This will send an email one day
+    console.log(err);
+  });
+}
+
+///
+/// Setup Good Logging with line numbers so I can find my log statements
+///
+require('console-trace')({
+  always: true,
+});
+
 var express = require('express');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
@@ -81,7 +100,7 @@ var io = require('./socket').setup(server);
 
 app.set('port', portNumber);
 app.use(express.favicon());
-app.use(express.logger('dev'));
+app.use(express.logger());
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
