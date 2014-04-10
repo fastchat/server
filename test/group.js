@@ -4,9 +4,11 @@ var should = require('chai').should(),
 var async = require('async');
 
 var mongoose = require('mongoose');
-var User = require('../model/user')
+var User = require('../model/user');
+var GroupSetting = require('../model/groupSetting');
 var tokens = [];
 var users = [];
+var group = null;
 
 describe('Groups', function() {
   
@@ -150,12 +152,99 @@ describe('Groups', function() {
 	should.not.exist(err);
 	should.exist(res.body);
 	should.exist(res.body.error);
-	console.log('error: ' + res.body.error);
 	done();
      });
   });
 
+  it('should not allow a user to create a group with no members', function(done) {
+    api.post('/group')
+      .set('session-token', tokens[0])
+      .send({'text' : 'This is a test message!'})
+      .expect(400)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+	should.not.exist(err);
+	should.exist(res.body);
+	should.exist(res.body.error);
+	done();
+      });
+  });
 
+  it('should not allow a user to create a group without an array', function(done) {
+    api.post('/group')
+      .set('session-token', tokens[0])
+      .send({'text' : 'This is a test message!', 'members': {'test': 'test'}})
+      .expect(400)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+	should.not.exist(err);
+	should.exist(res.body);
+	should.exist(res.body.error);
+	done();
+      });
+  });
+
+  it('should let a user to create a group with the proper info', function(done) {
+
+    var user1 = users[1];
+
+    api.post('/group')
+      .set('session-token', tokens[0])
+      .send({'text' : 'This is a test message!', 'members': [user1.username]})
+      .expect(201)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+	should.not.exist(err);
+	should.exist(res.body);
+
+	var created = res.body;
+
+	should.not.exist(created.name);
+	created.members.should.have.length(2);
+	created.leftMembers.should.be.empty;
+	should.exist(created._id);
+	created.messages.should.have.length(1);
+
+	created.members.should.include(users[0]._id);
+	created.members.should.include(users[1]._id);
+
+
+	group = created;
+	///
+	/// Verify Group Settings
+	///
+	GroupSetting.findOne({'user': users[0]._id}, function(err, gs) {
+	  should.exist(gs);
+	  should.not.exist(err);
+	  gs.unread.should.equal(0);
+	  gs.group.toString().should.equal(created._id);
+
+	  GroupSetting.findOne({'user': users[1]._id}, function(err2, gs2) {
+	    should.exist(gs2);
+	    should.not.exist(err2);
+	    gs2.unread.should.equal(0);
+	    gs2.group.toString().should.equal(created._id);
+	    
+	    done();	    
+	  });
+	});
+
+      });
+  });
+
+  it('should not allow a user not in the group to change the name', function(done) {
+    api.put('/group/' + group._id + '/settings')
+      .set('session-token', tokens[2])
+      .send({'name': 'New Group Name!'})
+      .expect(404)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+	should.not.exist(err);
+	should.exist(res.body);
+	should.exist(res.body.error);
+	done();
+      });
+  });
 
 
   after(function(done) {

@@ -37,7 +37,6 @@ exports.createGroup = function(req, res) {
     return res.send(400, {'error': 'You must send a message with the new group!'});
   }
 
-
   var cb = function(err, group) {
     if (err) return res.send(400, {'error': err});
     res.send(201, group);
@@ -204,7 +203,7 @@ exports.changeSettings = function(req, res) {
   }
 
   Group.findOne( { _id : groupId }, function(err, group) {
-    if (err || !group) return res.send(400, {'error' : 'Group was not found!'});
+    if (err || !group) return res.send(404, {'error' : 'Group was not found!'});
 
     group.name = name;
     group.save(function(err) {
