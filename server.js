@@ -107,6 +107,8 @@ var userRoutes = require('./routes/user');
 var groupRoutes = require('./routes/group');
 var messageRoutes = require('./routes/message');
 var deviceRoutes = require('./routes/device');
+var stackTraceRoutes = require('./routes/stackTrace');
+var androidVersionRoutes = require('./routes/androidVersion');
 
 app.post('/login', userRoutes.loginPOST);
 app.delete('/logout', ensureAuthenticated, userRoutes.logout);
@@ -125,6 +127,13 @@ app.put('/group/:id/settings', ensureAuthenticated, groupRoutes.changeSettings);
 
 app.get('/user/device', ensureAuthenticated, deviceRoutes.getDevices);
 app.post('/user/device', ensureAuthenticated, deviceRoutes.postDevice);
+
+
+app.post('/stackTrace',stackTraceRoutes.postStackTrace);
+app.get('/stackTrace/:version/',stackTraceRoutes.getStackTraces);
+
+app.post('/androidVersion',androidVersionRoutes.postAndroidVersion);
+app.get('/androidVersion/latest',androidVersionRoutes.getLatestAndroidVersion);
 
 
 // Simple route middleware to ensure user is authenticated.
