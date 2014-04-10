@@ -63,6 +63,10 @@ exports.createGroup = function(req, res) {
       }
     });
 
+    if (otherMembers.length === 0) {
+      return res.send(400, {'error': 'You can\'t make a group with only yourself!'});
+    }
+
     newGroup(name, otherMembers, message, usr, cb);
   });
 
