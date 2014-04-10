@@ -202,6 +202,10 @@ exports.changeSettings = function(req, res) {
     return res.send(400, {'error':'Group ID is not a valid ID!'});
   }
 
+  if (!req.user.hasGroup(groupId)) {
+    return res.send(404, {'error' : 'Group was not found!'});
+  }
+
   Group.findOne( { _id : groupId }, function(err, group) {
     if (err || !group) return res.send(404, {'error' : 'Group was not found!'});
 
