@@ -228,12 +228,11 @@ exports.add = function(req, res) {
   }
 
   Group.findOne( { _id : groupId }, function(err, group) {
-    if (err || !group) return res.send(400, {'error' : 'Group was not found!'});
+    if (err || !group) return res.send(404, {'error' : 'Not Found!'});
 
     console.log('Found Group: ' + JSON.stringify(group, null, 4));
     async.each(invites, function(username, cb) {
       User.findOne( { 'username': username.toLowerCase() }, function (err, usr) {
-	console.log('Found User: ' + JSON.stringify(usr, null, 4));
 
 	if (!usr) {
 	  return cb();
@@ -246,7 +245,7 @@ exports.add = function(req, res) {
 	var index2 = usr.groups.indexOfEquals(group._id);
 
 	if (index !== -1 || index2 !== -1) {
-	  return cb();
+	  return cb('A user who left cannot be readded!');
 	}
 
 	///
@@ -291,7 +290,7 @@ exports.add = function(req, res) {
 	});
       });
     }, function(err) {
-      if (err) res.send(400, {});
+      if (err) res.send(400, {'error': err});
 
       res.send(200, {});
     });
