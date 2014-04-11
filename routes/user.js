@@ -1,7 +1,7 @@
 var User = require('../model/user');
 var Group = require('../model/group');
 var passport = require('passport');
-var ObjectId = require('mongoose').Types.ObjectId; 
+var ObjectId = require('mongoose').Types.ObjectId;
 var Errors = require('../model/errors');
 var Device = require('../model/device');
 var multiparty = require('multiparty');
@@ -35,7 +35,7 @@ exports.loginPOST = function(req, res, next) {
     }
     req.logIn(user, function(err) {
       if (err) { return next(err); }
-      
+
       ///
       /// Set session-token to DB, not session
       ///
@@ -51,7 +51,7 @@ exports.loginPOST = function(req, res, next) {
 
 // POST /user
 exports.register = function(req, res) {
-  
+
   var regexp = /^[a-zA-Z0-9-_.]+$/;
   var username = req.body.username;
 
@@ -78,14 +78,14 @@ exports.profile = function(req, res) {
     .exec(function(err, usr) {
       console.log('ERR: ' + err);
       if (err || !usr) return res.send(400, {'error' : 'The user was not found!'});
-      
+
       res.send({'profile': usr});
   });
 };
 
 
 exports.logout = function(req, res) {
-  
+
   var user = req.user;
   var shouldLogoutAll = req.query.all === 'true';
 
@@ -139,7 +139,7 @@ exports.postAvatar = function(req, res) {
       var randomName = uuid.v4() + '.' + EXTENSION_LOOKUP[mimeTypes[type]];
 
       console.log('Uploading to S3', JSON.stringify(file, null, 4));
-      
+
       s3req = knox.putStream(stream, randomName, {
 	'Content-Type': file.headers['content-type'],
 	'Cache-Control': 'max-age=604800',
@@ -184,26 +184,32 @@ exports.getAvatar = function(req, res) {
 
   var data = '';
   var user = req.user;
+  if(!user){
+    return res.send(401,{'error':'Not authorized to get avatar'});
+  }
+  User.findOne({'_id':req.params.id},function(err,avatarUser){
+    if(err || !avatarUser){
+      return res.send(400,{'error':'Error fetching user from database'});
+    }
+    knox.get(user.avatar).on('response', function(s3res){
 
+      if (s3res.statusCode < 200 || s3res.statusCode > 300) {
+        return res.send(400, {'error':'There was an error fetching your image!'});
+      }
+
+      s3res.setEncoding('binary');
+      s3res.on('data', function(chunk){
+        data += chunk;
+      });
+
+      s3res.on('end', function() {
+        res.contentType('image/jpeg');
+        res.write(data, encoding='binary')
+        res.end()
+      });
+    }).end();
+  });
 
   console.log();
-
-  knox.get(user.avatar).on('response', function(s3res){
-
-    if (s3res.statusCode < 200 || s3res.statusCode > 300) {
-      return res.send(400, {'error':'There was an error fetching your image!'});
-    }
-
-    s3res.setEncoding('binary');
-    s3res.on('data', function(chunk){
-      data += chunk;
-    });
-
-    s3res.on('end', function() {
-      res.contentType('image/jpeg');
-      res.write(data, encoding='binary')
-      res.end()
-    });
-  }).end();
 
 };
