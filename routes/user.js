@@ -185,7 +185,11 @@ exports.getAvatar = function(req, res) {
 
   User.findOne( { '_id' : userId }, function(err, user) {
     if(err || !user) return res.send(400, {'error':'Error fetching user from database'});
-    
+
+    if (!user.avatar) {
+      return res.send(200, {});
+    }
+
     knox.get(user.avatar).on('response', function(s3res){
 
       if (s3res.statusCode < 200 || s3res.statusCode > 300) {
