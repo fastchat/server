@@ -6,7 +6,15 @@ var Message = new Schema({
   group: {type: Schema.Types.ObjectId, ref: 'Group'},
   text: String,
   sent: Date,
-//media
+  type: {type: String, default: 'message'},
+  hasMedia: {type: Boolean, default: false},
+  media: {type: String, default: null},
 });
+
+
+
+///
+/// Have some nice methods for fetching media?
+///
 
 module.exports = mongoose.model('Message', Message);

@@ -1,4 +1,24 @@
+///
+/// Error Catching on production
+///
+if (process.env === 'production') {
+  var d = require('domain').create();
+  d.on('error', function(err) {
+    // handle the error safely
+    // This will send an email one day
+    console.log(err);
+  });
+}
+
+///
+/// Setup Good Logging with line numbers so I can find my log statements
+///
+require('console-trace')({
+  always: true,
+});
+
 var express = require('express');
+var params = require('express-params');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var mongoose = require('mongoose');
@@ -77,11 +97,12 @@ var app = express();
 server = http.createServer(app)
 server.listen(portNumber);
 var io = require('./socket').setup(server);
+params.extend(app);
 
 
 app.set('port', portNumber);
 app.use(express.favicon());
-app.use(express.logger('dev'));
+app.use(express.logger());
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
@@ -90,8 +111,11 @@ app.use(express.cookieParser('special turkey sauce is good'));
 app.use(express.session());
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(app.router);
 app.use(express.static(__dirname + '/client'));
+app.use(app.router);
+app.use(function(req,res){
+    res.json(404, {'error':'Not Found!'});
+});
 
 
 /**
@@ -110,11 +134,16 @@ var deviceRoutes = require('./routes/device');
 var stackTraceRoutes = require('./routes/stackTrace');
 var androidVersionRoutes = require('./routes/androidVersion');
 
+///
+// Forces all 'id' parameters to be a proper Mongoose ObjectId, or else it will 404
+///
+app.param('id', /^[0-9a-f]{24}$/);
+
 app.post('/login', userRoutes.loginPOST);
 app.delete('/logout', ensureAuthenticated, userRoutes.logout);
 app.post('/user', userRoutes.register);
 app.get('/user', ensureAuthenticated, userRoutes.profile);
-app.get('/user/:id/', ensureAuthenticated, userRoutes.profile);
+app.get('/user/:id?*', ensureAuthenticated, userRoutes.profile);
 app.post('/user/:id/avatar', ensureAuthenticated, userRoutes.postAvatar);
 app.get('/user/:id/avatar', ensureAuthenticated, userRoutes.getAvatar);
 
