@@ -18,11 +18,34 @@ exports.getGroups = function(req, res) {
       .exec(function(err, groups) {
 	if (err) res.send(500, {'error' : 'There was an error getting groups!'});
 
+	groups.sort(function(a, b) {
+	  var first;
+	  if (a.lastMessage) {
+	    first = a.lastMessage.sent;
+	  } else {
+	    return 1;
+	  }
+	  var second;
+	  if (b.lastMessage) {
+	    second = b.lastMessage.sent;
+	  } else {
+	    return -1;
+	  }
+
+          return ((first < second) ? 1 : ((first > second) ? -1 : 0));
+	});	
+
 	res.send(groups);
       });
   });
-
 };
+
+function sortByKey(array, key) {
+    return array.sort(function(a, b) {
+        var x = a[key]; var y = b[key];
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+    });
+}
 
 exports.createGroup = function(req, res) {
   var usr = req.user;
