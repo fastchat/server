@@ -131,8 +131,6 @@ var userRoutes = require('./routes/user');
 var groupRoutes = require('./routes/group');
 var messageRoutes = require('./routes/message');
 var deviceRoutes = require('./routes/device');
-var stackTraceRoutes = require('./routes/stackTrace');
-var androidVersionRoutes = require('./routes/androidVersion');
 
 ///
 // Forces all 'id' parameters to be a proper Mongoose ObjectId, or else it will 404
