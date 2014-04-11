@@ -147,10 +147,7 @@ exports.postAvatar = function(req, res) {
 	'Content-Length': file.size
       },
 	function(err, result) {
-	  console.log('Result: ');
-	  console.log(result);
-	  console.log(result.req.path);
-	  console.log('ERROR? 1' + err);
+
 	  if (err) return res.send(400, {'error' : 'THere was an error uploading your image!'});
 
 	  /// Now we have uploaded their image to S3, so let's add it to their user profile.
@@ -182,16 +179,18 @@ exports.postAvatar = function(req, res) {
 
 exports.getAvatar = function(req, res) {
 
-  var data = '';
-  var user = req.user;
-  if(!user){
-    return res.send(401,{'error':'Not authorized to get avatar'});
+  var idParam = req.params.id;
+  var userId = null;
+  if (idParam) {
+    idParam = idParam.toString();
+    userId = new ObjectId(idParam);
   }
-  User.findOne({'_id':req.params.id},function(err,avatarUser){
-    if(err || !avatarUser){
-      return res.send(400,{'error':'Error fetching user from database'});
-    }
-    knox.get(avatarUser.avatar).on('response', function(s3res){
+
+  var data = '';
+  var usr = req.user;
+
+  var callback = function(user) {
+    knox.get(user.avatar).on('response', function(s3res){
 
       if (s3res.statusCode < 200 || s3res.statusCode > 300) {
         return res.send(400, {'error':'There was an error fetching your image!'});
@@ -208,8 +207,16 @@ exports.getAvatar = function(req, res) {
         res.end()
       });
     }).end();
-  });
+  };
 
-  console.log();
 
+  if (idParam) {
+    callback(usr);
+  } else {
+    User.findOne( { '_id' : userId }, function(err, avatarUser) {
+      if(err || !avatarUser) return res.send(400, {'error':'Error fetching user from database'});
+      
+      callback(avatarUser);
+    });
+  }
 };
