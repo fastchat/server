@@ -72,11 +72,14 @@ Device.methods.send = function(group, message, badge, contentAvailable) {
 
     var note = new apn.Notification();
     note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
-    note.sound = IOS_DEFAULT_SOUND;
     if (badge || badge === 0) note.badge = badge;
+    if (message) note.alert = message;
     if (group) note.payload = {'group': group._id};
-    note.alert = message;
-    if (contentAvailable) note.setContentAvailable(true);
+    if (contentAvailable) {
+      note.setContentAvailable(true);
+    } else {
+      note.sound = IOS_DEFAULT_SOUND;
+    }
     
     console.log('FIRING AWAY: ' + JSON.stringify(note, null, 4) + ' TO: ' + this.token);
 
