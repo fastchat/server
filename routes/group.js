@@ -10,7 +10,8 @@ exports.getGroups = function(req, res) {
   var usr = req.user;
 
   GroupSetting.find({'user': usr._id}, function(err, gses) {
-    Group.find( { 'members' : usr._id }, '_id members leftMembers name')
+
+    Group.find( { 'members' : usr._id }, '_id members leftMembers name lastMessage')
       .populate('members', 'username')
       .populate('leftMembers', 'username')
       .populate('lastMessage')

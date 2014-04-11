@@ -14,7 +14,7 @@ var Group = new Schema({
   members : [{ type: Schema.Types.ObjectId, ref: 'User' }],
   leftMembers : [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
   messages : [{type: Schema.Types.ObjectId, ref: 'Message', default: [] }],
-  lastMessage : {type: Schema.Types.ObjectId, ref: 'Message', default: null },
+  lastMessage : { type: Schema.Types.ObjectId, ref: 'Message', default: null },
   name : {type: String, default: null}
 });
 

@@ -125,7 +125,7 @@ exports.setup = function(server) {
 	Group.findOne({'_id' : room}, function(err, group) {
 	  if (group) {
 	    group.messages.push(mes);
-	    group.lastMessage = mes;
+	    group.lastMessage = mes._id;
 	    group.save();
 	    mes.save();
 
