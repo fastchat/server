@@ -5,12 +5,13 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var PER_PAGE = 30;
 
 exports.getMessages = function(req, res) {
-  var groupId = req.params.id;
 
+  var idParam = req.params.id.toString();
+  var groupId = new ObjectId(idParam);
   var page = req.query.page;
-  if (!page) page = 0;
-  
   var usr = req.user;
+
+  if (!page) page = 0;  
   
   //MyModel.find(query, fields, { skip: 10, limit: 5 }, function(err, results) { ... });
   Message.find( {group: groupId}, {}, {sort: {sent: -1}, skip: page * PER_PAGE, limit: PER_PAGE}, function(err, messages) {
@@ -23,7 +24,7 @@ exports.getMessages = function(req, res) {
     ///
     GroupSetting.find({'user': usr._id}, function(err, gses) {
       
-      var thisGs = GroupSetting.forGroup(gses, new ObjectId(groupId));
+      var thisGs = GroupSetting.forGroup(gses, groupId);
       if (thisGs) {
 	thisGs.unread = 0;
 	usr.push(null, null, GroupSetting.totalUnread(gses), true);
