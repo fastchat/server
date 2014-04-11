@@ -191,7 +191,7 @@ exports.getAvatar = function(req, res) {
     if(err || !avatarUser){
       return res.send(400,{'error':'Error fetching user from database'});
     }
-    knox.get(user.avatar).on('response', function(s3res){
+    knox.get(avatarUser.avatar).on('response', function(s3res){
 
       if (s3res.statusCode < 200 || s3res.statusCode > 300) {
         return res.send(400, {'error':'There was an error fetching your image!'});
