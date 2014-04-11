@@ -41,7 +41,7 @@ Device.methods.send = function(group, message, badge, contentAvailable) {
     if (group) data.group = group._id;
     if (message) data.text = message;
     if (badge) data.alert = badge;
-    if (sound) data.sound = IOS_DEFAULT_SOUND;
+    data.sound = IOS_DEFAULT_SOUND;
 
     var message = new gcm.Message({
       'data': data
