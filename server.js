@@ -141,9 +141,9 @@ app.post('/login', userRoutes.loginPOST);
 app.delete('/logout', ensureAuthenticated, userRoutes.logout);
 app.post('/user', userRoutes.register);
 app.get('/user', ensureAuthenticated, userRoutes.profile);
-app.get('/user/:id?*', ensureAuthenticated, userRoutes.profile);
 app.post('/user/:id/avatar', ensureAuthenticated, userRoutes.postAvatar);
 app.get('/user/:id/avatar', ensureAuthenticated, userRoutes.getAvatar);
+app.get('/user/:id?*', ensureAuthenticated, userRoutes.profile);
 
 app.get('/group', ensureAuthenticated, groupRoutes.getGroups);
 app.post('/group', ensureAuthenticated, groupRoutes.createGroup);

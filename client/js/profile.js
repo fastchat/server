@@ -36,6 +36,7 @@ function getAvatar() {
 
   var xhr = new XMLHttpRequest();
 
+  console.log('HERE');
   // Use JSFiddle logo as a sample image to avoid complicating
   // this example with cross-domain issues.
   xhr.open( "GET", '/user/' + currentProfile._id + '/avatar');
@@ -43,29 +44,19 @@ function getAvatar() {
   xhr.responseType = "arraybuffer";
 
   xhr.onload = function( e ) {
+    console.log('GOT SOMETHING');
+    console.log(e);
     // Obtain a blob: URL for the image data.
     var arrayBufferView = new Uint8Array( this.response );
     var blob = new Blob( [ arrayBufferView ], { type: "image/png" } );
     var urlCreator = window.URL || window.webkitURL;
     var imageUrl = urlCreator.createObjectURL( blob );
+    console.log('URL: ' + imageUrl);
     var img = document.querySelector( "#profileImage" );
     img.src = imageUrl;
   };
 
   xhr.send();
-
-/*
-  API.profileImage(currentProfile._id, function(err, image) {
-    console.log('Got... ' + image);
-
-    var bytes = new Uint8Array(image);
-
-    console.log('BYTES: ' + JSON.stringify(bytes, null, 4));
-
-    var image = document.getElementById('profileImage');
-    image.src = 'data:image/png;base64,' + encode(bytes);
-  });
-*/
 
 };
 

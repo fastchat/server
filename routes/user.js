@@ -179,17 +179,13 @@ exports.postAvatar = function(req, res) {
 
 exports.getAvatar = function(req, res) {
 
-  var idParam = req.params.id;
-  var userId = null;
-  if (idParam) {
-    idParam = idParam.toString();
-    userId = new ObjectId(idParam);
-  }
-
+  var idParam = req.params.id.toString();
+  var userId = new ObjectId(idParam);
   var data = '';
-  var usr = req.user;
 
-  var callback = function(user) {
+  User.findOne( { '_id' : userId }, function(err, user) {
+    if(err || !user) return res.send(400, {'error':'Error fetching user from database'});
+    
     knox.get(user.avatar).on('response', function(s3res){
 
       if (s3res.statusCode < 200 || s3res.statusCode > 300) {
@@ -207,16 +203,5 @@ exports.getAvatar = function(req, res) {
         res.end()
       });
     }).end();
-  };
-
-
-  if (idParam) {
-    callback(usr);
-  } else {
-    User.findOne( { '_id' : userId }, function(err, avatarUser) {
-      if(err || !avatarUser) return res.send(400, {'error':'Error fetching user from database'});
-      
-      callback(avatarUser);
-    });
-  }
+  });
 };
