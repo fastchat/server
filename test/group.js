@@ -6,6 +6,7 @@ var async = require('async');
 var mongoose = require('mongoose');
 var User = require('../model/user');
 var Group = require('../model/group');
+var Message = require('../model/message');
 var GroupSetting = require('../model/groupSetting');
 var tokens = [];
 var users = [];
@@ -285,25 +286,173 @@ describe('Groups', function() {
 
   it('should let a user in the group change the group name', function(done) {
 
-    api.put('/group/' + group._id + '/settings')
+    Message.find({'group': group._id}, function(err, messages) {
+      should.not.exist(err);
+      messages.should.have.length(1);
+
+      api.put('/group/' + group._id + '/settings')
+	.set('session-token', tokens[0])
+	.send({'name': 'New Group Name!'})
+	.expect(200)
+	.expect('Content-Type', /json/)
+	.end(function(err, res) {
+	  should.not.exist(err);
+	  should.exist(res.body);
+	  should.not.exist(res.body.error);
+	  
+	  Group.findOne({_id: group._id}, function(err, group) {
+	    should.not.exist(err);
+	    should.exist(group);
+	    group.name.should.equal('New Group Name!');
+
+	    Message.find({'group': group._id}, {}, {sort: {sent: 1}}, function(err, messages) {
+	      should.not.exist(err);
+	      messages.should.have.length(2);
+	      messages[1].text.should.equal('Group is now called New Group Name!');
+	      messages[1].type.should.equal('system');
+	      done();
+	    });
+	  });
+	});
+    });
+  });
+
+  it('should not let you leave a group you are not in', function(done) {
+
+    api.put('/group/' + group._id + '/leave')
+      .set('session-token', tokens[2])
+      .send()
+      .expect(404)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+	should.not.exist(err);
+	should.exist(res.body);
+	should.exist(res.body.error);
+	done();
+      });
+  });
+
+  it('should let a user in the group leave', function(done) {
+
+    Message.find({'group': group._id}, function(err, messages) {
+      should.not.exist(err);
+      messages.should.have.length(2);
+
+      api.put('/group/' + group._id + '/leave')
+	.set('session-token', tokens[1])
+	.expect(200)
+	.expect('Content-Type', /json/)
+	.end(function(err, res) {
+	  should.not.exist(err);
+	  should.exist(res.body);
+	  should.not.exist(res.body.error);
+
+	  ///
+	  /// And now... validate
+	  ///
+	  Group.findOne({_id: group._id}, function(err, aGroup) {
+	    should.not.exist(err);
+	    should.exist(aGroup);
+	    aGroup.members.should.have.length(1);
+	    aGroup.members.should.contain(users[0]._id.toString());
+	    aGroup.leftMembers.should.have.length(1);
+	    aGroup.leftMembers.should.contain(users[1]._id.toString());
+
+	    User.findOne({_id: users[1]._id}, function(err, user) {
+	      user.groups.should.be.empty;
+	      user.leftGroups.should.have.length(1);
+	      user.leftGroups.should.contain(aGroup._id);
+
+	      Message.find({'group': aGroup._id}, {}, {sort: {sent: 1}}, function(err, messages) {
+		should.not.exist(err);
+		messages.should.have.length(3);
+		messages[2].text.should.equal('test2 has left the group.');
+		messages[2].type.should.equal('system');
+		done();
+	      });
+	    });
+	  });
+	});
+    });
+  });
+
+  it('it should fail to add nothing to a group', function(done) {
+
+    api.put('/group/' + group._id + '/add')
       .set('session-token', tokens[0])
-      .send({'name': 'New Group Name!'})
+      .send({})
+      .expect(400)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+	should.not.exist(err);
+	should.exist(res.body);
+	should.exist(res.body.error);
+	done();
+      });
+  });
+
+  it('it should return OK if you add no one to a group', function(done) {
+
+    api.put('/group/' + group._id + '/add')
+      .set('session-token', tokens[0])
+      .send({'invitees' : []})
       .expect(200)
       .expect('Content-Type', /json/)
       .end(function(err, res) {
 	should.not.exist(err);
 	should.exist(res.body);
 	should.not.exist(res.body.error);
-	
-	Group.findOne({_id: group._id}, function(err, group) {
-	  should.not.exist(err);
-	  should.exist(group);
-	  group.name.should.equal('New Group Name!');
-	  done();
-	});
+	done();
       });
   });
 
+  it.skip('it should not let a user add themselves', function(done) {
+    //hell if I fucking know
+    api.put('/group/' + group._id + '/add')
+      .set('session-token', tokens[0])
+      .send({'invitees' : []})
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+	should.not.exist(err);
+	should.exist(res.body);
+	should.not.exist(res.body.error);
+	done();
+      });
+  });
+
+  it('Another user cannot add a user who has left a group', function(done) {
+
+    Group.findOne({_id: group._id}, function(err, aGroup) {
+      should.not.exist(err);
+      should.exist(aGroup);
+      aGroup.members.should.have.length(1);
+      aGroup.members.should.contain(users[0]._id.toString());
+      aGroup.leftMembers.should.have.length(1);
+      aGroup.leftMembers.should.contain(users[1]._id.toString());
+
+      api.put('/group/' + group._id + '/add')
+	.set('session-token', tokens[0])
+	.send({'invitees' : [users[1].username]})
+	.expect(200)
+	.expect('Content-Type', /json/)
+	.end(function(err, res) {
+	  should.not.exist(err);
+	  should.exist(res.body);
+	  should.not.exist(res.body.error);
+
+	  Group.findOne({_id: group._id}, function(err, aGroup2) {
+	    should.not.exist(err);
+	    should.exist(aGroup2);
+	    aGroup2.members.should.have.length(1);
+	    aGroup2.members.should.contain(users[0]._id.toString());
+	    aGroup2.leftMembers.should.have.length(1);
+	    aGroup2.leftMembers.should.contain(users[1]._id.toString());
+	    done();
+	  });
+	});
+      });
+    });
 
   after(function(done) {
     mongoose.disconnect();

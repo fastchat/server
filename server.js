@@ -132,6 +132,9 @@ var groupRoutes = require('./routes/group');
 var messageRoutes = require('./routes/message');
 var deviceRoutes = require('./routes/device');
 
+///
+// Forces all 'id' parameters to be a proper Mongoose ObjectId, or else it will 404
+///
 app.param('id', /^[0-9a-f]{24}$/);
 
 app.post('/login', userRoutes.loginPOST);
