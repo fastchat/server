@@ -192,17 +192,13 @@ exports.leaveGroup = function(req, res) {
 };
 
 exports.changeSettings = function(req, res) {
-
+  console.log('HERE');
   var name = req.body.name;
-  var groupId = req.params.id;
+  var idParam = req.params.id.toString();
+  var groupId = new ObjectId(idParam);
+  var user = req.user;
 
-  try {
-    groupId = new ObjectId(groupId);
-  } catch (err) {
-    return res.send(400, {'error':'Group ID is not a valid ID!'});
-  }
-
-  if (!req.user.hasGroup(groupId)) {
+  if (!user.hasGroup(groupId)) {
     return res.send(404, {'error' : 'Group was not found!'});
   }
 

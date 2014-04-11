@@ -18,6 +18,7 @@ require('console-trace')({
 });
 
 var express = require('express');
+var params = require('express-params');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var mongoose = require('mongoose');
@@ -96,6 +97,7 @@ var app = express();
 server = http.createServer(app)
 server.listen(portNumber);
 var io = require('./socket').setup(server);
+params.extend(app);
 
 
 app.set('port', portNumber);
@@ -109,8 +111,11 @@ app.use(express.cookieParser('special turkey sauce is good'));
 app.use(express.session());
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(app.router);
 app.use(express.static(__dirname + '/client'));
+app.use(app.router);
+app.use(function(req,res){
+    res.json(404, {'error':'Not Found!'});
+});
 
 
 /**
@@ -127,11 +132,13 @@ var groupRoutes = require('./routes/group');
 var messageRoutes = require('./routes/message');
 var deviceRoutes = require('./routes/device');
 
+app.param('id', /^[0-9a-f]{24}$/);
+
 app.post('/login', userRoutes.loginPOST);
 app.delete('/logout', ensureAuthenticated, userRoutes.logout);
 app.post('/user', userRoutes.register);
 app.get('/user', ensureAuthenticated, userRoutes.profile);
-app.get('/user/:id/', ensureAuthenticated, userRoutes.profile);
+app.get('/user/:id?*', ensureAuthenticated, userRoutes.profile);
 app.post('/user/:id/avatar', ensureAuthenticated, userRoutes.postAvatar);
 app.get('/user/:id/avatar', ensureAuthenticated, userRoutes.getAvatar);
 

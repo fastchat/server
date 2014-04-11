@@ -5,6 +5,7 @@ var async = require('async');
 
 var mongoose = require('mongoose');
 var User = require('../model/user');
+var Group = require('../model/group');
 var GroupSetting = require('../model/groupSetting');
 var tokens = [];
 var users = [];
@@ -243,6 +244,63 @@ describe('Groups', function() {
 	should.exist(res.body);
 	should.exist(res.body.error);
 	done();
+      });
+  });
+
+  it('should not let a user change a group name with a bad id', function(done) {
+
+    var badId = group._id.toString() + '111111';
+
+    api.put('/group/' + badId + '/settings')
+      .set('session-token', tokens[0])
+      .send({'name': 'New Group Name!'})
+      .expect(404)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+	should.not.exist(err);
+	should.exist(res.body);
+	should.exist(res.body.error);
+	done();
+      });
+  });
+
+  it('should not let a user change a group name with a valid, but not found, id', function(done) {
+
+    var anID = group._id;
+    anID = anID.substr(0, anID.length - 4);
+    anID = anID + '9999';
+
+    api.put('/group/' + anID + '/settings')
+      .set('session-token', tokens[0])
+      .send({'name': 'New Group Name!'})
+      .expect(404)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+	should.not.exist(err);
+	should.exist(res.body);
+	should.exist(res.body.error);
+	done();
+      });
+  });
+
+  it('should let a user in the group change the group name', function(done) {
+
+    api.put('/group/' + group._id + '/settings')
+      .set('session-token', tokens[0])
+      .send({'name': 'New Group Name!'})
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+	should.not.exist(err);
+	should.exist(res.body);
+	should.not.exist(res.body.error);
+	
+	Group.findOne({_id: group._id}, function(err, group) {
+	  should.not.exist(err);
+	  should.exist(group);
+	  group.name.should.equal('New Group Name!');
+	  done();
+	});
       });
   });
 

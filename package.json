@@ -37,7 +37,8 @@
     "multiparty" : "3.2.4",
     "knox": "0.8.9",
     "uuid": "1.4.1",
-    "console-trace": "Wayfarer247/console-trace"
+    "console-trace": "Wayfarer247/console-trace",
+    "express-params": "0.0.3"
   },
   "devDependencies": {
     "mocha": "1.18.2",
