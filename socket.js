@@ -174,7 +174,7 @@ exports.setup = function(server) {
 		  if (thisGs) {
 		    thisGs.unread++;
 
-		    var text = message.fromUser.username + '@' + group.name + ': ' + message.text;
+		    var text = mes.fromUser.username + '@' + group.name + ': ' + mes.text;
 		    user.push(group, text, GroupSetting.totalUnread(gses), false);
 		    thisGs.save(function(err) {
 		      callback();
