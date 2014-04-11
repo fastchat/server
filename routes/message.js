@@ -11,7 +11,7 @@ exports.getMessages = function(req, res) {
   var page = req.query.page;
   var usr = req.user;
 
-  if (!page) page = 0;  
+  if (!page) page = 0;
   
   //MyModel.find(query, fields, { skip: 10, limit: 5 }, function(err, results) { ... });
   Message.find( {group: groupId}, {}, {sort: {sent: -1}, skip: page * PER_PAGE, limit: PER_PAGE}, function(err, messages) {
