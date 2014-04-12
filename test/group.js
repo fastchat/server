@@ -230,7 +230,25 @@ describe('Groups', function() {
 	    done();	    
 	  });
 	});
+      });
+  });
 
+  it('should be show the new group for the user who created it', function(done) {
+
+    api.get('/group')
+      .set('session-token', tokens[0])
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+	should.not.exist(err);
+	should.exist(res.body);
+	res.body.should.not.be.empty;
+
+	var g = res.body[0];
+	should.exist(g.unread);
+	g.unread.should.equal(0);
+	g.members.should.have.length(2);
+	done();
       });
   });
 

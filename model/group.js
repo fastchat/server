@@ -18,6 +18,24 @@ var Group = new Schema({
   name : {type: String, default: null}
 });
 
+var virtual = Group.virtual('fullname');
+
+Group.virtual('unread').get(function() {
+  return this._unread;
+});
+
+Group.virtual('unread').set(function(unread) {
+  return this._unread = unread;
+});
+
+Group.set('toObject', {
+  getters: true
+});
+
+Group.set('toJSON', { 
+  getters: true, 
+  virtuals: true
+});
 
 /**
  * Helper method to create a new group. Ensures that the information passed in

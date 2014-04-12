@@ -28,7 +28,7 @@ Array.prototype.indexOfEquals = function(val, key) {
 
   for (var i = 0; i < this.length; i++) {
     if (key) {
-      if ( this[i].key && this[i].key.equals && this[i].key.equals(val) ) {
+      if ( this[i][key] && this[i][key].equals && this[i][key].equals(val) ) {
 	return i;
       }
     } else {

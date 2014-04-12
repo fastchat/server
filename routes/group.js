@@ -18,6 +18,9 @@ exports.getGroups = function(req, res) {
       .exec(function(err, groups) {
 	if (err) res.send(500, {'error' : 'There was an error getting groups!'});
 
+	///
+	/// Sort groups so the most recent messages move up to the top
+	///
 	groups.sort(function(a, b) {
 	  var first;
 	  if (a.lastMessage) {
@@ -33,7 +36,20 @@ exports.getGroups = function(req, res) {
 	  }
 
           return ((first < second) ? 1 : ((first > second) ? -1 : 0));
-	});	
+	});
+
+	///
+	/// For each group - find the group setting object associated with it
+	/// and if it exists, add the unread count to this group
+	///
+	groups.forEach(function(g) {
+	  var index = gses.indexOfEquals(g._id, 'group');
+	  if (index > -1) {
+	    g.unread = gses[index].unread;
+	  } else {
+	    g.unread = 0;
+	  }
+	});
 
 	res.send(groups);
       });
