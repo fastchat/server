@@ -120,15 +120,16 @@ exports.logout = function(req, res) {
 exports.postAvatar = function(req, res) {
 
   var user = req.user;
-
   var form = new multiparty.Form();
 
   form.parse(req, function(err, fields, files) {
+    if (!files) return res.json(400, {'error' : 'File was not successfully uploaded!'});
+    if (!files.avatar) return res.json(400, {'error' : 'Avatar was not successfully uploaded!'});
 
     console.log('Fields: ' + JSON.stringify(fields, null, 4));
     console.log('FILES: ' + JSON.stringify(files, null, 4));
 
-    var file = files.avatar[0]
+    var file = files.avatar[0];
     if (!file) return res.json(400, {'error' : 'File was not successfully uploaded!'});
 
     var stream = fs.createReadStream(file.path)
