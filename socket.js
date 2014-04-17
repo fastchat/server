@@ -111,13 +111,23 @@ exports.setup = function(server) {
 	var mes = new Message({'from' : socketUser._id,
 			       'group': roomId,
 			       'text' : message.text,
-			       'sent' : new Date()
+			       'sent' : new Date(),
+			       'hasMedia' : message.hasMedia
 			      });
+
+	console.log('BUILT');
+	console.log(mes);
 	
 	///
 	/// Broadcast the message to everyone in the group instantly
 	///
 	socket.broadcast.to(room).emit('message', mes);
+
+	///
+	/// And then if they want to send up a pic, immediatly send back the objectId, so they
+	/// can make the post request.
+	///
+	socket.emit('media_message', mes._id);
 
 	///
 	/// Save the object we have, and add it to the group

@@ -9,6 +9,7 @@ var Message = new Schema({
   type: {type: String, default: 'message'},
   hasMedia: {type: Boolean, default: false},
   media: {type: String, default: null},
+  mediaHeader: {type: String, default: null}
 });
 
 

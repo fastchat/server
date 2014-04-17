@@ -136,6 +136,7 @@ var deviceRoutes = require('./routes/device');
 // Forces all 'id' parameters to be a proper Mongoose ObjectId, or else it will 404
 ///
 app.param('id', /^[0-9a-f]{24}$/);
+app.param('mesId', /^[0-9a-f]{24}$/);
 
 app.post('/login', userRoutes.loginPOST);
 app.delete('/logout', ensureAuthenticated, userRoutes.logout);
@@ -147,7 +148,9 @@ app.get('/user/:id?*', ensureAuthenticated, userRoutes.profile);
 
 app.get('/group', ensureAuthenticated, groupRoutes.getGroups);
 app.post('/group', ensureAuthenticated, groupRoutes.createGroup);
-app.get('/group/:id/messages', ensureAuthenticated, messageRoutes.getMessages);
+app.get('/group/:id/message', ensureAuthenticated, messageRoutes.getMessages);
+app.put('/group/:id/message/:mesId/media', ensureAuthenticated, messageRoutes.postMessageData);
+app.get('/group/:id/message/:mesId/media', ensureAuthenticated, messageRoutes.getMessageData);
 app.put('/group/:id/leave', ensureAuthenticated, groupRoutes.leaveGroup);
 app.put('/group/:id/add', ensureAuthenticated, groupRoutes.add);
 app.put('/group/:id/settings', ensureAuthenticated, groupRoutes.changeSettings);

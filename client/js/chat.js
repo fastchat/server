@@ -8,6 +8,7 @@ var memberLookup = {};
 $(window).on("blur", function() {
   isBlurred = true;
 }).on("focus", function() {
+  getAvatar();
   clearInterval(timer);
   console.log('ON FOCUUSSSSS');
   isBlurred = false;
@@ -170,7 +171,7 @@ function sendMessage() {
   var message = messageField.val();
   if (message) {
     messageField.val('');
-    window.socket.SocketServer.send({'text': message, 'group' : gps[currentGroup]._id});
+    window.socket.SocketServer.send({'text': message, 'group' : gps[currentGroup]._id, hasMedia: true});
     appendMessage(currentProfile.username, message);
   }
 
@@ -298,3 +299,52 @@ function logout() {
     window.location.replace(url() + '/index.html');
   });
 };
+
+
+
+///testing
+function uploadMedia() {
+  console.log('Uploading!');
+
+  var inputElement = document.getElementById('mediaField');
+  console.log('WHAT: ' + inputElement);
+
+  var formData = new FormData();
+  formData.append('media', inputElement.files[0]);
+
+  var request = new XMLHttpRequest(); //gps[currentGroup]._id
+  request.open('PUT','/group/'+gps[currentGroup]._id+'/message/'+'534d94b8382f50f308000001/media');
+  request.setRequestHeader('session-token', API.getToken());
+  request.send(formData);
+  
+  return false;
+};
+
+function getAvatar() {
+
+  var xhr = new XMLHttpRequest();
+
+  console.log('HERE');
+  // Use JSFiddle logo as a sample image to avoid complicating
+  // this example with cross-domain issues.
+  xhr.open( "GET", '/group/'+gps[currentGroup]._id+'/message/'+'534d94b8382f50f308000001/media');
+  xhr.setRequestHeader('session-token', API.getToken());
+  xhr.responseType = "arraybuffer";
+
+  xhr.onload = function( e ) {
+    console.log('GOT SOMETHING');
+    console.log(e);
+    // Obtain a blob: URL for the image data.
+    var arrayBufferView = new Uint8Array( this.response );
+    var blob = new Blob( [ arrayBufferView ], { type: "image/jpg" } );
+    var urlCreator = window.URL || window.webkitURL;
+    var imageUrl = urlCreator.createObjectURL( blob );
+    console.log('URL: ' + imageUrl);
+    var img = document.querySelector( "#media" );
+    img.src = imageUrl;
+  };
+
+  xhr.send();
+
+};
+
