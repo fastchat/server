@@ -241,7 +241,7 @@ exports.emitNewGroup = function(userId, group) {
   var userSocket = sockets[userId];
 
   if (userSocket) {
-    socket.emit('new_group', group);
+    userSocket.emit('new_group', group);
     return true;
   }
   return false;
