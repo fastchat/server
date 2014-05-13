@@ -14,11 +14,21 @@ test-w:
 	--growl \
 	--watch
 
-test-cov: lib-cov
-	@FASTCHAT_COV=1 $(MAKE) test REPORTER=html-cov > public/coverage.html
+test-cov:
+	COV_FASTCHAT=true \
+	AWS_KEY=AKIAIOHCTJAAHBIJCIXA \
+	AWS_SECRET=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 \
+	ENV=test \
+	MONGOLAB_URI=mongodb://localhost/test \
+	node server.js & \
+	sleep 3
+	echo
+	curl -X POST "http://localhost:3000/coverage/reset" && echo
+	@COV_FASTCHAT=true $(MAKE) test
+	open "http://localhost:3000/coverage"
 
-lib-cov:
-	@jscoverage --no-highlight lib lib-cov
+kill-test:
+	ps aux | grep "node server.js" | grep -v grep | awk "{print \"kill -9 \" $2}" | sh
 
 # The .PHONY is needed to ensure that we recursively use the out/Makefile
 # to check for changes.m

@@ -11,7 +11,7 @@ if (process.env === 'production') {
 }
 
 var im = require('istanbul-middleware'),
-    isCoverageEnabled = (process.env.COV ? true : false); // or a mechanism of your choice
+    isCoverageEnabled = (process.env.COV_FASTCHAT ? true : false); // or a mechanism of your choice
 
 if (isCoverageEnabled) {
     console.log('Hook loader for coverage - ensure this is not production!');
