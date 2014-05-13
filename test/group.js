@@ -1,13 +1,15 @@
+require('../index');
 var should = require('chai').should(),
     supertest = require('supertest'),
     api = supertest('http://localhost:3000');
 var async = require('async');
 
+
 var mongoose = require('mongoose');
-var User = require('../model/user');
-var Group = require('../model/group');
-var Message = require('../model/message');
-var GroupSetting = require('../model/groupSetting');
+var User = require('../index').User;
+var Group = require('../index').Group;
+var Message = require('../index').Message;
+var GroupSetting = require('../index').GroupSetting;
 var tokens = [];
 var users = [];
 var group = null;
@@ -424,7 +426,7 @@ describe('Groups', function() {
       });
   });
 
-  it.skip('it should not let a user add themselves', function(done) {
+  it('it should not let a user add themselves', function(done) {
     //hell if I fucking know
     api.put('/group/' + group._id + '/add')
       .set('session-token', tokens[0])
@@ -478,3 +480,4 @@ describe('Groups', function() {
   });
 
 });
+
