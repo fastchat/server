@@ -3,7 +3,7 @@ var should = require('chai').should(),
     api = supertest('http://localhost:3000');
 
 var mongoose = require('mongoose');
-var User = require('../model/user');
+var User = require('../index').User;
 var token = null;
 var createdUser = null;
 var UNAUTHENTICATED_MESSAGE = 'You are not logged in!';

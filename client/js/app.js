@@ -1,6 +1,6 @@
-//BASE_URL = 'http://localhost';
-//BASE_PORT = '3000';
-BASE_URL = 'http://powerful-cliffs-9562.herokuapp.com';
+BASE_URL = 'http://localhost';
+BASE_PORT = '3000';
+//BASE_URL = 'http://powerful-cliffs-9562.herokuapp.com';
 //BASE_PORT = '80';
 
 function url(env) {
@@ -102,7 +102,7 @@ API.prototype = {
   messages: function(groupId, page, cb) {
     
     if (this.isLoggedIn()) {
-      $.get(url() + '/group/' + groupId + '/messages', {'page':page}, function( response ) {
+      $.get(url() + '/group/' + groupId + '/message', {'page':page}, function( response ) {
 	console.log('Messages: ' + JSON.stringify(response, null, 4));
 	cb(null, response);
       }).fail(function(err) {

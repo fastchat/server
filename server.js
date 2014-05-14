@@ -10,6 +10,16 @@ if (process.env === 'production') {
   });
 }
 
+var im = require('istanbul-middleware'),
+    isCoverageEnabled = (process.env.COV_FASTCHAT ? true : false); // or a mechanism of your choice
+
+if (isCoverageEnabled) {
+    console.log('Hook loader for coverage - ensure this is not production!');
+    im.hookLoader(__dirname);
+        // cover all files except under node_modules
+        // see API for other options
+}
+
 ///
 /// Setup Good Logging with line numbers so I can find my log statements
 ///
@@ -31,10 +41,11 @@ var helpers = require('./helpers');
 ///
 /// Models
 ///
-var User = require('./model/user');
-var Group = require('./model/group');
-var Message = require('./model/message');
-var Device = require('./model/device');
+//var FastChat = require('./index');
+var User = require('./index').User;
+var Group = require('./index').Group;
+var Message = require('./index').Message;
+var Device = require('./index').Device;
 
 ///
 /// Database Setup
@@ -96,8 +107,14 @@ var portNumber = Number(process.env.PORT || 3000);
 var app = express();
 server = http.createServer(app)
 server.listen(portNumber);
-var io = require('./socket').setup(server);
+var io = require('./index').Socket.setup(server);
 params.extend(app);
+
+// add the coverage handler
+if (isCoverageEnabled) {
+    //enable coverage endpoints under /coverage
+    app.use('/coverage', im.createHandler());
+}
 
 
 app.set('port', portNumber);
@@ -113,8 +130,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(__dirname + '/client'));
 app.use(app.router);
-app.use(function(req,res){
-    res.json(404, {'error':'Not Found!'});
+app.use(function(req, res) {
+  console.log('404:', req);
+  res.json(404, {'error':'Not Found!'});
 });
 
 
@@ -127,15 +145,16 @@ if ('development' == app.get('env')) {
 }
 
 
-var userRoutes = require('./routes/user');
-var groupRoutes = require('./routes/group');
-var messageRoutes = require('./routes/message');
-var deviceRoutes = require('./routes/device');
+var userRoutes = require('./index').UserRoutes;
+var groupRoutes = require('./index').GroupRoutes;
+var messageRoutes = require('./index').MessageRoutes;
+var deviceRoutes = require('./index').DeviceRoutes;
 
 ///
 // Forces all 'id' parameters to be a proper Mongoose ObjectId, or else it will 404
 ///
 app.param('id', /^[0-9a-f]{24}$/);
+app.param('mesId', /^[0-9a-f]{24}$/);
 
 app.post('/login', userRoutes.loginPOST);
 app.delete('/logout', ensureAuthenticated, userRoutes.logout);
@@ -147,7 +166,9 @@ app.get('/user/:id?*', ensureAuthenticated, userRoutes.profile);
 
 app.get('/group', ensureAuthenticated, groupRoutes.getGroups);
 app.post('/group', ensureAuthenticated, groupRoutes.createGroup);
-app.get('/group/:id/messages', ensureAuthenticated, messageRoutes.getMessages);
+app.get('/group/:id/message', ensureAuthenticated, messageRoutes.getMessages);
+app.post('/group/:id/message', ensureAuthenticated, messageRoutes.postMessageData);
+app.get('/group/:id/message/:mesId/media', ensureAuthenticated, messageRoutes.getMessageData);
 app.put('/group/:id/leave', ensureAuthenticated, groupRoutes.leaveGroup);
 app.put('/group/:id/add', ensureAuthenticated, groupRoutes.add);
 app.put('/group/:id/settings', ensureAuthenticated, groupRoutes.changeSettings);
