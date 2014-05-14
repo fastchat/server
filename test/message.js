@@ -9,6 +9,8 @@ var Message = require('../index').Message;
 var GroupSetting = require('../index').GroupSetting;
 var tokens = [];
 var users = [];
+var theGroup = null;
+var mediaMessage = null;
 
 var io = require('socket.io-client');
 var socketURL = 'http://localhost:3000';
@@ -66,6 +68,15 @@ describe('Messages', function() {
 		callback();
 	      });
 	  });
+      },
+      function(cb) {
+	api.post('/group')
+	  .set('session-token', tokens[0])
+	  .send({ 'text' : 'First', 'members': [ users[1].username ] })
+	  .end(function(err, res) {
+	    theGroup = res.body;
+	    cb();
+	  });
       }
     ],
     // optional callback
@@ -87,7 +98,41 @@ describe('Messages', function() {
     });
   });
 
+  it('should let a user upload an image', function(done) {
 
+    var text = 'Example Text';
+    var req = api.post('/group/' + theGroup._id + '/message');
+
+    req.set('session-token', tokens[0])
+    req.field('text', text);
+    req.attach('media', 'test/test_image.png');
+    req.end(function(err, res) {
+
+      should.not.exist(err);
+      should.exist(res.body);
+      res.body.group.should.equal(theGroup._id);
+      res.body.text.should.equal(text);
+      res.body.hasMedia.should.equal(true);
+      should.exist(res.body.media);
+      res.body.mediaHeader[0].should.equal('image/png');
+      mediaMessage = res.body;
+      done();
+    });
+  });
+
+
+  it('should let a user download an image', function(done) {
+  
+    api.get('/group/' + theGroup._id + '/message/' + mediaMessage._id + '/media')
+      .set('session-token', tokens[0])
+      .expect(200)
+      .end(function(err, res) {
+	console.log('Res', res);
+	should.not.exist(err);
+	should.exist(res.body);
+	done();
+      });    
+  });
 
   after(function(done) {
     mongoose.disconnect();

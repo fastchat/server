@@ -15,14 +15,6 @@ test-w:
 	--watch
 
 test-cov:
-	COV_FASTCHAT=true \
-	AWS_KEY=AKIAIOHCTJAAHBIJCIXA \
-	AWS_SECRET=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 \
-	ENV=test \
-	MONGOLAB_URI=mongodb://localhost/test \
-	node server.js & \
-	sleep 3
-	echo
 	curl -X POST "http://localhost:3000/coverage/reset" && echo
 	@COV_FASTCHAT=true $(MAKE) test
 	open "http://localhost:3000/coverage"
