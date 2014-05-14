@@ -8,7 +8,7 @@ var memberLookup = {};
 $(window).on("blur", function() {
   isBlurred = true;
 }).on("focus", function() {
-  getAvatar();
+//  getAvatar();
   clearInterval(timer);
   console.log('ON FOCUUSSSSS');
   isBlurred = false;
@@ -306,16 +306,23 @@ function logout() {
 function uploadMedia() {
   console.log('Uploading!');
 
+
+  var messageField = $('#message');
   var inputElement = document.getElementById('mediaField');
   console.log('WHAT: ' + inputElement);
 
   var formData = new FormData();
+  formData.append('text', messageField.val());
   formData.append('media', inputElement.files[0]);
 
-  var request = new XMLHttpRequest(); //gps[currentGroup]._id
-  request.open('PUT','/group/'+gps[currentGroup]._id+'/message/'+'534d94b8382f50f308000001/media');
+  var url = '/group/'+gps[currentGroup]._id+'/message';
+
+  var request = new XMLHttpRequest();
+  request.open('POST', url);
   request.setRequestHeader('session-token', API.getToken());
   request.send(formData);
+
+  messageField.val('');
   
   return false;
 };

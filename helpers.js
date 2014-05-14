@@ -8,7 +8,7 @@
  */
 Array.prototype.indexOfKey = function(key, val) {
     for (var i = 0; i < this.length; i++) {
-        if (this[i].key === val) {
+        if (this[i][key] === val) {
 	  return i;
         }
     }

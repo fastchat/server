@@ -130,8 +130,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(__dirname + '/client'));
 app.use(app.router);
-app.use(function(req,res){
-    res.json(404, {'error':'Not Found!'});
+app.use(function(req, res) {
+  console.log('404:', req);
+  res.json(404, {'error':'Not Found!'});
 });
 
 
@@ -166,7 +167,7 @@ app.get('/user/:id?*', ensureAuthenticated, userRoutes.profile);
 app.get('/group', ensureAuthenticated, groupRoutes.getGroups);
 app.post('/group', ensureAuthenticated, groupRoutes.createGroup);
 app.get('/group/:id/message', ensureAuthenticated, messageRoutes.getMessages);
-app.put('/group/:id/message/:mesId/media', ensureAuthenticated, messageRoutes.postMessageData);
+app.post('/group/:id/message', ensureAuthenticated, messageRoutes.postMessageData);
 app.get('/group/:id/message/:mesId/media', ensureAuthenticated, messageRoutes.getMessageData);
 app.put('/group/:id/leave', ensureAuthenticated, groupRoutes.leaveGroup);
 app.put('/group/:id/add', ensureAuthenticated, groupRoutes.add);
