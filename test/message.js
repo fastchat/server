@@ -84,7 +84,7 @@ describe('Messages', function() {
       // Oh look, now we are done
       done();
     });
-    
+
   }); // before
 
   it('should let a user connect to the socket.io server', function(done) {
@@ -113,6 +113,7 @@ describe('Messages', function() {
       res.body.group.should.equal(theGroup._id);
       res.body.text.should.equal(text);
       res.body.hasMedia.should.equal(true);
+      res.body.media_size.should.equal(7762);
       should.exist(res.body.media);
       res.body.mediaHeader[0].should.equal('image/png');
       mediaMessage = res.body;
@@ -122,7 +123,7 @@ describe('Messages', function() {
 
 
   it('should let a user download an image', function(done) {
-  
+
     api.get('/group/' + theGroup._id + '/message/' + mediaMessage._id + '/media')
       .set('session-token', tokens[0])
       .expect(200)
@@ -131,7 +132,7 @@ describe('Messages', function() {
 	should.not.exist(err);
 	should.exist(res.body);
 	done();
-      });    
+      });
   });
 
   after(function(done) {
