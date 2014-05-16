@@ -113,7 +113,7 @@ describe('Messages', function() {
       res.body.group.should.equal(theGroup._id);
       res.body.text.should.equal(text);
       res.body.hasMedia.should.equal(true);
-      res.body.media_size.should.equal(7762);
+      res.body.media_size[0].should.equal(7762);
       should.exist(res.body.media);
       res.body.mediaHeader[0].should.equal('image/png');
       mediaMessage = res.body;
