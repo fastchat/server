@@ -33,9 +33,9 @@ API.prototype = {
       headers: { 'session-token': this.token }
     });
   }, //setup
-  
+
   // cb(err, success)
-  login: function(username, pass, cb) {    
+  login: function(username, pass, cb) {
     var that = this;
     $.post( url()+ '/login', {'username': username, 'password': pass}, function( response ) {
       var token = response['session-token'];
@@ -55,7 +55,7 @@ API.prototype = {
 	url: url() + '/logout',
 	type: 'DELETE',
 	success: function(response) {
-	  console.log('Delete Resonse: ' + JSON.stringify(response, null, 4));	
+	  console.log('Delete Resonse: ' + JSON.stringify(response, null, 4));
 	  that.setToken(null);
 	  that.token = null;
 	  that.setup();
@@ -67,7 +67,7 @@ API.prototype = {
 
 //"user": "test@gmail.com"
   // cb(err, success)
-  register: function(username, pass, cb) {    
+  register: function(username, pass, cb) {
     $.post( url()+ '/user', {'username': username, 'password': pass}, function( response ) {
       return cb(null, true);
     }).fail(function(err) {
@@ -79,13 +79,13 @@ API.prototype = {
 
   // cb(err, groups)
   groups: function(cb) {
-    
+
     console.log('Getting groups');
 
     if (this.isLoggedIn()) {
       console.log('Getting groups 2');
       $.get(url() + '/group', function( response ) {
-	console.log('Groups: ' + JSON.stringify(response, null, 4));  
+	console.log('Groups: ' + JSON.stringify(response, null, 4));
 	cb(null, response);
       }).fail(function(err) {
 	console.log('Error: ' + JSON.stringify(err, null, 4));
@@ -100,7 +100,7 @@ API.prototype = {
 
   //cb(err, messages)
   messages: function(groupId, page, cb) {
-    
+
     if (this.isLoggedIn()) {
       $.get(url() + '/group/' + groupId + '/message', {'page':page}, function( response ) {
 	console.log('Messages: ' + JSON.stringify(response, null, 4));
@@ -117,7 +117,7 @@ API.prototype = {
 
   // cb(err, group)
   newGroup: function(name, text, members, cb) {
-    
+
     var options = {};
     if (name) options['name'] = name;
     options.members = members;
@@ -147,7 +147,7 @@ API.prototype = {
 	type: 'PUT',
 	data: {'invitees':[username]},
 	success: function(response) {
-	  console.log('Invite Resonse: ' + JSON.stringify(response, null, 4));	
+	  console.log('Invite Resonse: ' + JSON.stringify(response, null, 4));
 	  cb(null, response);
 	}
       });
@@ -158,7 +158,7 @@ API.prototype = {
 
   // cb(err, profile) //with invites!
   profile: function(cb) {
-    
+
     console.log('Getting Profile');
     if (this.isLoggedIn()) {
       console.log('Getting Profile 2');
@@ -193,7 +193,7 @@ API.prototype = {
 
   // cb(err, success)
   acceptInvite: function(inviteNumber, cb) {
-    
+
     $.post( url()+ '/user/accept', {'invite':inviteNumber}, function( response ) {
       console.log('Response: ' + JSON.stringify(response, null, 4));
       if (typeof response.error === 'undefined') {
@@ -223,7 +223,7 @@ API.prototype = {
       return null;
     }
   }, // getToken
-  
+
 };
 
 API = new API();
