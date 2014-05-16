@@ -128,7 +128,6 @@ describe('Messages', function() {
       .set('session-token', tokens[0])
       .expect(200)
       .end(function(err, res) {
-	console.log('Res', res);
 	should.not.exist(err);
 	should.exist(res.body);
 	done();
