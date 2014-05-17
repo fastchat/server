@@ -31,6 +31,10 @@ var express = require('express');
 var params = require('express-params');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
+var bodyParser = require('body-parser');
+var favicon = require('serve-favicon');
 var mongoose = require('mongoose');
 var http = require('http');
 var config = require('./config');
@@ -118,18 +122,16 @@ if (isCoverageEnabled) {
 
 
 app.set('port', portNumber);
-app.use(express.favicon());
-app.use(express.logger());
-app.use(express.json());
-app.use(express.urlencoded());
-app.use(express.methodOverride());
-app.use(express.cookieParser('special turkey sauce is good'));
-//app.use(express.bodyParser()); // {uploadDir: './uploads'}
-app.use(express.session());
+app.use(favicon(__dirname + '/client/favicon.png'));
+app.use(require('morgan')());
+app.use(bodyParser());
+app.use(require('method-override')());
+app.use(cookieParser('special turkey sauce is good'));
+app.use(session({ secret: 'this is another secret', name: 'sid', cookie: { secure: true }}));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(__dirname + '/client'));
-app.use(app.router);
+app.use(app.router); //remove?
 app.use(function(req, res) {
   console.log('404:', req);
   res.json(404, {'error':'Not Found!'});
@@ -141,7 +143,7 @@ app.use(function(req, res) {
  */
 // development only
 if ('development' == app.get('env')) {
-  app.use(express.errorHandler());
+  app.use(require('errorhandler')());
 }
 
 

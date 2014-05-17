@@ -18,6 +18,13 @@
   "dependencies" : {
     "socket.io" : "0.9.16",
     "express": "^4.2.0",
+    "cookie-parser": "1.1.0",
+    "express-session": "1.1.0",
+    "method-override": "1.0.0",
+    "errorhandler": "1.0.1",
+    "morgan": "1.0.1",
+    "body-parser": "1.2.0",
+    "serve-favicon": "2.0.0",
     "mongoose" : "3.8.1",
     "bcrypt": "0.7.7",
     "passport": "0.2.0",
