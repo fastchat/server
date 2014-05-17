@@ -10,14 +10,17 @@ if (process.env.ENV === 'production') {
   });
 }
 
+///
+/// Code Coverage Middleware. This is currently using a forked version,
+/// because the original hasn't been updated. It covers all files served
+/// by the server. See the Makefile for how to get to this.
+///
 var im = require('istanbul-middleware'),
     isCoverageEnabled = (process.env.COV_FASTCHAT ? true : false); // or a mechanism of your choice
 
 if (isCoverageEnabled) {
     console.log('Hook loader for coverage - ensure this is not production!');
     im.hookLoader(__dirname);
-        // cover all files except under node_modules
-        // see API for other options
 }
 
 ///
@@ -45,7 +48,6 @@ var helpers = require('./helpers');
 ///
 /// Models
 ///
-//var FastChat = require('./index');
 var User = require('./index').User;
 var Group = require('./index').Group;
 var Message = require('./index').Message;
@@ -63,7 +65,7 @@ db.once('open', function callback() {
   console.log('Successfully connected to Mongo.');
 });
 
-// Passport session setup. g
+// Passport session setup.
 // To support persistent login sessions, Passport needs to be able to
 // serialize users into and deserialize users out of the session.  Typically,
 // this will be as simple as storing the user ID when serializing, and finding
@@ -132,15 +134,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(__dirname + '/client'));
 
-
 /**
  * Update how these are set to use app.set('development', stuff);
  */
-// development only
-if ('development' == app.get('env')) {
+if ('dev' === process.env.ENV)) {
   app.use(require('errorhandler')());
 }
-
 
 var userRoutes = require('./index').UserRoutes;
 var groupRoutes = require('./index').GroupRoutes;
