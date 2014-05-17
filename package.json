@@ -42,14 +42,14 @@
     "knox": "0.8.9",
     "uuid": "1.4.1",
     "console-trace": "Wayfarer247/console-trace",
-    "express-params": "0.0.3",
-    "istanbul-middleware": "0.1.1"
+    "express-params": "0.0.3"
   },
   "devDependencies": {
     "mocha": "1.18.2",
     "chai": "1.9.1",
     "supertest": "0.10.0",
-    "socket.io-client": "0.9.16"
+    "socket.io-client": "0.9.16",
+    "istanbul-middleware": "Wayfarer247/istanbul-middleware"
   },
   "engines": {
     "node": "0.10.x"
