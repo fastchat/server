@@ -203,10 +203,6 @@ function ensureAuthenticated(req, res, next) {
   }
 }
 
-
-
-
-
 var options = {
   "batchFeedback": true,
   "interval": 300
