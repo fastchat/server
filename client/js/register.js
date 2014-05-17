@@ -16,7 +16,7 @@ function register() {
     API.register(username, password, function(err, success) {
       if (success) {
 	API.login(username, password, function(err, success) {
-	  window.location.replace(url() + '/chat.html');
+	  window.location.replace('/chat.html');
 	  $('#register_errors').hide();
 	});
       } else {

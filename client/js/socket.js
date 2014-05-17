@@ -1,7 +1,7 @@
 (function() {
 
   function SocketServer(token) {
-    this.socket = io.connect(BASE_URL, { query: 'token=' + token });
+    this.socket = io.connect('/', { query: 'token=' + token });
   };
 
 

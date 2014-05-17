@@ -80,7 +80,7 @@ $(document).ready(function() {
       getGroupsAndUpdateUI();
     });
   } else {
-    window.location.replace(url() + '/login.html');
+    window.location.replace('/login.html');
   }
 });
 
@@ -149,7 +149,7 @@ function getGroupsAndUpdateUI(cb) {
       }
     } else if (err) {
       if (err.status === 401) {
-//	window.location.replace(url() + '/login.html');
+//	window.location.replace('/login.html');
       }
     }
   });
@@ -296,7 +296,7 @@ function newGroup() {
 
 function logout() {
   API.logout(function(err, success) {
-    window.location.replace(url() + '/index.html');
+    window.location.replace('/index.html');
   });
 };
 

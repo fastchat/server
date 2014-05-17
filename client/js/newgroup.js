@@ -68,7 +68,7 @@ function newGroup() {
       $('#group_errors').text(err.responseJSON.error);
       $('#group_errors').show();
     } else {
-      window.location.replace(url() + '/chat.html');
+      window.location.replace('/chat.html');
     }
   });
 

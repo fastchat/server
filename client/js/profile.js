@@ -100,7 +100,7 @@ function hideErrors() {
 
 function logout() {
   API.logout(function(err, success) {
-    window.location.replace(url() + '/index.html');
+    window.location.replace('/index.html');
   });
 };
 

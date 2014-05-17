@@ -1,7 +1,7 @@
 ///
 /// Error Catching on production
 ///
-if (process.env === 'production') {
+if (process.env.ENV === 'production') {
   var d = require('domain').create();
   d.on('error', function(err) {
     // handle the error safely
