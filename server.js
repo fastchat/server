@@ -131,11 +131,6 @@ app.use(session({ secret: 'this is another secret', name: 'sid', cookie: { secur
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(__dirname + '/client'));
-app.use(app.router); //remove?
-app.use(function(req, res) {
-  console.log('404:', req);
-  res.json(404, {'error':'Not Found!'});
-});
 
 
 /**
@@ -177,6 +172,12 @@ app.put('/group/:id/settings', ensureAuthenticated, groupRoutes.changeSettings);
 
 app.get('/user/device', ensureAuthenticated, deviceRoutes.getDevices);
 app.post('/user/device', ensureAuthenticated, deviceRoutes.postDevice);
+
+// 404
+app.use(function(req, res) {
+  console.log('404:', req);
+  res.json(404, {'error':'Not Found!'});
+});
 
 
 // Simple route middleware to ensure user is authenticated.
