@@ -6,7 +6,7 @@ function login() {
   API.login(username, password, function(err, success) {
     if (success) {
       $('#login_errors').hide();
-      window.location.replace(url() + '/chat.html');
+      window.location.replace('/chat.html');
     } else {
       $('#login_errors').text(err.responseJSON.error);
       $('#login_errors').show();

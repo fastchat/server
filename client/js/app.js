@@ -37,7 +37,7 @@ API.prototype = {
   // cb(err, success)
   login: function(username, pass, cb) {
     var that = this;
-    $.post( url()+ '/login', {'username': username, 'password': pass}, function( response ) {
+    $.post( '/login', {'username': username, 'password': pass}, function( response ) {
       var token = response['session-token'];
       that.setToken(token);
       that.setup();
