@@ -4,9 +4,6 @@
   "description": "A fast, small, chat server.",
   "main": "server.js",
   "scripts": {
-    "test": "AWS_KEY=AKIAIOHCTJAAHBIJCIXA AWS_SECRET=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 mocha --timeout 5000 --reporter nyan test/*.js",
-    "coverage": "AWS_KEY=AKIAIOHCTJAAHBIJCIXA AWS_SECRET=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 mocha -R html-cov test/*.js --coverage > coverage.html",
-    "start": "node server.js"
   },
   "keywords": [
     "chat",
