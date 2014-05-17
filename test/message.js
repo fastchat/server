@@ -134,9 +134,39 @@ describe('Messages', function() {
       });
   });
 
+  it('should get the messages from the group', function(done) {
+
+    api.get('/group/' + theGroup._id + '/message')
+      .set('session-token', tokens[0])
+      .expect(200)
+      .end(function(err, res) {
+	should.not.exist(err);
+	should.exist(res.body);
+	res.body.should.have.length(2);
+	res.body[0].text.should.equal('Example Text');
+	res.body[1].text.should.equal('First');
+	done();
+      });
+  });
+
+  it('should return a 404 if you try and get messages to a non-existant group', function(done) {
+
+    var fakeId = mongoose.Types.ObjectId();
+
+    api.get('/group/' + fakeId + '/message')
+      .set('session-token', tokens[0])
+      .expect(404)
+      .end(function(err, res) {
+	should.not.exist(err);
+	should.exist(res.body);
+	done();
+      });
+  });
+
   after(function(done) {
     mongoose.disconnect();
     done();
   });
 
 });
+
