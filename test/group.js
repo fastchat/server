@@ -4,7 +4,6 @@ var should = require('chai').should(),
     api = supertest('http://localhost:3000');
 var async = require('async');
 
-
 var mongoose = require('mongoose');
 var User = require('../index').User;
 var Group = require('../index').Group;

@@ -189,7 +189,7 @@ app.use(function(err, req, res, next) {
 });
 
 // 404
-app.use(function(req, res) {
+app.use(function(err, req, res, next) {
   console.log('404:', req);
   res.json(404, {'error':'Not Found!'});
 });
