@@ -130,6 +130,7 @@ describe('Messages', function() {
       .end(function(err, res) {
 	should.not.exist(err);
 	should.exist(res.body);
+  res.headers['content-length'].should.equal('7762');
 	done();
       });
   });
@@ -169,4 +170,3 @@ describe('Messages', function() {
   });
 
 });
-
