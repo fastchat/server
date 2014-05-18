@@ -426,7 +426,6 @@ describe('Groups', function() {
   });
 
   it('it should not let a user add themselves', function(done) {
-    //hell if I fucking know
     api.put('/group/' + group._id + '/add')
       .set('session-token', tokens[0])
       .send({'invitees' : []})
@@ -472,6 +471,30 @@ describe('Groups', function() {
 	});
       });
     });
+
+
+  it('it should let you add a new user to the group', function(done) {
+    var user2 = users[2];
+    api.put('/group/' + group._id + '/add')
+      .set('session-token', tokens[0])
+      .send({'invitees' : [user2.username]})
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+	should.not.exist(err);
+	should.exist(res.body);
+	should.not.exist(res.body.error);
+
+	Group.findOne({_id: group._id}, function(err, aGroup2) {
+	  should.not.exist(err);
+	  should.exist(aGroup2);
+	  aGroup2.members.should.have.length(2);
+	  aGroup2.members.should.contain(users[0]._id.toString());
+	  aGroup2.members.should.contain(users[2]._id.toString());
+	  done();
+	});
+      });
+  });
 
   after(function(done) {
     mongoose.disconnect();

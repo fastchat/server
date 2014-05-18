@@ -137,19 +137,6 @@ describe('Devices', function() {
       });
   });
 
-  it('should show up on your user when you get your user', function(done) {
-    api.get('/user')
-      .set('session-token', tokens[0])
-      .expect(200)
-      .expect('Content-Type', /json/)
-      .end(function(err, res) {
-	should.not.exist(err);
-	should.exist(res.body);
-	res.body.devices.should.have.length(2);
-	done();
-      });
-  });
-
   it('should show all your devices when you request them', function(done) {
     api.get('/user/device')
       .set('session-token', tokens[0])
@@ -161,6 +148,11 @@ describe('Devices', function() {
 	res.body.should.have.length(2);
 	done();
       });
+  });
+
+  after(function(done) {
+    mongoose.disconnect();
+    done();
   });
 
 });

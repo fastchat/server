@@ -172,6 +172,10 @@ app.put('/group/:id/settings', ensureAuthenticated, groupRoutes.changeSettings);
 app.get('/user/device', ensureAuthenticated, deviceRoutes.getDevices);
 app.post('/user/device', ensureAuthenticated, deviceRoutes.postDevice);
 
+app.use(function(err, req, res, next) {
+  console.error(err.stack);
+  next(err);
+});
 
 app.use(function(err, req, res, next) {
   console.log('Got middleware!', err);
@@ -184,14 +188,14 @@ app.use(function(err, req, res, next) {
   } else if (typeof err === 'string' || err instanceof String) {
     res.json(400, {error: err});
   } else {
-    next();
+    next(err);
   }
 });
 
 // 404
-app.use(function(err, req, res, next) {
+app.use(function(req, res, next) {
   console.log('404:', req);
-  res.json(404, {'error':'Not Found!'});
+  res.json(404, {error: 'Not Found'});
 });
 
 

@@ -66,6 +66,28 @@ describe('Socket.io', function() {
 	      });
 	  });
       },
+      function(cb) {
+	api.post('/user/device')
+	  .set('session-token', tokens[1])
+	  .send({token: 'somethingcool', type:'ios'})
+	  .expect(201)
+	  .expect('Content-Type', /json/)
+	  .end(function(err, res) {
+	    should.not.exist(err);
+	    should.exist(res.body);
+
+	    api.post('/user/device')
+	      .set('session-token', tokens[1])
+	      .send({token: 'awesometoken', type:'android'})
+	      .expect(201)
+	      .expect('Content-Type', /json/)
+	      .end(function(err, res) {
+		should.not.exist(err);
+		should.exist(res.body);
+		cb();
+	      });
+	  });
+      },
       function(callback) {
 	///
 	/// Add a group for both members
@@ -451,10 +473,6 @@ describe('Socket.io', function() {
     });
   });
 
-  it.skip('should send a notification to users not in the room', function(done) {
-    //finish
-    
-  });  
 
   after(function(done) {
     mongoose.disconnect();

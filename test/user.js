@@ -205,6 +205,45 @@ describe('Authentication', function() {
     });
   });
 
+  it('should let a user upload an avatar', function(done) {
+
+    api.post('/login')
+      .send({'username' : 'test1', 'password' : 'test'})
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+	should.exist(res.body);
+	should.not.exist(err);
+	should.exist(res.body['session-token']);
+	token = res.body['session-token'];
+
+	var req = api.post('/user/' + createdUser._id + '/avatar');
+
+	req.set('session-token', token)
+	req.attach('avatar', 'test/test_image.png');
+	req.end(function(err, res) {
+	  res.status.should.equal(200);
+	  should.not.exist(err);
+	  should.exist(res.body);
+	  res.body.should.be.empty;
+	  done();
+	});
+      });
+  });
+
+  it('should allow the user to download an avatar', function(done) {
+
+    api.get('/user/' + createdUser._id + '/avatar')
+      .set('session-token', token)
+      .expect(200)
+      .end(function(err, res) {
+	should.not.exist(err);
+	should.exist(res.body);
+	done();
+      });
+
+  });
+
   after(function(done) {
     mongoose.disconnect();
     done();
