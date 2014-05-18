@@ -6,7 +6,7 @@ var mongoose = require('mongoose');
 var User = require('../index').User;
 var token = null;
 var createdUser = null;
-var UNAUTHENTICATED_MESSAGE = 'You are not logged in!';
+var UNAUTHENTICATED_MESSAGE = 'Unauthorized';
 
 describe('Authentication', function() {
 
@@ -65,8 +65,7 @@ describe('Authentication', function() {
       should.exist(res.body);
       should.exist(res.body.error);
       should.not.exist(err);
-      res.body.error.should.contain('username');
-      res.body.error.should.contain('password');
+      res.body.error.should.equal('Unauthorized');
       done();
     });
   });

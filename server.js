@@ -137,7 +137,7 @@ app.use(express.static(__dirname + '/client'));
 /**
  * Update how these are set to use app.set('development', stuff);
  */
-if ('dev' === process.env.ENV)) {
+if ('dev' === process.env.ENV) {
   app.use(require('errorhandler')());
 }
 
@@ -172,6 +172,22 @@ app.put('/group/:id/settings', ensureAuthenticated, groupRoutes.changeSettings);
 app.get('/user/device', ensureAuthenticated, deviceRoutes.getDevices);
 app.post('/user/device', ensureAuthenticated, deviceRoutes.postDevice);
 
+
+app.use(function(err, req, res, next) {
+  console.log('Got middleware!', err);
+  if (err === 404) {
+    res.json(404, {error: 'Not Found'});
+  } else if (err === 500) {
+    res.json(500, {error: 'Internal Server Error'});
+  } else if (err === 401) {
+    res.json(401, {error : 'Unauthorized'});
+  } else if (typeof err === 'string' || err instanceof String) {
+    res.json(400, {error: err});
+  } else {
+    next();
+  }
+});
+
 // 404
 app.use(function(req, res) {
   console.log('404:', req);
@@ -197,11 +213,11 @@ function ensureAuthenticated(req, res, next) {
 	req.user = usr;
 	return next();
       } else {
-	res.json(401, {'error' : 'You are not logged in!'});
+	next(401);
       }
     });
   } else {
-    res.send(401, {'error' : 'You are not logged in!'});
+    next(401);
   }
 }
 

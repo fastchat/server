@@ -454,12 +454,12 @@ describe('Groups', function() {
       api.put('/group/' + group._id + '/add')
 	.set('session-token', tokens[0])
 	.send({'invitees' : [users[1].username]})
-	.expect(200)
+	.expect(400)
 	.expect('Content-Type', /json/)
 	.end(function(err, res) {
 	  should.not.exist(err);
 	  should.exist(res.body);
-	  should.not.exist(res.body.error);
+	  should.exist(res.body.error);
 
 	  Group.findOne({_id: group._id}, function(err, aGroup2) {
 	    should.not.exist(err);
