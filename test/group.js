@@ -207,10 +207,7 @@ describe('Groups', function() {
 	created.leftMembers.should.be.empty;
 	should.exist(created._id);
 	created.messages.should.have.length(1);
-
-	created.members.should.include(users[0]._id);
-	created.members.should.include(users[1]._id);
-
+	created.members.should.have.length(2);
 
 	group = created;
 	///
