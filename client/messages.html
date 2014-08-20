@@ -1,0 +1,17 @@
+<p>Hello {{profile.username}}</p>
+<p>Viewing {{group.name}}</p>
+
+<div id="chatbox">
+  <div class="message" ng-repeat="message in messages">
+    <!-- We can put in pictures here -->
+    <p>{{members[message.from]}}: {{message.text}}</p>
+  </div>
+</div>
+<br />
+<div>
+  <form class="form-inline" role="form" ng-submit="sendMessage()">
+    <label class="sr-only" for="message" autocomplete="off">Message</label>
+    <input type="text" ng-model="messageText" style="width: 400px" class="form-control" id="message" placeholder="Message...">
+    <button type="submit" class="btn">Send</button>
+  </form>
+</div>
