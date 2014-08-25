@@ -14,7 +14,7 @@ Group.prototype.groupName = function() {
 
   return this.members.map(function(elem){
     return elem.username;
-  }).join(',');
+  }).join(', ');
 };
 
 function MakeGroups(array) {
