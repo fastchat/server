@@ -34,8 +34,8 @@ app.config(function($routeProvider) {
 });
 
 
-app.controller('GroupCtrl', function($scope, $http, $routeParams) {
-  
+app.controller('GroupCtrl', function($scope, $http, $routeParams, $route) {
+
   console.log('Group: ' + $routeParams.num);
 
   $http.defaults.headers.common = { 'session-token' : API.getToken() };

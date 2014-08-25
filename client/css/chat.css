@@ -1,125 +1,103 @@
-#wrapper {
-  padding-left: 250px;
-  transition: all 0.4s ease 0s;
+#chatbox {
+    width: 90%;
+    height: 60vh;
+    background-color: #f7f6f1;
+    overflow: scroll;
+    padding: 20px;
+    border-radius: 25px;
+    margin-bottom: 15px;
 }
 
-#sidebar-wrapper {
-    margin-left: -250px;
-    left: 250px;
-    width: 250px;
-    background: #000;
-    position: fixed;
-    height: 100%;
-    overflow-y: auto;
-    transition: all 0.4s ease 0s;
-}
-
-#page-content-wrapper {
+.chat-bubble {
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: #000;
+    margin-bottom: 5px;
     width: 100%;
 }
 
-.sidebar-nav {
-    position: absolute;
-    top: 0;
-    width: 250px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
+.person {
+    width: 100px;
+    float: left;
 }
 
-.sidebar-nav li {
-    line-height: 40px;
-    text-indent: 20px;
+.person img {
+    display:block;
+    margin:auto;
 }
 
-.sidebar-nav li a {
-    color: #999999;
+.person p {
+    font-size: 80%;
     display: block;
-    text-decoration: none;
+    margin-bottom: 2px; 
+    letter-spacing: 1px;
+    -webkit-transition: all 0.3s linear;
+    -moz-transition: all 0.3s linear;
+    transition: all 0.3s linear;
+    text-align: center;
 }
 
-.sidebar-nav li a:hover {
-    color: #fff;
-    background: rgba(255,255,255,0.2);
-    text-decoration: none;
+.my-avatar {
+    width: 100px;
+    float: right;
 }
 
-.sidebar-nav li a:active,
-.sidebar-nav li a:focus {
-    text-decoration: none;
+.my-avatar img {
+    display:block;
+    margin:auto;
 }
 
-.sidebar-nav > .sidebar-brand {
-    height: 65px;
-    line-height: 60px;
-    font-size: 18px;
+.my-avatar p {
+    font-size: 80%;
+    display: block;
+    margin-bottom: 2px; 
+    letter-spacing: 1px;
+    -webkit-transition: all 0.3s linear;
+    -moz-transition: all 0.3s linear;
+    transition: all 0.3s linear;
+    text-align: center;
 }
 
-.sidebar-nav > .sidebar-brand a {
-    color: #999999;
+.avatar {
+    width: 40px;
+    height: 40px;
 }
 
-.sidebar-nav > .sidebar-brand a:hover {
-    color: #fff;
-    background: none;
+#chatbox p {
+    color:black;
 }
 
-.content-header {
-    height: 65px;
-    line-height: 65px;
+.not-me {
+    float:left;
+    clear:left;
+    text-align:left;
+    background-position:left;
 }
 
-.content-header h1 {
-    margin: 0;
-    margin-left: 20px;
-    line-height: 65px;
+.me {
+    float:right;
+    clear:right;
+    text-align:right;
+    background-position:right;
+}
+
+
+#chat-input {
     display: inline-block;
+    float: left;
+    width: 80%;
+    border-color: rgb(200, 200, 200);
+    border-radius: 10px;
+    resize: none;
 }
 
-#menu-toggle {
-    display: none;
+.send {
+    margin-left: 20px;
 }
 
-.inset {
-    padding: 20px;
-}
-
-@media (max-width:1000px) {
-
-    #wrapper {
-	padding-left: 0;
-    }
-
-    #sidebar-wrapper {
-	left: 0;
-    }
-
-    #wrapper.active {
-	position: relative;
-	left: 250px;
-    }
-
-    #wrapper.active #sidebar-wrapper {
-	left: 250px;
-	width: 250px;
-	transition: all 0.4s ease 0s;
-    }
-
-    #menu-toggle {
-	display: inline-block;
-    }
-
-    .inset {
-	padding: 15px;
-    }
-}
-
-.message {
-    background-color: white;
-}
-
-#chatbox {
-    height:500px;
-    width:100%;
-    overflow:auto;
+.no-wrap {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    width: 90%;
+    overflow: hidden;
 }
