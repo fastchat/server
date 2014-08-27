@@ -17,7 +17,6 @@ function Message(properties) {
 Message.prototype.toHTML = function() {
   var html = this.text;
   html.replace(/\\r\\n/g, "<br />");
-  console.log('RETURNING', html);
   return html;
 };
 

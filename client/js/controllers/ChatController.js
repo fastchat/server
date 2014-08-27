@@ -1,19 +1,12 @@
 fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', 'api', 'socket', 'notification', 'hotkeys', function ($scope, $routeParams, $location, api, socket, notification, hotkeys) {
 
+  var ENTER_KEYCODE = 13;
+
   var currentGroup = $routeParams.group;
   $scope.glued = true;
   $scope.profile = null;
   $scope.currentGroup = null;
   $scope.groups = [];
-
-/*
-  console.log('Window? ', $(window));
-  $(window).on('blur', function() {
-    console.log('Blurred');
-  }).on("focus", function() {
-    console.log('back');
-  });
-*/
   
   ///
   /// Really wanted this to just be in the group, but it's not really
@@ -48,11 +41,6 @@ fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', 'a
       allowIn: ['TEXTAREA'],
       callback: $scope.chat
     });
-
-  var scrollToBottom = function() {
-//    var currentHeight = $('#chatbox')[0].scrollHeight;
-//    $('#chatbox').scrollTop(currentHeight);
-  };
 
 
   var onMessage = function(data) {
@@ -97,7 +85,6 @@ fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', 'a
 	api.messages($scope.currentGroup._id).then(function(messages) {
 	  console.log('Messages', messages);
 	  $scope.messages = messages;
-	  scrollToBottom();
 	});
 
       } else {
@@ -107,5 +94,14 @@ fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', 'a
   };
 
   init();
+
+
+  $scope.handleEnter = function(evt) {
+    console.log('Evt:', evt);
+    if (evt.keyCode == ENTER_KEYCODE && !(evt.shiftKey || evt.altKey)) {
+      $scope.chat();
+      evt.preventDefault();
+    }
+  }; 
 
 }]);

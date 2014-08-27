@@ -27,7 +27,7 @@
 
 	</div> <!-- End Chat Box -->
 	<div>
-	  <textarea id="chat-input" ng-model="messageText"></textarea>
+	  <textarea id="chat-input" ng-model="messageText" ng-keypress="handleEnter($event)"></textarea>
 	  <a class="btn btn-info send " ng-click="chat()">Send</a>
 	</div>
 
