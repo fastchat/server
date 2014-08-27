@@ -1,200 +1,84 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Fast Chat</title>
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-        <link rel="shortcut icon" href="/favicon.png">
-        <link rel="stylesheet" href="/flat-ui/bootstrap/css/bootstrap.css">
-        <link rel="stylesheet" href="/flat-ui/css/flat-ui.css">
-        <!-- Using only with Flat-UI (free)-->
-        <link rel="stylesheet" href="/common-files/css/icon-font.css">
-        <!-- end -->
-        <link rel="stylesheet" href="/css/style.css">
-    </head>
+<html lang="en" ng-app="fastchat">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastChat</title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/flat-ui.css" />
+    <link rel="stylesheet" type="text/css" href="css/hotkeys.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="stylesheet" type="text/css" href="css/sidebar.css" />
+    <link rel="stylesheet" type="text/css" href="css/chat.css" />
 
-    <body>
-        <div class="page-wrapper">
-            <!-- header-10 -->
-            <header class="header-10">
-                <div class="container">
-                    <div class="navbar col-sm-12" role="navigation">
-                        <div class="navbar-header">
-                            <button type="button" class="navbar-toggle"></button>
-                            <a class="brand" href="/index.html">Fast Chat</a>
-                         </div>
-                        <div class="collapse navbar-collapse pull-right">
-                            <ul class="nav pull-left">
-                                <li class="active"><a href="/index.html">Home</a></li>
-                                <li><a href="#">Blog</a></li>
-                                <li><a href="#">Contact</a></li>
-                            </ul>
-                            <form class="navbar-form pull-left">
-                                <a class="btn btn-info" href="/login.html">Login</a>
-                                <a class="btn btn-info" href="/register.html">Register</a>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </header>
-            <section class="header-10-sub v-center bg-midnight-blue">
-                <div class="background">
-                    &nbsp;
-                </div>
-                <div>
-                    <div class="container">
-                        <div class="hero-unit">
-                            <h1>Fast Chat is the best way to connect</h1>
-                            <p>
-			      We've created a wicked platform to help you
-                                <br/>
-				stay connected to those people that matter.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <a class="control-btn fui-arrow-down" href="#"> </a>
-            </section>
 
-            <!-- content-7  -->
-            <section class="content-7 v-center">
-              <div>
+    <script src="js/scripts/jquery-2.1.1.min.js"></script>
+    <script src="js/scripts/bootstrap.min.js"></script>
+    <script src="js/scripts/angular.min.js"></script>
+    <script src="js/scripts/angular-route.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/scripts/notify.js"></script>
+    <script src="js/scripts/scrollglue.js"></script>
+    <script src="js/scripts/hotkeys.min.js"></script>
 
-                <div class="container">
-                  <h3>Fast Chat at a glance</h3>
+    <script src="js/models/group.js"></script>
+    <script src="js/models/message.js"></script>
 
-                  <div class="row v-center">
-                    <div class="col-sm-3">
-                      <div>
-			We support all major platforms; iOS, Android, and Web, allow you to chat with your friends
-			wherever you are.
-                      </div>
-                    </div>
-                    <div class="col-sm-4">
-                      <div class="col-sm-offset-1">
-                        <img src="/img/White.png" width="300" height="500" alt="">
-                      </div>
-                    </div>
-                    <div class="col-sm-3">
-                      <div class="col-sm-offset-2">
-                        <h6>iOS 7</h6>
-			Our app is built from the ground up to support the newest and greatest.
-                        <h6>Android 4.0</h6>
-			We're looking to the future with Android and using the best new API's to allow for the best app.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section> 
+    <script src="js/app.js"></script>
+    <script src="js/services/authService.js"></script>
+    <script src="js/services/api.js"></script>
+    <script src="js/services/socket.js"></script>
+    <script src="js/services/notification.js"></script>
 
-            <!-- content-23  -->
-            <section class="content-23 v-center bg-midnight-blue custom-bg">
-                <div>
-                    <div class="container">
-                        <div class="hero-unit hero-unit-bordered">
-                            <h1>Wherever you go</h1>
-                        </div>
-                    </div>
-                </div>
-                <a class="control-btn fui-arrow-down" href="#"> </a>
-            </section>
+    <script src="js/controllers/NavbarController.js"></script>
+    <script src="js/controllers/LoginController.js"></script>
+    <script src="js/controllers/RegisterController.js"></script>
+    <script src="js/controllers/ChatController.js"></script>
 
-            <!-- content-8  -->
-            <section class="content-8 v-center">
-                <div>
-                    <div class="container">
-                        <img src="/common-files/img/content/img-1@2x.png" width="397" height="193" alt="">
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-                        <h3>Take a look at our architecture</h3>
+      ga('create', 'UA-54229110-1', 'auto');
+      ga('send', 'pageview');
 
-                        <div class="row">
-                            <div class="col-sm-6 col-sm-offset-3">
-                                <p>We were unimpressed with the lag and bugginess associated with other platforms.
-				  We've worked hard to make Fast Chat as fast as possible.
-                                </p>
-                                <a class="btn btn-large btn-clear" href="/register.html">FIND OUT NOW</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+    </script>
 
-            <!-- content-23  -->
-            <section class="content-23  v-center bg-midnight-blue">
-                <div id="bgVideo" class="background"></div>
-                <div>
-                    <div class="container">
-                        <div class="hero-unit">
-                            <h1>Stay Connected
-                            <br class="hidden-phone">
-                            Be Productive</h1>
-                        </div>
-                    </div>
-                </div>
-                <a class="control-btn fui-arrow-down" href="#"> </a>
-            </section>
+  </head>
+  <body>
+    <header class="header-10 navbar-fixed-top" ng-controller="NavbarController">
+      <div class="container">
+        <div class="navbar col-sm-12" role="navigation">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle"></button>
+            <a class="brand purple-color" href="/index.html">FastChat</a>
+          </div>
 
-            <!-- content-8  -->
-            <section class="content-8 v-center">
-                <div>
-                    <div class="container">
-                        <img width="380" height="187" alt="" src="img/ticket-red@2x.png"/>
-                        <h3>Twenty Five Awesome Samples</h3>
-                        <div class="row">
-                            <div class="col-sm-6 col-sm-offset-3">
-                                <p>
-                                    The most important part of the Startup Framework is the samples.
-                                    The samples form a set of 25 usable pages or you can add new blocks from UI Kit.
-                                </p>
-                                <a class="btn btn-large btn-clear" href="/register.html">REGISTER NOW</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- content-11  -->
-            <section class="content-11">
-                <div class="container">
-                    <span>Fast Chat is simple, fast, and free. What are you waiting for?</span>
-                    <a class="btn btn-large btn-danger" href="/register.html">REGISTER NOW</a>
-                </div>
-            </section>
-
-            <!-- footer-3 -->
-            <footer class="footer-3">
-                <div class="container">
-                    <div class="row v-center">
-                        <div class="col-sm-2">
-                            <a class="brand" href="/index.html">Fast Chat</a>
-                        </div>
-                        <div class="col-sm-7">
-                            <div class="additional-links">
-                                Be sure to take a look to our <a href="#">Terms of Use</a> and <a href="#">Privacy Policy</a>
-                            </div>
-                        </div>
-                        <div class="col-sm-3">
-                            <h6>Boston, MA</h6>
-                            <div class="address">
-                                Address Here st number<br>Boston, MA, 11111
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </footer>
+	  <div ng-if="isLoggedIn() == true" class="collapse navbar-collapse pull-right">
+            <ul class="nav pull-left">
+              <li><a href="#/chat/0">Chat</a></li>
+            </ul>
+	    <form class="navbar-form pull-left">
+              <a class="btn btn-info" href="#/logout">Logout</a>
+            </form>
+	  </div>
+	  <div ng-if="isLoggedIn() == false" class="collapse navbar-collapse pull-right">
+            <ul class="nav pull-left">
+              <li class="active"><a href="/index.html">Home</a></li>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Contact</a></li>
+            </ul>
+            <form class="navbar-form pull-left">
+              <a class="btn btn-info" href="#/login">Login</a>
+              <a class="btn btn-info" href="#/register">Register</a>
+            </form>
+	  </div>
         </div>
+      </div>
+    </header>
 
-        <!-- Placed at the end of the document so the pages load faster -->
-        <script src="/common-files/js/jquery-1.10.2.min.js"></script>
-        <script src="/flat-ui/js/bootstrap.min.js"></script>
-        <script src="/common-files/js/modernizr.custom.js"></script>
-        <script src="/common-files/js/jquery.scrollTo-1.4.3.1-min.js"></script>
-        <script src="/common-files/js/jquery.parallax.min.js"></script>
-        <script src="/common-files/js/startup-kit.js"></script>
-        <script src="js/jquery.backgroundvideo.min.js"></script>
-        <script src="js/script.js"></script>
-    </body>
+    <ng-view />
+
+  </body>
 </html>

@@ -25,13 +25,13 @@ fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', 'a
     var text = $scope.messageText;
     if (text) {
       
-      var message = {
+      var message = new Message({
 	from: $scope.profile._id,
 	'text': text,
 	sent: new Date(),
 	group: $scope.currentGroup._id,
 	hasMedia: false
-      }
+      });
       socket.send(message);
       $scope.messages.unshift(message);
       $scope.messageText = '';
