@@ -5,8 +5,8 @@
 	<li class="sidebar-brand">
             Groups
 	</li>
-	<li ng-repeat="group in groups">
-          <a class="no-wrap" href="#/{{$index}}">{{ group.groupName(); }}</a>
+	<li ng-repeat="group in groups | orderBy:lastMessage.sent">
+          <a class="no-wrap" href="#/chat/{{$index}}">{{ group.groupName(); }}</a>
 	</li>
 
       </ul>
@@ -14,41 +14,21 @@
     <div id="page-content-wrapper">
       <div class="container-fluid">
 	<h2 class="no-wrap">{{ currentGroup.groupName() }}</h2>
-	
-	<div id="chatbox">
-	  <div class="chat-bubble not-me">
-	    <div class="person">
-	      <img src="http://www.gravatar.com/avatar/d2e01c1655c22259cbeb14feea47df6d.png" class="avatar"/>
-	      <p>Dave Lamont</p>
+	<div id="chatbox" scroll-glue>
+	  <div ng-repeat="message in messages.slice().reverse()">
+	    <div class="chat-bubble {{ message.from == profile._id ? 'me' : 'not-me' }}">
+	      <div class="{{ message.from == profile._id ? 'my-avatar' : 'person'}}">
+		<img src="img/default_avatar.png" class="avatar"/>
+		<p>{{ currentGroup.usernameFromId(message.from) }}</p>
+	      </div>
+	      <p class="chat-text">{{ message.toHTML() }}</p>
 	    </div>
-	    <p>text for the chat bubble!</p>
-	  </div>
-	  <div class="chat-bubble me">
-	    <div class="my-avatar">
-	      <img src="http://www.gravatar.com/avatar/d2e01c1655c22259cbeb14feea47df6d.png" class="avatar"/>
-	      <p>Ethan Mick</p>
-	    </div>
-	    <p>text for the chat bubble that is super long and will probably go off the screen or something crazy like that and we need to maek sure it wraps around correctly so dont' forget lolololololol!</p>
-	  </div>
-	  <div class="chat-bubble me">
-	    <div class="my-avatar">
-	      <img src="http://www.gravatar.com/avatar/d2e01c1655c22259cbeb14feea47df6d.png" class="avatar"/>
-	      <p>Ethan Mick</p>
-	    </div>
-	    <p>text for the chat bubble that is super long and will probably go off the screen or something crazy like that and we need to maek sure it wraps around correctly so dont' forget lolololololol!</p>
-	  </div>
-	  <div class="chat-bubble not-me">
-	    <div class="person">
-	      <img src="http://www.gravatar.com/avatar/d2e01c1655c22259cbeb14feea47df6d.png" class="avatar"/>
-	      <p>Ethan Mick</p>
-	    </div>
-	    <p>text for the chat bubble that is super long and will probably go off the screen or something crazy like that and we need to maek sure it wraps around correctly so dont' forget lolololololol!</p>
 	  </div>
 
 	</div> <!-- End Chat Box -->
 	<div>
-	  <textarea id="chat-input" data-widearea="enable"></textarea>
-	  <a class="btn btn-info send">Send</a>
+	  <textarea id="chat-input" ng-model="messageText"></textarea>
+	  <a class="btn btn-info send " ng-click="chat()">Send</a>
 	</div>
 
 

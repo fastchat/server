@@ -101,3 +101,7 @@
     width: 90%;
     overflow: hidden;
 }
+
+.chat-text {
+    white-space: pre;
+}

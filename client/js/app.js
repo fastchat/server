@@ -1,4 +1,10 @@
-var fastchat = angular.module('fastchat', ['ngRoute']);
+var fastchat = angular.module('fastchat', ['ngRoute', 'luegg.directives', 'cfp.hotkeys']);
+
+fastchat.filter('reverse', function() {
+  return function(items) {
+    return items.slice().reverse();
+  };
+});
 
 
 //
@@ -15,15 +21,16 @@ fastchat.config(function ($routeProvider, $locationProvider) {
     when('/register', {
       templateUrl:'views/register.html'
     }).
-    when('/chat', {
+    when('/chat/:group', {
       templateUrl:'views/chat.html'
     }).
+    when('/chat', {
+      redirectTo: '/chat/0'
+    }).
     otherwise({
-      redirectTo: '/index2.html'
+      redirectTo: '/'
     });
 });
-
-
 
 fastchat.run(['api', 'authService', function(api, authService) {
   console.log('Root Running');

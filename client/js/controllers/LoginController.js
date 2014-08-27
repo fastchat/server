@@ -8,7 +8,7 @@ fastchat.controller('LoginController', ['$scope', '$location', 'api', function (
       .then(function(data) {
 	console.log(data);
 	if (data === true) {
-	  $location.path('/chat');
+	  $location.path('chat');
 	} else {
 	  $('#login_errors').text(data.data.error);
 	  $('#login_errors').show();

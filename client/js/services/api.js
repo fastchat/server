@@ -82,7 +82,30 @@ fastchat.service('api', function ($http, $rootScope, $q) {
   this.messages = function(id, page) {
     console.log('Getting groups for id:', id, page);
     if (!page) page = 0;
-    return $http.get('/group' + id + '/message', {'page':page});
+    return $http.get('/group/' + id + '/message', {'page':page}).
+      then(function(response) {
+	if (response.status == 200) {
+	  return MakeMessages(response.data);
+	}
+	return response;
+      });
+  };
+
+  
+  var currentUserProfile = null;
+  this.profile = function() {
+    if (currentUserProfile) {
+      $q(function(resolve, reject) {
+	resolve(currentUserProfile);
+      });    }
+    
+    return $http.get('/user')
+      .then(function(response) {
+	currentUserProfile = response.data.profile;
+	console.log('User: ', currentUserProfile);
+	return currentUserProfile;
+      });
+
   };
 
 

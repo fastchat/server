@@ -1,13 +1,27 @@
+var memberLookup = {};
+
 function Group(properties) {
   for (var key in properties) {
     if(properties.hasOwnProperty(key)) {
       this[key] = properties[key];
     }
   }
+
+  var self = this;
+  this.members.forEach(function(member) {
+    memberLookup[member._id] = member.username;
+  });
 }
- 
+
+Group.usernameFromId = function(id) {
+  return memberLookup[id];
+};
+
+Group.prototype.usernameFromId = function(id) {
+  return memberLookup[id];
+}
+
 Group.prototype.groupName = function() {
-  console.log('NAME', this.name);
   if (this.name) {
     return this.name;
   }

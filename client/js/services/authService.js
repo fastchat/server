@@ -1,7 +1,7 @@
 fastchat.factory('authService', ['$rootScope', '$location', function($rootScope, $location) {
 
   var self = this;
-  var loginPath = '/login';
+  var loginPath = 'login';
 
   return {
     init: function(api, restrictedPaths){
