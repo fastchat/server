@@ -97,7 +97,8 @@ fastchat.service('api', function ($http, $rootScope, $q) {
     if (currentUserProfile) {
       $q(function(resolve, reject) {
 	resolve(currentUserProfile);
-      });    }
+      });
+    }
     
     return $http.get('/user')
       .then(function(response) {
@@ -105,7 +106,13 @@ fastchat.service('api', function ($http, $rootScope, $q) {
 	console.log('User: ', currentUserProfile);
 	return currentUserProfile;
       });
-
+  };
+  
+  // Not Implemented
+  this.whatIsNew = function() {
+    return $q(function(resolve, reject) {
+      resolve(false);
+    });
   };
 
 

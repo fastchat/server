@@ -19,6 +19,7 @@
     <script src="js/scripts/notify.js"></script>
     <script src="js/scripts/scrollglue.js"></script>
     <script src="js/scripts/hotkeys.min.js"></script>
+    <script src="js/scripts/ui-bootstrap-tpls-0.11.0.min.js"></script>
 
     <script src="js/models/group.js"></script>
     <script src="js/models/message.js"></script>
@@ -45,6 +46,36 @@
 
     </script>
 
+    <script>
+      $(document).ready(function(){
+      $('[rel="popover"]').popover({
+      });
+
+
+/*
+        $('[data-toggle="popover"]').popover({
+          trigger: 'focus click',
+          placement : 'bottom',
+          html: true
+        });
+*/
+
+
+      $('body').on('click', function (e) {
+      $('[rel="popover"]').each(function () {
+      //the 'is' for buttons that trigger popups
+      //the 'has' for icons within a button that triggers a popup
+      if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+      $(this).popover('hide');
+      }
+      });
+      });
+
+
+      });
+
+    </script>
+
   </head>
   <body>
     <header class="header-10 navbar-fixed-top" ng-controller="NavbarController">
@@ -58,6 +89,22 @@
 	  <div ng-if="isLoggedIn() == true" class="collapse navbar-collapse pull-right">
             <ul class="nav pull-left">
               <li><a href="#/chat">Chat</a></li>
+	      <div ng-if="show == true">
+		<form class="navbar-form pull-left">
+		  <button
+		     rel="popover"
+		     type="button"
+		     class="btn btn-info"
+		     data-container="body"
+		     data-toggle="popover"
+		     data-placement="bottom"
+		     data-title="{{title}}"
+		     data-content="{{content}}">
+		    What's new?
+		  </button>
+		</form>
+	      </div>
+
             </ul>
 	    <form class="navbar-form pull-left">
               <a class="btn btn-info" href="#/logout">Logout</a>
