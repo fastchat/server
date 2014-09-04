@@ -304,6 +304,8 @@ describe('Socket.io', function() {
 
   it('should send a message', function(done) {
 
+    var acknowledgement = null;
+
     Group.findOne({_id: users[0].groups[0]._id}, function(err, group) {
       should.not.exist(err);
       should.exist(group);
@@ -347,6 +349,7 @@ describe('Socket.io', function() {
 		  aMes.text.should.equal(message.text);
 		  client1.disconnect();
 		  client2.disconnect();
+		  should.exist(acknowledgement);
 		  done();
 		});
 	      });
@@ -356,9 +359,13 @@ describe('Socket.io', function() {
 	  ///
 	  /// We are ready to go
 	  ///
-	  client1.emit('message', { 
+	  client1.emit('message', {
 	    group: users[0].groups[0]._id,
 	    text: 'Test Message!'
+	  }, function(ack) {
+	    console.log('ACKNOWLEDGEMENT:', ack);
+	    should.exist(ack);
+	    acknowledgement = ack;
 	  });
 	});
       });
