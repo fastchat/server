@@ -179,6 +179,7 @@ app.use(function(err, req, res, next) {
 
 app.use(function(err, req, res, next) {
   console.log('Got middleware!', err);
+  console.log('Request for debuggin: ', req);
   if (err === 404) {
     res.json(404, {error: 'Not Found'});
   } else if (err === 500) {

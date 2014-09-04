@@ -20,6 +20,7 @@
     <script src="js/scripts/scrollglue.js"></script>
     <script src="js/scripts/hotkeys.min.js"></script>
     <script src="js/scripts/ui-bootstrap-tpls-0.11.0.min.js"></script>
+    <script src="js/scripts/async.js"></script>
 
     <script src="js/models/group.js"></script>
     <script src="js/models/message.js"></script>
@@ -34,6 +35,7 @@
     <script src="js/controllers/LoginController.js"></script>
     <script src="js/controllers/RegisterController.js"></script>
     <script src="js/controllers/ChatController.js"></script>
+    <script src="js/controllers/ProfileController.js"></script>
 
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -50,15 +52,6 @@
       $(document).ready(function(){
       $('[rel="popover"]').popover({
       });
-
-
-/*
-        $('[data-toggle="popover"]').popover({
-          trigger: 'focus click',
-          placement : 'bottom',
-          html: true
-        });
-*/
 
 
       $('body').on('click', function (e) {
@@ -107,7 +100,7 @@
 
             </ul>
 	    <form class="navbar-form pull-left">
-              <a class="btn btn-info" href="#/logout">Logout</a>
+              <a class="btn btn-info" href="/" ng-click="logout()">Logout</a>
             </form>
 	  </div>
 	  <div ng-if="isLoggedIn() == false" class="collapse navbar-collapse pull-right">

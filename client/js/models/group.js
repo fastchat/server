@@ -31,6 +31,10 @@ Group.prototype.groupName = function() {
   }).join(', ');
 };
 
+Group.prototype.avatarForUser = function(user, api) {
+  api.profileImage();
+};
+
 function MakeGroups(array) {
   var made = [];
   array.forEach(function(obj) {

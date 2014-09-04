@@ -44,6 +44,17 @@ fastchat.service('api', function ($http, $rootScope, $q) {
       });
   };
 
+  this.logout = function() {
+    return $http.delete('/logout')
+      .then(function(response) {
+	setToken(null);
+	self.token = null;
+	$http.defaults.headers.common['session-token'] = null;
+	return response;
+      });
+  };
+
+
   this.register = function(username, password) {
     return $http.post('/user', {'username': username, 'password': password})
       .then(function (data, status, headers, config) {
@@ -55,12 +66,12 @@ fastchat.service('api', function ($http, $rootScope, $q) {
   
   this.isLoggedIn = function() {
     console.log('IS LOGGD IN CALLED: ', this.token);
-    if (this.token && this.token !== 'undefined') {
-      console.log('This TOken?', this.token);
+    if (self.token && self.token !== 'undefined') {
+      console.log('This TOken?', self.token);
       return true;
     } else {
-      this.token = getToken();
-      return this.token && this.token !== 'undefined';
+      self.token = getToken();
+      return (self.token && self.token !== 'undefined') ? true : false;
     }
   };
 
@@ -107,7 +118,47 @@ fastchat.service('api', function ($http, $rootScope, $q) {
 	return currentUserProfile;
       });
   };
-  
+
+  ///
+  /// Avatars
+  ///
+  this.profileImage = function(userId) {
+    return $q(function(resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      console.log('HERE', self.token);
+      xhr.open('GET', '/user/' + userId + '/avatar');
+      xhr.setRequestHeader('session-token', self.token);
+      xhr.responseType = "arraybuffer";
+
+      xhr.onload = function( e ) {
+	console.log('GOT SOMETHING', e);
+	// Obtain a blob: URL for the image data.
+	var arrayBufferView = new Uint8Array( this.response );
+	var blob = new Blob( [ arrayBufferView ], { type: "image/png" } );
+	var urlCreator = window.URL || window.webkitURL;
+	var imageUrl = urlCreator.createObjectURL( blob );
+	console.log('URL: ' + imageUrl);
+	return resolve(imageUrl);
+      };
+      xhr.send();
+    });
+  };
+
+  this.uploadAvatar = function(avatar, user) {
+
+    var formData = new FormData();
+    formData.append('avatar', avatar);
+
+    var request = new XMLHttpRequest();
+    request.open('POST', '/user/' + currentUserProfile._id + '/avatar');
+    request.setRequestHeader('session-token', self.token);
+    request.onload = function(e) {
+      console.log('Reply:', e);
+    };
+
+    request.send(formData);
+  };
+
   // Not Implemented
   this.whatIsNew = function() {
     return $q(function(resolve, reject) {

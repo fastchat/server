@@ -7,6 +7,7 @@ fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', 'a
   $scope.profile = null;
   $scope.currentGroup = null;
   $scope.groups = [];
+  $scope.avatars = {};
   
   ///
   /// Really wanted this to just be in the group, but it's not really
@@ -78,6 +79,25 @@ fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', 'a
       $scope.groups = groups
       if (groups.length - 1 >= $scope.currentGroup) {
 	$scope.currentGroup = groups[$routeParams.group];
+	
+	///
+	/// Get all users avatars
+	///
+	async.each($scope.currentGroup.members, function(member, callback) {
+	  api.profileImage(member._id)
+	    .then(function(url) {
+	      console.log('Got avatar: ', url);
+	      $scope.avatars[member._id] = url;
+	      var img = $(".avatar");
+	      img.src = url;
+	      callback();
+	    })
+	    .catch(function(err) {
+	      callback(err);
+	    });
+	}, function(err) {
+	  console.log('Finished getting Avatars. Error? ', err);
+	});
 	
 	///
 	/// Now get the messages

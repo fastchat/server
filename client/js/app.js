@@ -6,6 +6,28 @@ fastchat.filter('reverse', function() {
   };
 });
 
+///
+/// Directive
+///
+fastchat.directive("fileread", [function () {
+    return {
+      scope: {
+        fileread: "="
+      },
+      link: function (scope, element, attributes) {
+        element.bind("change", function (changeEvent) {
+          var reader = new FileReader();
+          reader.onload = function (loadEvent) {
+            scope.$apply(function () {
+              scope.fileread = loadEvent.target.result;
+            });
+          }
+          reader.readAsDataURL(changeEvent.target.files[0]);
+        });
+      }
+    }
+  }]);
+
 
 //
 // Routes
@@ -26,6 +48,9 @@ fastchat.config(function ($routeProvider, $locationProvider) {
     }).
     when('/chat', {
       redirectTo: '/chat/0'
+    }).
+    when('/profile', {
+      templateUrl:'views/profile.html'
     }).
     otherwise({
       redirectTo: '/'

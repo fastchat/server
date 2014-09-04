@@ -1,14 +1,27 @@
-fastchat.controller('NavbarController', ['$scope', '$timeout', 'api', function($scope, $timeout, api) {
+fastchat.controller('NavbarController', ['$scope', '$interval', '$location', 'api', function($scope, $interval, $location, api) {
+
+  $scope.logout = function() {
+    console.log('LOGGING OUT');
+    api.logout()
+      .then(function(response) {
+	if (response.status == 200) {
+	  $location.path('/');
+	}
+      });
+    return false;
+  };
   
   $scope.isLoggedIn = function() {
+    console.log('WHAT:', api.isLoggedIn());
     return api.isLoggedIn();
   };
   
   $scope.show = false;
   $scope.title = 'Features in 0.5.0-Beta';
   $scope.content = 'Hello, World!';
+  var EIGHT_HOURS = 28800000;
 
-  $scope.newContent = function() {
+  var newContent = function() {
     api.whatIsNew()
       .then(function(whatsNew) {
 	if (whatsNew) {
@@ -19,10 +32,7 @@ fastchat.controller('NavbarController', ['$scope', '$timeout', 'api', function($
 	  $scope.show = false;
 	}
       });
-
-    $timeout($scope.newContent, 28800000);
   }
 
-  $scope.newContent();
-
+  $interval(newContent, EIGHT_HOURS);
 }]);
