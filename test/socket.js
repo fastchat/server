@@ -363,7 +363,6 @@ describe('Socket.io', function() {
 	    group: users[0].groups[0]._id,
 	    text: 'Test Message!'
 	  }, function(ack) {
-	    console.log('ACKNOWLEDGEMENT:', ack);
 	    should.exist(ack);
 	    acknowledgement = ack;
 	  });
@@ -394,11 +393,16 @@ describe('Socket.io', function() {
 	///
 	/// We are ready to go
 	///
+	var acknowledgement = null;
 	client1.emit('message', {
 	  text: 'Test Message!'
+	}, function(ack) {
+	  acknowledgement = ack;
 	});
 
 	setTimeout(function() {
+	  should.exist(acknowledgement);
+	  should.exist(acknowledgement.error);
 	  client1.disconnect();
 	  client2.disconnect();
 	  done();
@@ -429,11 +433,16 @@ describe('Socket.io', function() {
 	///
 	/// We are ready to go
 	///
+	var acknowledgement = null;
 	client1.emit('message', {
 	  group: users[0].groups[0]._id
+	}, function(ack) {
+	  acknowledgement = ack;
 	});
 
 	setTimeout(function() {
+	  should.exist(acknowledgement);
+	  should.exist(acknowledgement.error);
 	  client1.disconnect();
 	  client2.disconnect();
 	  done();
@@ -447,7 +456,7 @@ describe('Socket.io', function() {
 
     options.query = 'token=' + tokens[0];
     var client1 = io.connect(socketURL, options);
-
+    var acknowledgement = null;
     client1.on('connect', function(data) {
       should.not.exist(data);
 
@@ -464,6 +473,8 @@ describe('Socket.io', function() {
 	  should.exist(message.sent);
 	  should.exist(message.hasMedia);
 	  message.hasMedia.should.equal(false);
+	  should.exist(acknowledgement);
+	  should.exist(acknowledgement._id);
 	  client1.disconnect();
 	  client2.disconnect();
 	  done();
@@ -475,6 +486,8 @@ describe('Socket.io', function() {
 	client1.emit('message', { 
 	  group: users[0].groups[0]._id,
 	  text: 'Test Message!'
+	}, function(ack) {
+	  acknowledgement = ack;
 	});
       });
     });

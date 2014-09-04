@@ -11,6 +11,11 @@ run-dev:
 
 run-test:
 	@ENV=test \
+	MONGOLAB_URI=mongodb://localhost/test \
+	$(MAKE) run
+
+run-test-for-cov:
+	@ENV=test \
 	COV_FASTCHAT=true \
 	MONGOLAB_URI=mongodb://localhost/test \
 	$(MAKE) run
