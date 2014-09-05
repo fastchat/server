@@ -137,8 +137,10 @@ fastchat.service('api', function ($http, $rootScope, $q) {
 
       xhr.onload = function( e ) {
 	// If it failed...
+	console.log('Status:', this.status, userId);
 	if (this.status < 200 || this.status >= 300) {
-	  return reject();
+	  
+	  return reject(new Error('Not Found!'));
 	}
 
 	// Obtain a blob: URL for the image data.
