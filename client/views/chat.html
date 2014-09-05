@@ -18,7 +18,7 @@
 	  <div ng-repeat="message in messages.slice().reverse()">
 	    <div class="chat-bubble {{ message.from == profile._id ? 'me' : 'not-me' }}">
 	      <div class="{{ message.from == profile._id ? 'my-avatar' : 'person'}}">
-		<img src="{{avatars[message.from]}}" class="avatar" />
+		<img src="{{ avatars[message.from] }}" class="avatar" />
 <!--		<img src="img/default_avatar.png" class="avatar"/> -->
 		<p>{{ currentGroup.usernameFromId(message.from) }}</p>
 	      </div>

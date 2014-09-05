@@ -5,7 +5,6 @@ fastchat.service('api', function ($http, $rootScope, $q) {
   //////////////////////////////////////////////////////
 
   var setToken = function(token) {
-    console.log('Setting:', token);
     if( typeof(Storage) !== 'undefined') {
       localStorage.setItem("com.fastchat.token", token);
     }
@@ -18,7 +17,6 @@ fastchat.service('api', function ($http, $rootScope, $q) {
       if (token === 'null' || token === 'undefined') {
 	token = null;
       }
-      console.log('Retrieved Token from Local Storage: ' + token);
       $http.defaults.headers.common['session-token'] = token;
       return token;
     } else {
@@ -65,9 +63,7 @@ fastchat.service('api', function ($http, $rootScope, $q) {
   };
   
   this.isLoggedIn = function() {
-    console.log('IS LOGGD IN CALLED: ', this.token);
     if (self.token && self.token !== 'undefined') {
-      console.log('This TOken?', self.token);
       return true;
     } else {
       self.token = getToken();
@@ -102,20 +98,21 @@ fastchat.service('api', function ($http, $rootScope, $q) {
       });
   };
 
-  
-  var currentUserProfile = null;
+  console.log('HALP: ', this.currentUserProfile);
+  self.currentUserProfile = self.currentUserProfile ? self.currentUserProfile : null;
+
   this.profile = function() {
-    if (currentUserProfile) {
+    if (self.currentUserProfile) {
       $q(function(resolve, reject) {
-	resolve(currentUserProfile);
+	resolve(self.currentUserProfile);
       });
     }
     
     return $http.get('/user')
       .then(function(response) {
-	currentUserProfile = response.data.profile;
-	console.log('User: ', currentUserProfile);
-	return currentUserProfile;
+	self.currentUserProfile = response.data.profile;
+	console.log('User: ', self.currentUserProfile);
+	return self.currentUserProfile;
       });
   };
 
@@ -123,6 +120,14 @@ fastchat.service('api', function ($http, $rootScope, $q) {
   /// Avatars
   ///
   this.profileImage = function(userId) {
+
+    console.log('Profile Avatar for:', userId);
+
+    if (!userId) {
+      console.log('current user profike', self.currentUserProfile);
+      userId = self.currentUserProfile._id;
+    }
+
     return $q(function(resolve, reject) {
       var xhr = new XMLHttpRequest();
       console.log('HERE', self.token);
@@ -131,7 +136,11 @@ fastchat.service('api', function ($http, $rootScope, $q) {
       xhr.responseType = "arraybuffer";
 
       xhr.onload = function( e ) {
-	console.log('GOT SOMETHING', e);
+	// If it failed...
+	if (this.status < 200 || this.status >= 300) {
+	  return reject();
+	}
+
 	// Obtain a blob: URL for the image data.
 	var arrayBufferView = new Uint8Array( this.response );
 	var blob = new Blob( [ arrayBufferView ], { type: "image/png" } );
@@ -150,7 +159,7 @@ fastchat.service('api', function ($http, $rootScope, $q) {
     formData.append('avatar', avatar);
 
     var request = new XMLHttpRequest();
-    request.open('POST', '/user/' + currentUserProfile._id + '/avatar');
+    request.open('POST', '/user/' + this.currentUserProfile._id + '/avatar');
     request.setRequestHeader('session-token', self.token);
     request.onload = function(e) {
       console.log('Reply:', e);

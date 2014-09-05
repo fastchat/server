@@ -5,12 +5,24 @@ fastchat.controller('ProfileController', ['$scope', 'api', function ($scope, api
   api.profile()
     .then(function(profile) {
       $scope.profile = profile;
+      $scope.profileImage();
     });
+
+  $scope.profileImage = function() {
+    api.profileImage()
+      .then(function(url) {
+	var img = document.querySelector( "#profileImage" );
+	img.src = url;
+      });
+  }
 
 
   $scope.uploadAvatar = function() {
-    console.log('Uploading!', $scope.avatar);
-    api.uploadAvatar($scope.avatar);
+   
+    var toUpload = document.getElementById('avatarField');
+    console.log('Uploading:', toUpload);
+
+    api.uploadAvatar(toUpload.files[0]);
   };
 
 }]);

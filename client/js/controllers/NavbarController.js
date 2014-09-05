@@ -12,7 +12,6 @@ fastchat.controller('NavbarController', ['$scope', '$interval', '$location', 'ap
   };
   
   $scope.isLoggedIn = function() {
-    console.log('WHAT:', api.isLoggedIn());
     return api.isLoggedIn();
   };
   

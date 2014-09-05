@@ -93,7 +93,8 @@ fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', 'a
 	      callback();
 	    })
 	    .catch(function(err) {
-	      callback(err);
+	      $scope.avatars[member._id] = '/img/default_avatar.png';
+	      callback();
 	    });
 	}, function(err) {
 	  console.log('Finished getting Avatars. Error? ', err);
