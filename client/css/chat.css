@@ -27,13 +27,8 @@
 }
 
 .person p {
-    font-size: 80%;
     display: block;
-    margin-bottom: 2px; 
-    letter-spacing: 1px;
-    -webkit-transition: all 0.3s linear;
-    -moz-transition: all 0.3s linear;
-    transition: all 0.3s linear;
+    margin-bottom: 2px;
     text-align: center;
 }
 
@@ -47,14 +42,10 @@
     margin:auto;
 }
 
+
 .my-avatar p {
-    font-size: 80%;
     display: block;
-    margin-bottom: 2px; 
-    letter-spacing: 1px;
-    -webkit-transition: all 0.3s linear;
-    -moz-transition: all 0.3s linear;
-    transition: all 0.3s linear;
+    margin-bottom: 2px;
     text-align: center;
 }
 
@@ -105,3 +96,4 @@
 .chat-text {
     white-space: pre-wrap;
 }
+
