@@ -17,6 +17,7 @@ function Message(properties) {
 Message.prototype.toHTML = function() {
   var html = this.text;
   html.replace(/\\r\\n/g, "<br />");
+  html = Autolinker.link( html );
   return html;
 };
 

@@ -203,20 +203,7 @@ body {
   color: #34495e;
   background-color: #ffffff;
 }
-a {
-  color: #16a085;
-  text-decoration: none;
-  -webkit-transition: 0.25s;
-  transition: 0.25s;
-}
-a:hover,
-a:focus {
-  color: #1abc9c;
-  text-decoration: none;
-}
-a:focus {
-  outline: none;
-}
+
 .img-rounded {
   border-radius: 6px;
 }

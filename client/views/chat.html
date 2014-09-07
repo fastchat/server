@@ -20,8 +20,11 @@
 	      <div class="{{ message.from == profile._id ? 'my-avatar' : 'person'}}">
 		<img src="{{ avatars[message.from] }}" class="avatar" />
 		<p>{{ currentGroup.usernameFromId(message.from) }}</p>
+		<div ng-if="message.hasMedia == true" class="media">
+		  <img src="{{ media[message._id] }}" class="media" />
+		</div>
 	      </div>
-	      <p class="chat-text">{{ message.toHTML() }}</p>
+	      <p ng-bind-html="message.toHTML()"></p>
 	    </div>
 	  </div>
 

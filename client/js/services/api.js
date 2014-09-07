@@ -98,7 +98,6 @@ fastchat.service('api', function ($http, $rootScope, $q) {
       });
   };
 
-  console.log('HALP: ', this.currentUserProfile);
   self.currentUserProfile = self.currentUserProfile ? self.currentUserProfile : null;
 
   this.profile = function() {
@@ -167,6 +166,58 @@ fastchat.service('api', function ($http, $rootScope, $q) {
     };
 
     request.send(formData);
+  };
+
+  ///
+  /// Send Media
+  ///
+  this.sendMedia = function(group, message) {
+    return $q(function(resolve, reject) {
+
+      var formData = new FormData();
+      formData.append('media', message.media);
+      formData.append('text', message.text);
+
+      var request = new XMLHttpRequest();
+      request.open('POST', '/group/' + group._id + '/message');
+      request.setRequestHeader('session-token', self.token);
+
+      request.onload = function(e) {
+	if (this.status < 200 || this.status >= 300) {
+	  return reject(new Error('Error!'));
+	}
+	return resolve();
+      };
+
+      request.send(formData);
+    });
+  }
+
+  this.getMedia = function(groupId, messageId) {
+
+    return $q(function(resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/group/' + groupId + '/message/' + messageId + '/media');
+      xhr.setRequestHeader('session-token', self.token);
+      xhr.responseType = "arraybuffer";
+
+      xhr.onload = function( e ) {
+	// If it failed...
+	console.log('Status:', this.status);
+	if (this.status < 200 || this.status >= 300) {
+	  return reject(new Error('Not Found!'));
+	}
+
+	// Obtain a blob: URL for the image data.
+	var arrayBufferView = new Uint8Array( this.response );
+	var blob = new Blob( [ arrayBufferView ], { type: "image/png" } );
+	var urlCreator = window.URL || window.webkitURL;
+	var imageUrl = urlCreator.createObjectURL( blob );
+	console.log('URL: ' + imageUrl);
+	return resolve(imageUrl);
+      };
+      xhr.send();
+    });
   };
 
   // Not Implemented

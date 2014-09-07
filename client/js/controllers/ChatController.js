@@ -1,4 +1,4 @@
-fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', 'api', 'socket', 'notification', 'hotkeys', function ($scope, $routeParams, $location, api, socket, notification, hotkeys) {
+fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', '$sce', 'api', 'socket', 'notification', 'hotkeys', function ($scope, $routeParams, $location, $sce, api, socket, notification, hotkeys) {
 
   var ENTER_KEYCODE = 13;
 
@@ -8,6 +8,7 @@ fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', 'a
   $scope.currentGroup = null;
   $scope.groups = [];
   $scope.avatars = {};
+  $scope.media = {};
   
   ///
   /// Really wanted this to just be in the group, but it's not really
@@ -58,6 +59,16 @@ fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', 'a
     notification.display(message);
   };
 
+  $scope.getMedia = function(message) {
+    api.getMedia($scope.currentGroup._id, message._id)
+      .then(function(url) {
+	$scope.media[message._id] = url;
+      })
+      .catch(function(err) {
+	console.log('Error Getting Media: ', err);
+      });
+  }
+
   ///
   /// Unfortunetely, we have a lot of setup to do
   ///
@@ -106,6 +117,11 @@ fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', 'a
 	///
 	api.messages($scope.currentGroup._id).then(function(messages) {
 	  console.log('Messages', messages);
+	  messages.forEach(function(mes) {
+	    if (mes.hasMedia) {
+	      $scope.getMedia(mes);
+	    }
+	  });
 	  $scope.messages = messages;
 	});
 

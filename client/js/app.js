@@ -1,4 +1,4 @@
-var fastchat = angular.module('fastchat', ['ngRoute', 'luegg.directives', 'cfp.hotkeys']);
+var fastchat = angular.module('fastchat', ['ngRoute', 'ngSanitize', 'luegg.directives', 'cfp.hotkeys']);
 
 fastchat.filter('reverse', function() {
   return function(items) {

@@ -25,17 +25,10 @@ textarea {
     font-size: 14px;
 }
 a {
-    color: #16a085;
-    text-decoration: none;
-    -webkit-transition: 0.25s;
-    -moz-transition: 0.25s;
-    -o-transition: 0.25s;
-    transition: 0.25s;
+    color: rgb(87, 0, 143);
+    text-decoration: underline;
 }
-a:hover {
-    color: #1abc9c;
-    text-decoration: none;
-}
+
 h1,
 .h1 {
     font-size: 48px /* 64px */;
