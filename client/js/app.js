@@ -49,6 +49,12 @@ fastchat.config(function ($routeProvider, $locationProvider) {
     when('/chat', {
       redirectTo: '/chat/0'
     }).
+    when('/audio/:group', {
+      templateUrl:'views/audio.html'
+    }).
+    when('/audio', {
+      redirectTo: '/audio/0'
+    }).
     when('/profile', {
       templateUrl:'views/profile.html'
     }).
