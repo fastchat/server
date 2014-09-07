@@ -119,7 +119,6 @@ fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', 'a
 
 
   $scope.handleEnter = function(evt) {
-    console.log('Evt:', evt);
     if (evt.keyCode == ENTER_KEYCODE && !(evt.shiftKey || evt.altKey)) {
       $scope.chat();
       evt.preventDefault();

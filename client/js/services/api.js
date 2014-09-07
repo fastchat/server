@@ -130,7 +130,6 @@ fastchat.service('api', function ($http, $rootScope, $q) {
 
     return $q(function(resolve, reject) {
       var xhr = new XMLHttpRequest();
-      console.log('HERE', self.token);
       xhr.open('GET', '/user/' + userId + '/avatar');
       xhr.setRequestHeader('session-token', self.token);
       xhr.responseType = "arraybuffer";
