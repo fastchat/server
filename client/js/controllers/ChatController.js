@@ -27,6 +27,12 @@ fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', '$
 	group: $scope.currentGroup._id,
 	hasMedia: false
       });
+      
+      ///
+      /// has media?
+      ///
+
+
       socket.send(message);
       $scope.messages.unshift(message);
       $scope.messageText = '';
@@ -63,6 +69,7 @@ fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', '$
     api.getMedia($scope.currentGroup._id, message._id)
       .then(function(url) {
 	$scope.media[message._id] = url;
+	//scroll to bottom
       })
       .catch(function(err) {
 	console.log('Error Getting Media: ', err);
