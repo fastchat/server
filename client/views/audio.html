@@ -1,0 +1,28 @@
+<div id="wrapper">
+  <section ng-controller="ChatController">
+    <div id="sidebar-wrapper">
+      <ul class="sidebar-nav">
+	<li class="sidebar-brand">
+            Groups
+	</li>
+	<li ng-repeat="group in groups | orderBy:lastMessage.sent">
+          <a class="no-wrap" href="#/chat/{{$index}}">{{ group.groupName(); }}</a>
+	</li>
+
+      </ul>
+    </div>
+    <div id="page-content-wrapper">
+      <div class="container-fluid">
+	<h2 class="no-wrap">{{ currentGroup.groupName() }}</h2>
+	
+	<div>
+	  <a class="btn btn-info send " ng-click="chat()">Call</a>
+	</div>
+
+
+      </div>
+    </div>
+
+
+  </section>
+</div>

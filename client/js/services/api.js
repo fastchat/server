@@ -220,6 +220,7 @@ fastchat.service('api', function ($http, $rootScope, $q) {
     });
   };
 
+
   // Not Implemented
   this.whatIsNew = function() {
     return $q(function(resolve, reject) {
