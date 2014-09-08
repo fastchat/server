@@ -17,6 +17,56 @@ fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', '$
 //    socket.connect(api.token);
 //    socket.addListener('message', onMessage);
 
+    var audioSelect = $("select#audioSource");
+    var audio = $("#audio");
+    navigator.getUserMedia = navigator.getUserMedia ||
+      navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+    function gotSources(sourceInfos) {
+      for (var i = 0; i != sourceInfos.length; ++i) {
+	var sourceInfo = sourceInfos[i];
+	if (sourceInfo.kind === 'audio') {
+	  audioSelect.append($("<option></option>")
+		    .attr("value", sourceInfo.id)
+		    .text( sourceInfo.label || 'microphone ') );
+	} else {
+	  console.log('Some other kind of source: ', sourceInfo);
+	}
+      }
+    }
+
+    if (typeof MediaStreamTrack === 'undefined') {
+      alert('This browser does not support MediaStreamTrack.\n\nTry Chrome Canary.');
+    } else {
+      MediaStreamTrack.getSources(gotSources);
+    }
+
+    function start() {
+      console.log('START');
+      var audioSource = audioSelect.val();
+      console.log('Source', audioSource);
+      var constraints = {
+	audio: {
+	  optional: [{sourceId: audioSource}]
+	}
+      };
+      navigator.getUserMedia(constraints, successCallback, errorCallback);
+    }
+
+    function successCallback(stream) {
+      console.log('OKAY', stream);
+      window.stream = stream; // make stream available to console
+      audio.src = window.URL.createObjectURL(stream);
+      audio.play();
+    }
+
+    function errorCallback(error){
+      console.log("navigator.getUserMedia error: ", error);
+    }
+
+    start();
+
+
     console.log('Init');
     api.profile()
       .then(function(response) {

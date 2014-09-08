@@ -28,4 +28,8 @@ fastchat.service('socket', function ($http, $rootScope, $q) {
     this.socket.on(type, listener);
   };
 
+  this.binary = function(binary) {
+
+  };
+
 });

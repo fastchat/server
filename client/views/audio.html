@@ -6,7 +6,7 @@
             Groups
 	</li>
 	<li ng-repeat="group in groups | orderBy:lastMessage.sent">
-          <a class="no-wrap" href="#/chat/{{$index}}">{{ group.groupName(); }}</a>
+          <a class="no-wrap" href="#/audio/{{$index}}">{{ group.groupName(); }}</a>
 	</li>
 
       </ul>
@@ -14,7 +14,10 @@
     <div id="page-content-wrapper">
       <div class="container-fluid">
 	<h2 class="no-wrap">{{ currentGroup.groupName() }}</h2>
+
+	<select id="audioSource"></select>
 	
+	<audio id="audio"></audio>
 	<div>
 	  <a class="btn btn-info send " ng-click="chat()">Join</a>
 	</div>
