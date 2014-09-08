@@ -1,4 +1,4 @@
-fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', '$sce', 'api', 'socket', 'notification', 'hotkeys', function ($scope, $routeParams, $location, $sce, api, socket, notification, hotkeys) {
+fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', '$sce', '$timeout', 'api', 'socket', 'notification', 'hotkeys', function ($scope, $routeParams, $location, $sce, $timeout, api, socket, notification, hotkeys) {
 
   var ENTER_KEYCODE = 13;
 
@@ -32,7 +32,6 @@ fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', '$
       /// has media?
       ///
 
-
       socket.send(message);
       $scope.messages.unshift(message);
       $scope.messageText = '';
@@ -54,6 +53,16 @@ fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', '$
   $scope.mediaLoaded = function(message) {
     return typeof $scope.media[message._id] !== 'undefined'
   };
+
+  /**
+   * Scrolls to the bottom of the Chat.
+   *
+   * @param onBottom - Bool. If true, only scroll down
+   * if the user was on the bottom already.
+   */
+  var scroll = function() {
+    $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
+  }
 
 
   var onMessage = function(data) {
@@ -78,7 +87,12 @@ fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', '$
     api.getMedia($scope.currentGroup._id, message._id)
       .then(function(url) {
 	$scope.media[message._id] = url;
-	//scroll to bottom
+	// Give the page time to refresh before
+	// scrolling to the bottom;
+	$timeout(function() {
+	  console.log('async');
+	  scroll();
+	}, 50);
       })
       .catch(function(err) {
 	console.log('Error Getting Media: ', err);
