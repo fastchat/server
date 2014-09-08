@@ -22,7 +22,13 @@
 		<p>{{ currentGroup.usernameFromId(message.from) }}</p>
 	      </div>
 	      <div ng-if="message.hasMedia == true" class="attachment">
-		<img src="{{ media[message._id] }}" class="user-attachment" />
+		<div ng-if="media[message._id] == undefined" class="spinner">
+		  <div class="double-bounce1"></div>
+		  <div class="double-bounce2"></div>
+		</div>
+		<div ng-if="media[message._id] != undefined">
+		  <img src="{{ media[message._id] }}" class="user-attachment" />
+		</div>
 	      </div>
 	      <p ng-bind-html="message.toHTML()"></p>
 	    </div>
@@ -30,7 +36,7 @@
 
 	</div> <!-- End Chat Box -->
 	<div>
-	  <textarea id="chat-input" ng-model="messageText" ng-keypress="handleEnter($event)"></textarea>
+	  <textarea placeholder="Send a FastChat..." id="chat-input" ng-model="messageText" ng-keypress="handleEnter($event)"></textarea>
 	  <a class="btn btn-info send " ng-click="chat()">Send</a>
 	</div>
 

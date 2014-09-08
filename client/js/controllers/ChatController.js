@@ -27,6 +27,12 @@ fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', '$
 	group: $scope.currentGroup._id,
 	hasMedia: false
       });
+      
+      ///
+      /// has media?
+      ///
+
+
       socket.send(message);
       $scope.messages.unshift(message);
       $scope.messageText = '';
@@ -45,12 +51,21 @@ fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', '$
     });
 
 
+  $scope.mediaLoaded = function(message) {
+    return typeof $scope.media[message._id] !== 'undefined'
+  };
+
+
   var onMessage = function(data) {
     var message = new Message(data);
     console.log('GOT MESSAGE', message);
     if (message.group === $scope.currentGroup._id) {
       console.log('Current Group:', $scope.currentGroup);
       $scope.messages.unshift(message);
+      if (message.hasMedia) {
+	$scope.getMedia(message);
+      }
+
       /// Angular is watching our current group,
       /// but I guess not the properties in it, so
       /// we kindly tell it we updated something.
@@ -63,6 +78,7 @@ fastchat.controller('ChatController', ['$scope', '$routeParams', '$location', '$
     api.getMedia($scope.currentGroup._id, message._id)
       .then(function(url) {
 	$scope.media[message._id] = url;
+	//scroll to bottom
       })
       .catch(function(err) {
 	console.log('Error Getting Media: ', err);
