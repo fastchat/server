@@ -22,7 +22,13 @@
 		<p>{{ currentGroup.usernameFromId(message.from) }}</p>
 	      </div>
 	      <div ng-if="message.hasMedia == true" class="attachment">
-		<img src="{{ media[message._id] }}" class="user-attachment" />
+		<div ng-if="media[message._id] == undefined" class="spinner">
+		  <div class="double-bounce1"></div>
+		  <div class="double-bounce2"></div>
+		</div>
+		<div ng-if="media[message._id] != undefined">
+		  <img src="{{ media[message._id] }}" class="user-attachment" />
+		</div>
 	      </div>
 	      <p ng-bind-html="message.toHTML()"></p>
 	    </div>
