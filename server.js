@@ -38,7 +38,7 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var bodyParser = require('body-parser');
 var favicon = require('serve-favicon');
-var mongoose = require('mongoose');
+var mongoose = require('mongoose-q')();
 var http = require('http');
 var config = require('./config');
 var apn = require('apn');
@@ -179,7 +179,7 @@ app.use(function(err, req, res, next) {
 
 app.use(function(err, req, res, next) {
   console.log('Got middleware!', err);
-  console.log('Request for debuggin: ', req);
+//  console.log('Request for debuggin: ', req);
   if (err === 404) {
     res.json(404, {error: 'Not Found'});
   } else if (err === 500) {
@@ -188,6 +188,8 @@ app.use(function(err, req, res, next) {
     res.json(401, {error : 'Unauthorized'});
   } else if (typeof err === 'string' || err instanceof String) {
     res.json(400, {error: err});
+  } else if (err.isBoom) {
+    res.json(err.output.payload.statusCode, {error: err.output.payload.message});
   } else {
     next(err);
   }
@@ -207,7 +209,8 @@ app.use(function(req, res, next) {
 //   login page.
 //   Stores the user in the req for fast access later on.
 function ensureAuthenticated(req, res, next) {
-  console.log('Checking ' + JSON.stringify(req.headers, null, 4));
+  console.log('Path: ', req.method, req.path);
+  console.log('Checking Headers:', req.headers);
   if (req.headers['session-token'] !== undefined) {
     console.log('Found header!');
     var token = req.headers['session-token'];
