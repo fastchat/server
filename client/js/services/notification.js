@@ -35,7 +35,8 @@ fastchat.service('notification', function ($http, $rootScope, $q) {
     if (!self.isBlurred ) return;
     
     var messageNotification = new Notify(Group.usernameFromId(message.from), {
-      body: message.text
+      body: message.text,
+      icon: 'img/FastChat-120.png'
     });
 
     self.notifications.push(messageNotification);
