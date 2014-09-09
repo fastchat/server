@@ -78,7 +78,7 @@ passport.serializeUser(function(user, done) {
 // Required for the local session.
 // We don't use this on the web client, but we could.
 passport.deserializeUser(function(id, done) {
-  User.findOne( {_id: id} , function (err, user) {
+  User.findOne({_id: id}, function (err, user) {
     done(err, user);
   });
 });
@@ -92,19 +92,18 @@ passport.use(new LocalStrategy({
     usernameField: 'username',
     passwordField: 'password'
   }, function(username, password, done) {
-  User.findOne({ 'username': username.toLowerCase() }, function(err, user) {
-    if (err) { return done(err); }
-    if (!user) { return done(null, false, { error: 'Incorrect username or password '}); }
-    user.comparePassword(password, function(err, isMatch) {
-      if (err) return done(err);
-      if(isMatch) {
-        return done(null, user);
-      } else {
-        return done(null, false, { error: 'Incorrect username or password' });
-      }
-    });
-  });
-}));
+    User.findByLowercaseUsername(username)
+      .then(function(user) {
+	return [user, user.comparePassword(password)];
+      })
+      .spread(function(user, matched) {
+	done(null, user);
+      })
+      .catch(function(err) {
+	done(null, false, { error: 'Incorrect username or password!'});
+      })
+      .done();
+  }));
 
 
 // Get the port and create the servers
