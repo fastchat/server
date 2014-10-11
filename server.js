@@ -178,7 +178,6 @@ app.use(function(err, req, res, next) {
 
 app.use(function(err, req, res, next) {
   console.log('Got middleware!', err);
-//  console.log('Request for debuggin: ', req);
   if (err === 404) {
     res.json(404, {error: 'Not Found'});
   } else if (err === 500) {
@@ -188,7 +187,8 @@ app.use(function(err, req, res, next) {
   } else if (typeof err === 'string' || err instanceof String) {
     res.json(400, {error: err});
   } else if (err.isBoom) {
-    res.json(err.output.payload.statusCode, {error: err.output.payload.message});
+    console.log('BOOM ERROR', err.output.payload.statusCode,err.output.payload.message);
+    res.status(err.output.payload.statusCode).json({error: err.output.payload.message});
   } else {
     next(err);
   }
@@ -197,7 +197,7 @@ app.use(function(err, req, res, next) {
 // 404
 app.use(function(req, res, next) {
   console.log('404:', req);
-  res.json(404, {error: 'Not Found'});
+  res.status(404).json({error: 'Not Found'});
 });
 
 
