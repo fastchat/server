@@ -1,4 +1,3 @@
-REPORTER = nyan
 KEY = AKIAIOHCTJAAHBIJCIXA
 SECRET = 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
 
@@ -30,14 +29,12 @@ test:
 	AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) \
 	mocha \
 	--timeout 5000 \
-	--reporter $(REPORTER) \
 
 # Test and watch for file changes and test again. We don't really use this,
 # we just test before deploying to production.
 test-w:
 	@ENV=test mocha \
 	--timeout 5000 \
-	--reporter $(REPORTER) \
 	--growl \
 	--watch
 
