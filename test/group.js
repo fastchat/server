@@ -76,15 +76,15 @@ describe('Groups', function() {
 	  });
       }
     ],
-    // optional callback
-    function(err, results){
-      // Oh look, now we are done
-      done();
-    });
+		 // optional callback
+		 function(err, results){
+		   // Oh look, now we are done
+		   done();
+		 });
     
   }); // before
 
-  it.skip('should be empty for a brand new user', function(done) {
+  it('should be empty for a brand new user', function(done) {
 
     api.get('/group')
       .set('session-token', tokens[0])
@@ -98,38 +98,38 @@ describe('Groups', function() {
       });
   });
 
-  it.skip('should not allow a user to create a group with no information', function(done) {
+  it('should not allow a user to create a group with no information', function(done) {
     api.post('/group')
-    .set('session-token', tokens[0])
-    .send({})
-    .expect(400)
-    .expect('Content-Type', /json/)
-    .end(function(err, res) {
-      should.not.exist(err);
-      should.exist(res.body);
-      should.exist(res.body.error);
-      done();
-    });
+      .set('session-token', tokens[0])
+      .send({})
+      .expect(400)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+	should.not.exist(err);
+	should.exist(res.body);
+	should.exist(res.body.error);
+	done();
+      });
   });
 
-  it.skip('should not allow a user to create a group with no message', function(done) {
+  it('should not allow a user to create a group with no message', function(done) {
 
     var user1 = users[1];
 
     api.post('/group')
-    .set('session-token', tokens[0])
-    .send({'members' : [user1._id]})
-    .expect(400)
-    .expect('Content-Type', /json/)
-    .end(function(err, res) {
-      should.not.exist(err);
-      should.exist(res.body);
-      should.exist(res.body.error);
-      done();
-    });
+      .set('session-token', tokens[0])
+      .send({'members' : [user1._id]})
+      .expect(400)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+	should.not.exist(err);
+	should.exist(res.body);
+	should.exist(res.body.error);
+	done();
+      });
   });
 
-  it.skip('should not allow a user to create a group with no members', function(done) {
+  it('should not allow a user to create a group with no members', function(done) {
     api.post('/group')
       .set('session-token', tokens[0])
       .send({'text' : 'This is a test message!'})
@@ -143,7 +143,7 @@ describe('Groups', function() {
       });
   });
 
-  it.skip('should not allow a group to be created if the only member invited is the caller', function(done) {
+  it('should not allow a group to be created if the only member invited is the caller', function(done) {
     var user0 = users[0];
 
     api.post('/group')
@@ -156,10 +156,10 @@ describe('Groups', function() {
 	should.exist(res.body);
 	should.exist(res.body.error);
 	done();
-     });
+      });
   });
 
-  it.skip('should not allow a user to create a group with no members', function(done) {
+  it('should not allow a user to create a group with no members', function(done) {
     api.post('/group')
       .set('session-token', tokens[0])
       .send({'text' : 'This is a test message!'})
@@ -173,7 +173,7 @@ describe('Groups', function() {
       });
   });
 
-  it.skip('should not allow a user to create a group without an array', function(done) {
+  it('should not allow a user to create a group without an array', function(done) {
     api.post('/group')
       .set('session-token', tokens[0])
       .send({'text' : 'This is a test message!', 'members': {'test': 'test'}})
@@ -187,19 +187,21 @@ describe('Groups', function() {
       });
   });
 
-  it.skip('should let a user to create a group with the proper info', function(done) {
+  it('should let a user to create a group with the proper info', function(done) {
 
     var user1 = users[1];
 
+    console.log('Proper Info');
+
     api.post('/group')
       .set('session-token', tokens[0])
-      .send({'text' : 'This is a test message!', 'members': [user1.username]})
+      .send({'text' : 'Proper Info Group!', 'members': [user1.username]})
       .expect(201)
       .expect('Content-Type', /json/)
       .end(function(err, res) {
 	should.not.exist(err);
 	should.exist(res.body);
-
+	
 	var created = res.body;
 
 	should.not.exist(created.name);
@@ -231,7 +233,7 @@ describe('Groups', function() {
       });
   });
 
-  it.skip('should be show the new group for the user who created it', function(done) {
+  it('should be show the new group for the user who created it', function(done) {
 
     api.get('/group')
       .set('session-token', tokens[0])
@@ -250,7 +252,7 @@ describe('Groups', function() {
       });
   });
 
-  it.skip('should not allow a user not in the group to change the name', function(done) {
+  it('should not allow a user not in the group to change the name', function(done) {
     api.put('/group/' + group._id + '/settings')
       .set('session-token', tokens[2])
       .send({'name': 'New Group Name!'})
@@ -264,7 +266,7 @@ describe('Groups', function() {
       });
   });
 
-  it.skip('should not let a user change a group name with a bad id', function(done) {
+  it('should not let a user change a group name with a bad id', function(done) {
 
     var badId = group._id.toString() + '111111';
 
@@ -281,7 +283,7 @@ describe('Groups', function() {
       });
   });
 
-  it.skip('should not let a user change a group name with a valid, but not found, id', function(done) {
+  it('should not let a user change a group name with a valid, but not found, id', function(done) {
 
     var anID = group._id;
     anID = anID.substr(0, anID.length - 4);
@@ -300,7 +302,7 @@ describe('Groups', function() {
       });
   });
 
-  it.skip('should let a user in the group change the group name', function(done) {
+  it('should let a user in the group change the group name', function(done) {
 
     Message.find({'group': group._id}, function(err, messages) {
       should.not.exist(err);
@@ -333,7 +335,7 @@ describe('Groups', function() {
     });
   });
 
-  it.skip('should not let you leave a group you are not in', function(done) {
+  it('should not let you leave a group you are not in', function(done) {
 
     api.put('/group/' + group._id + '/leave')
       .set('session-token', tokens[2])
@@ -348,7 +350,7 @@ describe('Groups', function() {
       });
   });
 
-  it.skip('should let a user in the group leave', function(done) {
+  it('should let a user in the group leave', function(done) {
 
     Message.find({'group': group._id}, function(err, messages) {
       should.not.exist(err);
@@ -392,7 +394,7 @@ describe('Groups', function() {
     });
   });
 
-  it.skip('it should fail to add nothing to a group', function(done) {
+  it('it should fail to add nothing to a group', function(done) {
 
     api.put('/group/' + group._id + '/add')
       .set('session-token', tokens[0])
@@ -407,7 +409,7 @@ describe('Groups', function() {
       });
   });
 
-  it.skip('it should return OK if you add no one to a group', function(done) {
+  it('it should return OK if you add no one to a group', function(done) {
 
     api.put('/group/' + group._id + '/add')
       .set('session-token', tokens[0])
@@ -422,7 +424,7 @@ describe('Groups', function() {
       });
   });
 
-  it.skip('it should not let a user add themselves', function(done) {
+  it('it should not let a user add themselves', function(done) {
     api.put('/group/' + group._id + '/add')
       .set('session-token', tokens[0])
       .send({'invitees' : []})
@@ -436,7 +438,7 @@ describe('Groups', function() {
       });
   });
 
-  it.skip('Another user cannot add a user who has left a group', function(done) {
+  it('Another user cannot add a user who has left a group', function(done) {
 
     Group.findOne({_id: group._id}, function(err, aGroup) {
       should.not.exist(err);
@@ -466,11 +468,11 @@ describe('Groups', function() {
 	    done();
 	  });
 	});
-      });
     });
+  });
 
 
-  it.skip('it should let you add a new user to the group', function(done) {
+  it('it should let you add a new user to the group', function(done) {
     var user2 = users[2];
     api.put('/group/' + group._id + '/add')
       .set('session-token', tokens[0])
