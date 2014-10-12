@@ -187,8 +187,9 @@ app.use(function(err, req, res, next) {
   } else if (typeof err === 'string' || err instanceof String) {
     res.json(400, {error: err});
   } else if (err.isBoom) {
-    console.log('BOOM ERROR', err.output.payload.statusCode,err.output.payload.message);
-    res.status(err.output.payload.statusCode).json({error: err.output.payload.message});
+    var message = err.output.payload.message || err.output.payload.error;
+    console.log('BOOM ERROR', err.output.payload.statusCode, message);
+    res.status(err.output.payload.statusCode).json({error: message});
   } else {
     next(err);
   }
@@ -196,7 +197,6 @@ app.use(function(err, req, res, next) {
 
 // 404
 app.use(function(req, res, next) {
-  console.log('404:', req);
   res.status(404).json({error: 'Not Found'});
 });
 
