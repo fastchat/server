@@ -191,8 +191,6 @@ describe('Groups', function() {
 
     var user1 = users[1];
 
-    console.log('Proper Info');
-
     api.post('/group')
       .set('session-token', tokens[0])
       .send({'text' : 'Proper Info Group!', 'members': [user1.username]})
@@ -439,7 +437,7 @@ describe('Groups', function() {
   });
 
   it('Another user cannot add a user who has left a group', function(done) {
-
+    
     Group.findOne({_id: group._id}, function(err, aGroup) {
       should.not.exist(err);
       should.exist(aGroup);
