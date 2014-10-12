@@ -38,7 +38,7 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var bodyParser = require('body-parser');
 var favicon = require('serve-favicon');
-var mongoose = require('mongoose');
+var mongoose = require('mongoose-q')();
 var http = require('http');
 var config = require('./config');
 var apn = require('apn');
@@ -78,7 +78,7 @@ passport.serializeUser(function(user, done) {
 // Required for the local session.
 // We don't use this on the web client, but we could.
 passport.deserializeUser(function(id, done) {
-  User.findOne( {_id: id} , function (err, user) {
+  User.findOne({_id: id}, function (err, user) {
     done(err, user);
   });
 });
@@ -92,19 +92,18 @@ passport.use(new LocalStrategy({
     usernameField: 'username',
     passwordField: 'password'
   }, function(username, password, done) {
-  User.findOne({ 'username': username.toLowerCase() }, function(err, user) {
-    if (err) { return done(err); }
-    if (!user) { return done(null, false, { error: 'Incorrect username or password '}); }
-    user.comparePassword(password, function(err, isMatch) {
-      if (err) return done(err);
-      if(isMatch) {
-        return done(null, user);
-      } else {
-        return done(null, false, { error: 'Incorrect username or password' });
-      }
-    });
-  });
-}));
+    User.findByLowercaseUsername(username)
+      .then(function(user) {
+	return [user, user.comparePassword(password)];
+      })
+      .spread(function(user, matched) {
+	done(null, user);
+      })
+      .catch(function(err) {
+	done(null, false, { error: 'Incorrect username or password!'});
+      })
+      .done();
+  }));
 
 
 // Get the port and create the servers
@@ -179,7 +178,6 @@ app.use(function(err, req, res, next) {
 
 app.use(function(err, req, res, next) {
   console.log('Got middleware!', err);
-  console.log('Request for debuggin: ', req);
   if (err === 404) {
     res.json(404, {error: 'Not Found'});
   } else if (err === 500) {
@@ -188,6 +186,10 @@ app.use(function(err, req, res, next) {
     res.json(401, {error : 'Unauthorized'});
   } else if (typeof err === 'string' || err instanceof String) {
     res.json(400, {error: err});
+  } else if (err.isBoom) {
+    var message = err.output.payload.message || err.output.payload.error;
+    console.log('BOOM ERROR', err.output.payload.statusCode, message);
+    res.status(err.output.payload.statusCode).json({error: message});
   } else {
     next(err);
   }
@@ -195,8 +197,7 @@ app.use(function(err, req, res, next) {
 
 // 404
 app.use(function(req, res, next) {
-  console.log('404:', req);
-  res.json(404, {error: 'Not Found'});
+  res.status(404).json({error: 'Not Found'});
 });
 
 
@@ -207,7 +208,8 @@ app.use(function(req, res, next) {
 //   login page.
 //   Stores the user in the req for fast access later on.
 function ensureAuthenticated(req, res, next) {
-  console.log('Checking ' + JSON.stringify(req.headers, null, 4));
+  console.log('Path: ', req.method, req.path);
+  console.log('Checking Headers:', req.headers);
   if (req.headers['session-token'] !== undefined) {
     console.log('Found header!');
     var token = req.headers['session-token'];

@@ -76,11 +76,11 @@ describe('Groups', function() {
 	  });
       }
     ],
-    // optional callback
-    function(err, results){
-      // Oh look, now we are done
-      done();
-    });
+		 // optional callback
+		 function(err, results){
+		   // Oh look, now we are done
+		   done();
+		 });
     
   }); // before
 
@@ -100,16 +100,16 @@ describe('Groups', function() {
 
   it('should not allow a user to create a group with no information', function(done) {
     api.post('/group')
-    .set('session-token', tokens[0])
-    .send({})
-    .expect(400)
-    .expect('Content-Type', /json/)
-    .end(function(err, res) {
-      should.not.exist(err);
-      should.exist(res.body);
-      should.exist(res.body.error);
-      done();
-    });
+      .set('session-token', tokens[0])
+      .send({})
+      .expect(400)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+	should.not.exist(err);
+	should.exist(res.body);
+	should.exist(res.body.error);
+	done();
+      });
   });
 
   it('should not allow a user to create a group with no message', function(done) {
@@ -117,16 +117,16 @@ describe('Groups', function() {
     var user1 = users[1];
 
     api.post('/group')
-    .set('session-token', tokens[0])
-    .send({'members' : [user1._id]})
-    .expect(400)
-    .expect('Content-Type', /json/)
-    .end(function(err, res) {
-      should.not.exist(err);
-      should.exist(res.body);
-      should.exist(res.body.error);
-      done();
-    });
+      .set('session-token', tokens[0])
+      .send({'members' : [user1._id]})
+      .expect(400)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+	should.not.exist(err);
+	should.exist(res.body);
+	should.exist(res.body.error);
+	done();
+      });
   });
 
   it('should not allow a user to create a group with no members', function(done) {
@@ -156,7 +156,7 @@ describe('Groups', function() {
 	should.exist(res.body);
 	should.exist(res.body.error);
 	done();
-     });
+      });
   });
 
   it('should not allow a user to create a group with no members', function(done) {
@@ -193,13 +193,13 @@ describe('Groups', function() {
 
     api.post('/group')
       .set('session-token', tokens[0])
-      .send({'text' : 'This is a test message!', 'members': [user1.username]})
+      .send({'text' : 'Proper Info Group!', 'members': [user1.username]})
       .expect(201)
       .expect('Content-Type', /json/)
       .end(function(err, res) {
 	should.not.exist(err);
 	should.exist(res.body);
-
+	
 	var created = res.body;
 
 	should.not.exist(created.name);
@@ -437,7 +437,7 @@ describe('Groups', function() {
   });
 
   it('Another user cannot add a user who has left a group', function(done) {
-
+    
     Group.findOne({_id: group._id}, function(err, aGroup) {
       should.not.exist(err);
       should.exist(aGroup);
@@ -466,8 +466,8 @@ describe('Groups', function() {
 	    done();
 	  });
 	});
-      });
     });
+  });
 
 
   it('it should let you add a new user to the group', function(done) {

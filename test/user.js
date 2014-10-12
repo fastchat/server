@@ -30,7 +30,6 @@ describe('Authentication', function() {
       should.exist(res.body.error);
       should.not.exist(err);
       res.body.error.should.contain('Username');
-      res.body.error.should.contain('password');
       done();
     });
   });
