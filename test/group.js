@@ -392,6 +392,25 @@ describe('Groups', function() {
     });
   });
 
+  it('should return left groups in the user profile', function(done) {
+    api.get('/user')
+      .set('session-token', tokens[1])
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+	should.exist(res.body);
+	should.exist(res.body.profile);
+
+	res.body.profile.groups.should.have.length(0);
+	res.body.profile.leftGroups.should.have.length(1);
+	var left = res.body.profile.leftGroups[0];
+	should.exist(left.name);
+	should.exist(left._id);
+	
+	done();
+      });
+  });
+  
   it('it should fail to add nothing to a group', function(done) {
 
     api.put('/group/' + group._id + '/add')

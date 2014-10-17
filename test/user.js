@@ -103,6 +103,11 @@ describe('Authentication', function() {
 	createdUser.username.should.equal(res.body.profile.username);
 	createdUser.password.should.equal(res.body.profile.password);
 	createdUser._id.should.equal(res.body.profile._id);
+
+	// It should have your past groups
+	res.body.profile.groups.should.have.length(0);
+	res.body.profile.leftGroups.should.have.length(0);
+	
 	done();
       });
   });
