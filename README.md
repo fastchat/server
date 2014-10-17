@@ -1,6 +1,6 @@
 # About
 
-This is the server. It's written in Node.js for fast concurrency. It can handle 100 users at once.
+This is the server. It's written in Node.js for fast concurrency. It can handle some users at once.
 
 # Features
 
