@@ -15,10 +15,7 @@ function Message(properties) {
  * as \n anymore.
  */
 Message.prototype.toHTML = function() {
-  var html = this.text;
-  html.replace(/\\r\\n/g, "<br />");
-  html = Autolinker.link( html );
-  return html;
+  return Autolinker.link( this.text, {twitter: false} );
 };
 
 function MakeMessages(array) {
