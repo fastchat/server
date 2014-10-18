@@ -2,7 +2,7 @@
 
 This is the server. It's written in Node.js for fast concurrency. It can handle some users at once.
 
-# Features
+# Features #
 
 1. Users can be created and logged in and out.
 2. Users can create group chats.
