@@ -16,7 +16,7 @@
   "author": "Ethan Mick",
   "license": "Private",
   "dependencies" : {
-    "apn": "1.4.4",
+    "apn": "1.6.2",
     "async": "0.2.10",
     "bcrypt": "0.7.7",
     "boom": "2.5.1",
