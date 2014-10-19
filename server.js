@@ -236,7 +236,7 @@ var options = {
 var feedback = new apn.Feedback(options);
 feedback.on("feedback", function(devices) {
   devices.forEach(function(item) {
-    console.log('FEEDBACK: ' + JSON.stringify(item, null, 4));
+    console.log('FEEDBACK: ', item);
     // Do something with item.device and item.time;
   });
 });
