@@ -52,6 +52,9 @@ fastchat.config(function ($routeProvider, $locationProvider) {
     when('/profile', {
       templateUrl:'views/profile.html'
     }).
+    when('/privacy', {
+      templateUrl:'views/privacy.html'
+    }).
     otherwise({
       redirectTo: '/'
     });
