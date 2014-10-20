@@ -15,6 +15,12 @@
   },
   "author": "Ethan Mick",
   "license": "Private",
+  "config": {
+    "blanket": {
+      "pattern": "lib",
+      "data-cover-never": "node_modules"
+    }
+  },
   "dependencies" : {
     "apn": "1.6.2",
     "async": "0.2.10",
@@ -45,11 +51,12 @@
     "uuid": "1.4.1"
   },
   "devDependencies": {
-    "mocha": "1.18.2",
+    "blanket": "1.1.6",
     "chai": "1.9.1",
-    "supertest": "0.10.0",
+    "istanbul-middleware": "Wayfarer247/istanbul-middleware",
+    "mocha": "1.18.2",
     "socket.io-client": "0.9.16",
-    "istanbul-middleware": "Wayfarer247/istanbul-middleware"
+    "supertest": "0.10.0"
   },
   "engines": {
     "node": "0.10.x"

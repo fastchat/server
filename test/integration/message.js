@@ -3,10 +3,10 @@ var should = require('chai').should(),
     api = supertest('http://localhost:3000');
 var async = require('async');
 var mongoose = require('mongoose');
-var User = require('../index').User;
-var Group = require('../index').Group;
-var Message = require('../index').Message;
-var GroupSetting = require('../index').GroupSetting;
+var User = require('../../index').User;
+var Group = require('../../index').Group;
+var Message = require('../../index').Message;
+var GroupSetting = require('../../index').GroupSetting;
 var tokens = [];
 var users = [];
 var theGroup = null;
@@ -105,7 +105,7 @@ describe('Messages', function() {
 
     req.set('session-token', tokens[0])
     req.field('text', text);
-    req.attach('media', 'test/test_image.png');
+    req.attach('media', './test/integration/test_image.png');
     req.end(function(err, res) {
 
       should.not.exist(err);

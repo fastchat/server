@@ -3,12 +3,12 @@ var should = require('chai').should(),
     api = supertest('http://localhost:3000');
 
 var mongoose = require('mongoose');
-var User = require('../index').User;
+var User = require('../../index').User;
 var token = null;
 var createdUser = null;
 var UNAUTHENTICATED_MESSAGE = 'Unauthorized';
 
-describe('Authentication', function() {
+describe('Users', function() {
 
   before(function(done){
     mongoose.connect( 'mongodb://localhost/test' );
@@ -224,7 +224,7 @@ describe('Authentication', function() {
 	var req = api.post('/user/' + createdUser._id + '/avatar');
 
 	req.set('session-token', token)
-	req.attach('avatar', 'test/test_image.png');
+	req.attach('avatar', 'test/integration/test_image.png');
 	req.end(function(err, res) {
 	  res.status.should.equal(200);
 	  should.not.exist(err);

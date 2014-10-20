@@ -4,7 +4,7 @@ var should = require('chai').should(),
 
 var mongoose = require('mongoose');
 var async = require('async');
-var User = require('../index').User;
+var User = require('../../index').User;
 
 var tokens = [];
 var users = [];

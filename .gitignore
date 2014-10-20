@@ -25,5 +25,5 @@ build/Release
 node_modules
 
 .tern-port
-
+nohup.out
 coverage.html

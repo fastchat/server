@@ -30,6 +30,29 @@ test:
 	mocha \
 	--timeout 5000 \
 
+unit:
+	@ENV=test \
+	AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) \
+	mocha --require blanket -R html-cov > coverage.html ./test/unit
+	open coverage.html
+
+integration:
+	ENV=test COV_FASTCHAT=true MONGOLAB_URI=mongodb://localhost/test AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) nohup node server.js &
+	sleep 3
+	curl -X POST "http://localhost:3000/coverage/reset" && echo
+	@ENV=test AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) mocha ./test/integration --timeout 5000
+	open "http://localhost:3000/coverage"
+
+cov:
+	-rm nohup.out
+	$(MAKE) kill-node
+	$(MAKE) unit
+	$(MAKE) integration
+
+
+kill-node:
+	-kill `ps -eo pid,comm | awk '$$2 == "node" { print $$1 }'`
+
 # Test and watch for file changes and test again. We don't really use this,
 # we just test before deploying to production.
 test-w:

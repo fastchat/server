@@ -4,10 +4,10 @@ var should = require('chai').should(),
 
 var async = require('async');
 var mongoose = require('mongoose');
-var User = require('../index').User;
-var Group = require('../index').Group;
-var Message = require('../index').Message;
-var GroupSetting = require('../index').GroupSetting;
+var User = require('../../index').User;
+var Group = require('../../index').Group;
+var Message = require('../../index').Message;
+var GroupSetting = require('../../index').GroupSetting;
 var tokens = [];
 var users = [];
 

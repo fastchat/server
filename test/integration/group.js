@@ -1,14 +1,13 @@
-require('../index');
 var should = require('chai').should(),
     supertest = require('supertest'),
-    api = supertest('http://localhost:3000');
-var async = require('async');
+    api = supertest('http://localhost:3000'),
+    async = require('async');
 
 var mongoose = require('mongoose');
-var User = require('../index').User;
-var Group = require('../index').Group;
-var Message = require('../index').Message;
-var GroupSetting = require('../index').GroupSetting;
+var User = require('../../index').User;
+var Group = require('../../index').Group;
+var Message = require('../../index').Message;
+var GroupSetting = require('../../index').GroupSetting;
 var tokens = [];
 var users = [];
 var group = null;
