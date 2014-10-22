@@ -27,6 +27,7 @@
     "bcrypt": "0.7.7",
     "boom": "2.5.1",
     "body-parser": "1.2.0",
+    "coffee-script": "1.8.0",
     "console-trace": "Wayfarer247/console-trace",
     "cookie-parser": "1.1.0",
     "errorhandler": "1.0.1",

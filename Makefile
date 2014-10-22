@@ -22,7 +22,7 @@ run-test-for-cov:
 run:
 	@AWS_KEY=$(KEY) \
 	AWS_SECRET=$(SECRET) \
-	node server.js
+	node coffee_bridge.js
 
 test:
 	@ENV=test \
