@@ -27,20 +27,19 @@ run:
 test:
 	@ENV=test \
 	AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) \
-	mocha \
-	--timeout 5000 \
+	mocha --timeout 5000 --compilers coffee:coffee-script/register ./test/unit
 
 unit:
 	@ENV=test \
 	AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) \
-	mocha --require blanket -R html-cov > coverage.html ./test/unit
+	mocha --compilers coffee:coffee-script/register --require blanket -R html-cov > coverage.html ./test/unit
 	open coverage.html
 
 integration:
 	ENV=test COV_FASTCHAT=true MONGOLAB_URI=mongodb://localhost/test AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) nohup node server.js &
 	sleep 3
 	curl -X POST "http://localhost:3000/coverage/reset" && echo
-	@ENV=test AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) mocha ./test/integration --timeout 5000
+	@ENV=test AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) mocha --compilers coffee:coffee-script/register ./test/integration --timeout 5000
 	open "http://localhost:3000/coverage"
 
 cov:

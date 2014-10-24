@@ -109,7 +109,7 @@ Group.methods =
         user.saveQ().then => user
 
       .then (user)=>
-        aMessage = new Message(
+        aMessage = new Message
           from: null
           group: @id
           text: user.username + ' has joined the group.'
@@ -143,7 +143,7 @@ Group.methods =
       return aMessage.saveQ().then =>
         require('../socket/socket').messageToGroup @id, 'group_name', aMessage
 
-Group.statics = {
+Group.statics =
 
   ###
   Gets the groups (and their unread count) for the user.
@@ -176,12 +176,12 @@ Group.statics = {
     name.toLowerCase() for name in members
     User = require './user'
 
-    User.find( {username: { $in: members } }).execQ()
+    User.find(username: { $in: members }).execQ()
       .then (users)=>
-        throw Boom.badRequest('No users were found with those usernames!' if users.length is 0
+        throw Boom.badRequest 'No users were found with those usernames!' if users.length is 0
 
         otherMembers = users.filter (u)-> not u.id.equals user.id
-        throw Boom.badRequest 'You can\'t make a group with only yourself!' if otherMembers.length is 0
+        throw Boom.badRequest "You can't make a group with only yourself!" if otherMembers.length is 0
 
       otherMembers
 
@@ -247,4 +247,4 @@ Group.statics = {
           user.push(group, text, null, false)
       group
 
-module.exports = mongoose.model('Group', Group);
+module.exports = mongoose.model('Group', Group)

@@ -13,16 +13,16 @@ exports.setup = (server)->
   io = io.listen server, origins: '*:*'
   io.set 'log level', 1
 
-  ###
-  ### Setup Socket IO
-  ###
+  #
+  # Setup Socket IO
+  #
   io.configure ->
     io.set 'authorization', (handshakeData, callback)->
       token = handshakeData.query.token
       return callback(new Error('You must have a session token!')) unless token
 
       User.findOneQ(accessToken: token).then (user)->
-        throw 'Error' unless user
+        throw new Error('Error') unless user
          handshakeData.user = user
          callback null, true
       .fail(callback)
@@ -84,13 +84,13 @@ exports.setup = (server)->
         fn(error: 'No Message Text') if fn
         return
 
-      if !socketUser.hasGroup(room))
+      if !socketUser.hasGroup(room)
         fn(error: 'Not Found') if fn
         return
 
       try
         roomId = new ObjectId room
-      catch (err)
+      catch err
         console.log 'Tried to make the room ID and failed! ', err
         return
 
@@ -166,19 +166,19 @@ exports.setup = (server)->
       delete sockets[socketUser.id]
 
 ###
- * This method sends a message (@see message.js) to the group
- * from no one in particular. It will simply send it out to all members of the group.
- * This is useful for system events, such as someone joining or leaving the group.
+# This method sends a message (@see message.js) to the group
+# from no one in particular. It will simply send it out to all members of the group.
+# This is useful for system events, such as someone joining or leaving the group.
 ###
 exports.messageToGroup = (userId, groupId, event, message)->
   userSocket = sockets[userId]
   userSocket.broadcast.to(groupId).emit event, message if userSocket
 
 ###
- * Have the given user join the room. This is useful for if the user has been
- * invited to a group and they are currently chatting with people live. We will
- * add them to the group so they can start receiving messages without having
- * to disconnect and reconnect
+# Have the given user join the room. This is useful for if the user has been
+# invited to a group and they are currently chatting with people live. We will
+# add them to the group so they can start receiving messages without having
+# to disconnect and reconnect
 ###
 exports.joinGroup = (groupId, userId)->
   userSocket = sockets[userId]
@@ -193,7 +193,7 @@ exports.joinGroup = (groupId, userId)->
 exports.emitNewGroup = (userId, group)->
   userSocket = sockets[userId]
 
-  if userSocket)
+  if userSocket
     userSocket.emit 'new_group', group
     return true
    false;

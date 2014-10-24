@@ -51,11 +51,11 @@ User = new Schema
  * This is never called explicitly.
 ###
 User.pre 'save', (next)->
-  return next unless user.isModified 'password'
+  return next unless @isModified 'password'
 
   bcrypt.genSalt SALT_WORK_FACTOR, (err, salt)=>
     return next(err) if err
-    bcrypt.hash user.password, salt, (err, hash)=>
+    bcrypt.hash @password, salt, (err, hash)=>
       return next(err) if err
       @password = hash
       next()
@@ -220,4 +220,4 @@ User.methods =
     deferred.promise
 
 
-module.exports = mongoose.model('User', User)
+module.exports = mongoose.model 'User', User

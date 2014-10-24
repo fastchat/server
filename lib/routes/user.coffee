@@ -12,24 +12,25 @@ Boom = require('boom')
 exports.loginPOST = (req, res, next)->
   console.log('Logging in user')
   (passport.authenticate 'local', (err, user, info)->
-    console.log('Error: ' + err)
-    console.log('user: ' + user)
-    console.log('INFO: ' + info)
+    console.log 'Error: ', err
+    console.log 'user: ', user
+    console.log 'INFO: ', info
     return next(err) if err
     return next(401) unless user
 
     req.logIn user, (err)->
       return next(err) if err
+      console.log 'Logged In'
 
       #
       # Set session-token to DB, not session
       #
       token = user.generateRandomToken()
       user.accessToken.push token
-      user.saveQ().then ->
+      console.log 'saving', user
+      user.save (err)->
+        console.log 'saved'
         res.json({'session-token': token})
-      .fail(next)
-      .done()
   )(req, res, next)
 
 # POST /user
@@ -45,7 +46,7 @@ exports.register = (req, res, next)->
 
 
 # GET /user
-exports.profile = (req, res, next)->
+module.exports.profile = (req, res, next)->
   User.findOne(_id: req.user.id)
   .populate('groups', 'name')
   .populate('leftGroups', 'name')
@@ -56,7 +57,7 @@ exports.profile = (req, res, next)->
   .fail(next)
   .done()
 
-exports.logout = (req, res, next)->
+module.exports.logout = (req, res, next)->
   user = req.user
   all = req.query.all is 'true'
 
