@@ -8,9 +8,9 @@ compare. Useful if you are looking at mongoose objects and want to compare
 '_id' to the val.
 ###
 Array.prototype.indexOfEquals = (val, key)->
-  for value, i in this
+  for value, i in @
     if key
-      return i if value[key] and value[key].equals and value.equals val
+      return i if value[key] and value[key].equals and value[key].equals val
     else
       return i if value.equals and value.equals val
   return -1

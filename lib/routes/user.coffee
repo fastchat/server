@@ -4,33 +4,26 @@ ObjectId = require('mongoose-q')().Types.ObjectId
 multiparty = require('multiparty')
 Boom = require('boom')
 
-
-
 # POST /login
 # This is an alternative implementation that uses a custom callback to
 # acheive the same functionality.
 exports.loginPOST = (req, res, next)->
   console.log('Logging in user')
   (passport.authenticate 'local', (err, user, info)->
-    console.log 'Error: ', err
-    console.log 'user: ', user
-    console.log 'INFO: ', info
     return next(err) if err
     return next(401) unless user
 
     req.logIn user, (err)->
       return next(err) if err
-      console.log 'Logged In'
-
       #
       # Set session-token to DB, not session
       #
       token = user.generateRandomToken()
       user.accessToken.push token
-      console.log 'saving', user
-      user.save (err)->
-        console.log 'saved'
+      user.saveQ().then ->
         res.json({'session-token': token})
+      .catch(next)
+      .done()
   )(req, res, next)
 
 # POST /user

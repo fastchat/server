@@ -11,6 +11,7 @@ exports.getDevices = (req, res, next)->
 exports.postDevice = (req, res, next)->
   Device.createOrUpdate(req.user, req.body.token, req.body.type, req.headers['session-token'])
     .then (device)->
+      console.log 'Device', device
       res.status(if device then 201 else 200).json(if device then device else {})
     .fail(next)
     .done()

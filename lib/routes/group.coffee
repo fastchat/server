@@ -36,7 +36,8 @@ exports.leaveGroup = (req, res, next)->
 exports.changeSettings = (req, res, next)->
   groupId = new ObjectId(req.params.id.toString())
   user = req.user
-  return next Boom.notFound() unless user.hasGroup(groupId)
+
+  return next(Boom.notFound()) unless user.hasGroup(groupId)
 
   Group.findOneQ(_id : groupId).then (group)->
     throw Boom.notFound() unless group

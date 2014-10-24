@@ -91,34 +91,31 @@ DeviceSchema.methods =
 DeviceSchema.statics =
 
   createOrUpdate: (user, token, type, sessionToken)->
+
     throw Boom.badRequest 'You must specify a token to register a device!' if not token
     if not type or (type isnt 'ios' and type isnt 'android')
       throw Boom.badRequest 'Type must be "ios" or "android"!'
 
-    self.findQ(token: token, user: user._id)
-      .then (devices)->
-        console.log 'Devices Found with Token: ', devices
-
+    @findQ(token: token, user: user._id)
+      .then (devices)=>
         if devices and devices.length > 0
           devices.forEach (device)->
-            #update the session-token associated with it.
             device.accessToken = sessionToken
             device.active = yes
             device.loggedIn = yes
             device.saveQ()
-          throw 'done'
-      .then ->
-        device = new self(token: token
+          throw new Error('done')
+      .then =>
+        device = new @
+          token: token
           type: type
           user: user._id
           accessToken: sessionToken
-        )
         device.saveQ().then -> device
       .then (device)->
         user.devices.push device
         user.saveQ().then -> device
       .catch (err)->
-        throw err unless err is 'done'
-      .done()
+        throw err unless err.message is 'done'
 
 module.exports = mongoose.model('Device', DeviceSchema)

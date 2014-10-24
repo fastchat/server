@@ -51,7 +51,7 @@ User = new Schema
  * This is never called explicitly.
 ###
 User.pre 'save', (next)->
-  return next unless @isModified 'password'
+  return next() unless @isModified 'password'
 
   bcrypt.genSalt SALT_WORK_FACTOR, (err, salt)=>
     return next(err) if err
@@ -143,10 +143,9 @@ User.methods =
     catch err
       return no
 
-    return @groups.indexOfEquals groupId isnt -1
+    @groups.indexOfEquals(groupId) > -1
 
   logout: (all, token)->
-
     tokens = []
     if all
       tokens = tokens.concat @accessToken

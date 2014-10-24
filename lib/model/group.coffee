@@ -81,10 +81,15 @@ Group.methods =
     User = require '../model/user'
     deferred = Q.defer()
 
-    async.each invitees, (username, cb)=>
+    console.log 'Adding'
+
+    async.each(invitees, (username, cb)=>
+      console.log 'Adding', username
 
       User.findOneQ( username: username.toLowerCase() ).then (user)=>
+        console.log 'Found User', user
         throw Boom.notFound() unless user
+
 
         ###
         Don't add to the group if the user has left the group
@@ -125,10 +130,12 @@ Group.methods =
       .catch (err)->
         cb err
     (err)->
+      console.log 'ERror adding user', err
       return deferred.reject(err) if err
       deferred.resolve()
+    )
 
-    return deferred.promise
+    deferred.promise
 
   changeName: (name, user)->
     @name = name
@@ -136,7 +143,7 @@ Group.methods =
       aMessage = new Message
         from: null
         group: @id
-        text: 'Group name changed to  ' + @name
+        text: 'Group name changed to ' + @name
         sent: new Date()
         type: 'system'
 
@@ -152,8 +159,8 @@ Group.statics =
     throw Boom.unauthorized() unless user
 
     Q.all([
-      GroupSetting.findQ( user: user.id )
-      @find( {members : user.id}, '_id members leftMembers name lastMessage')
+      GroupSetting.findQ( user: user._id )
+      @find( {members : user._id}, '_id members leftMembers name lastMessage')
         .populate('members', 'username avatar')
         .populate('leftMembers', 'username avatar')
         .populate('lastMessage')
@@ -165,7 +172,7 @@ Group.statics =
       # For each group - find the group setting object associated with it
       # and if it exists, add the unread count to this group
       groups.forEach (g)->
-        index = gses.indexOfEquals g.id, 'group'
+        index = gses.indexOfEquals g._id, 'group'
         if index > -1
           g.unread = gses[index].unread
         else
@@ -180,10 +187,10 @@ Group.statics =
       .then (users)=>
         throw Boom.badRequest 'No users were found with those usernames!' if users.length is 0
 
-        otherMembers = users.filter (u)-> not u.id.equals user.id
-        throw Boom.badRequest "You can't make a group with only yourself!" if otherMembers.length is 0
-
-      otherMembers
+        otherMembers = users.filter (u)-> not u._id.equals user._id
+        if otherMembers.length is 0
+          throw Boom.badRequest "You can't make a group with only yourself!"
+        otherMembers
 
   ###
    * Helper method to create a new group. Ensures that the information passed in
@@ -209,29 +216,29 @@ Group.statics =
     .spread (members, membersWithUser, group)=>
 
       membersWithUser.forEach (u)->
-        u.groups.push group.id
+        u.groups.push group._id
 
         # Each member in the group gets a GroupSetting object
         setting = new GroupSetting
-          user: u.id
-          group: group.id
+          user: u._id
+          group: group._id
 
         setting.saveQ()
-        u.groupSettings.push setting.id
+        u.groupSettings.push setting._id
         u.saveQ()
 
       aMessage = new Message
-        from: user.id
-        group: group.id
+        from: user._id
+        group: group._id
         text: message
         sent: new Date()
 
-      group.messages.push aMessage.id
-      group.lastMessage = aMessage.id
+      group.messages.push aMessage._id
+      group.lastMessage = aMessage._id
       Q.all([aMessage.saveQ(), group.saveQ()]).then => [members, aMessage, group]
     .spread (members, mes, group)=>
       @findOne(
-        { '_id' : group.id },
+        { '_id' : group._id },
         '_id members leftMembers name lastMessage messages')
           .populate('members', 'username avatar')
           .populate('leftMembers', 'username avatar')

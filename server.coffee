@@ -36,7 +36,6 @@ mongoose = require('mongoose-q')()
 http = require('http')
 config = require('./config')
 apn = require('apn')
-ObjectId = require('mongoose').Types.ObjectId
 helpers = require('./helpers')
 
 ###
@@ -68,7 +67,7 @@ this will be as simple as storing the user ID when serializing, and finding
 the user by ID when deserializing.
 ###
 passport.serializeUser (user, done)->
-  console.log 'What 1'
+  console.log 'What 1', user
   done(null, user._id) if user._id
 
 ###
@@ -77,7 +76,7 @@ Required for the local session.
 We don't use this on the web client, but we could.
 ###
 passport.deserializeUser (id, done)->
-  console.log 'What'
+  console.log 'What', id
   User.findOne _id: id, (err, user)->
     done(err, user)
 
@@ -111,7 +110,9 @@ login page.
 Stores the user in the req for fast access later on.
 ###
 ensureAuthenticated = (req, res, next)->
+  console.log '\n\n'
   console.log 'Path: ', req.method, req.path
+  console.log '\n\n'
   console.log 'Checking Headers:', req.headers
   if req.headers['session-token']
     console.log 'Found header!'

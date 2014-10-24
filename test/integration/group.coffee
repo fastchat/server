@@ -191,7 +191,7 @@ describe 'Groups', ->
             gs2.group.toString().should.equal(created._id)
             done()
 
-  it 'should be show the new group for the user who created it', (done)->
+  it 'should show the new group for the user who created it', (done)->
 
     api.get('/group')
       .set('session-token', tokens[0])
@@ -275,7 +275,7 @@ describe 'Groups', ->
             Message.find group: group._id, {}, {sort: {sent: 1}}, (err, messages)->
               should.not.exist(err)
               messages.should.have.length(2)
-              messages[1].text.should.equal('Group is now called New Group Name!')
+              messages[1].text.should.equal('Group name changed to New Group Name!')
               messages[1].type.should.equal('system')
               done()
 
