@@ -36,7 +36,7 @@ unit:
 	open coverage.html
 
 integration:
-	ENV=test COV_FASTCHAT=true MONGOLAB_URI=mongodb://localhost/test AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) nohup node server.js &
+	ENV=test COV_FASTCHAT=true MONGOLAB_URI=mongodb://localhost/test AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) nohup node coffee_bridge &
 	sleep 3
 	curl -X POST "http://localhost:3000/coverage/reset" && echo
 	@ENV=test AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) mocha --compilers coffee:coffee-script/register ./test/integration --timeout 5000
