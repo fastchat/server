@@ -123,7 +123,8 @@ ensureAuthenticated = (req, res, next)->
       return next 401 unless user
       req.user = user
       next()
-
+  else
+    next 401
 
 ###
 Get the port and create the servers

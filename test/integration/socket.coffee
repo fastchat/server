@@ -39,12 +39,10 @@ describe 'Socket.io', ->
           api.post('/user')
             .send({'username' : 'test1', 'password' : 'test'})
             .end (err, res)->
-              users.push(res.body)
               # Number 2
               api.post('/user')
                 .send({'username' : 'test2', 'password' : 'test'})
                 .end (err, res)->
-                  users.push(res.body)
                   callback()
 
       (callback)->
@@ -381,7 +379,7 @@ describe 'Socket.io', ->
       client2 = io.connect(socketURL, options)
 
       client2.on 'connect', (data)->
-        should.not.exist(data);
+        should.not.exist(data)
 
         client2.on 'message', (message)->
           should.exist(message)
@@ -396,15 +394,16 @@ describe 'Socket.io', ->
           client2.disconnect()
           done()
 
-      #
-      # We are ready to go
-      #
-      client1.emit 'message',
-      {
-        group: users[0].groups[0]._id
-        text: 'Test Message!'
-      }, (ack)->
-        acknowledgement = ack
+        #
+        # We are ready to go
+        #
+        client1.emit 'message',
+        {
+          group: users[0].groups[0]._id
+          text: 'Test Message!'
+        }, (ack)->
+          'Got ack'
+          acknowledgement = ack
 
 
   after (done)->

@@ -21,12 +21,13 @@ exports.setup = (server)->
       token = handshakeData.query.token
       return callback(new Error('You must have a session token!')) unless token
 
-      User.findOneQ(accessToken: token).then (user)->
-        throw new Error('Error') unless user
-         handshakeData.user = user
-         callback null, true
-      .fail(callback)
-      .done()
+      User.findOneQ(accessToken: token)
+        .then (user)->
+          throw 'Error' unless user
+          handshakeData.user = user
+          callback( null, true )
+        .fail(callback)
+        .done()
 
   io.on 'connection', (socket)->
     socketUser = socket.handshake.user
@@ -122,7 +123,6 @@ exports.setup = (server)->
 
         group.messages.push mes
         group.lastMessage = mes.id
-        console.log 'WHAT IS GOING ON HERE'
         Q.all([group.saveQ(), mes.saveQ()]).then -> [group, mes]
       .spread (group, mes)->
         #

@@ -11,63 +11,65 @@ tokens = []
 users = []
 theGroup = null
 mediaMessage = null
+
 io = require('socket.io-client')
 socketURL = 'http://localhost:3000'
+
 options =
   transports: ['websocket']
   'force new connection': true
 
 describe 'Messages', ->
 
-    before (done)->
-      mongoose.connect 'mongodb://localhost/test'
-      db = mongoose.connection
+  before (done)->
+    mongoose.connect 'mongodb://localhost/test'
+    db = mongoose.connection
 
-      async.series [
-        (callback)->
-          #
-          # Remove all users
-          #
-          db.once 'open', ->
-            User.remove {}, (err)->
-            callback()
-        (callback)->
-          #
-          # Add three users to seed our DB. We have to do it via the post request,
-          # because registering does a lot more than just create a DB record. Plus,
-          # this has already been tested, so we know it works.
-          #
-            api.post('/user')
-              .send({'username' : 'test1', 'password' : 'test'})
-              .end (err, res)->
-                users.push(res.body)
-                # Number 2
-                api.post('/user')
-                  .send({'username' : 'test2', 'password' : 'test'})
-                  .end (err, res)->
-                    users.push(res.body)
-                    callback()
-
-        (callback)->
-          api.post('/login')
+    async.series [
+      (callback)->
+        #
+        # Remove all users
+        #
+        db.once 'open', ->
+          User.remove {}, (err)->
+          callback()
+      (callback)->
+        #
+        # Add three users to seed our DB. We have to do it via the post request,
+        # because registering does a lot more than just create a DB record. Plus,
+        # this has already been tested, so we know it works.
+        #
+          api.post('/user')
             .send({'username' : 'test1', 'password' : 'test'})
             .end (err, res)->
-              tokens.push res.body['session-token']
-              # login second user
-              api.post('/login')
+              users.push(res.body)
+              # Number 2
+              api.post('/user')
                 .send({'username' : 'test2', 'password' : 'test'})
                 .end (err, res)->
-                  tokens.push res.body['session-token']
+                  users.push(res.body)
                   callback()
-        (cb)->
-          api.post('/group')
-            .set('session-token', tokens[0])
-            .send({ 'text' : 'First', 'members': [ users[1].username ] })
-            .end (err, res)->
-              theGroup = res.body
-              cb()
-      ], (err, results)->
-        done()
+
+      (callback)->
+        api.post('/login')
+          .send({'username' : 'test1', 'password' : 'test'})
+          .end (err, res)->
+            tokens.push res.body['session-token']
+            # login second user
+            api.post('/login')
+              .send({'username' : 'test2', 'password' : 'test'})
+              .end (err, res)->
+                tokens.push res.body['session-token']
+                callback()
+      (cb)->
+        api.post('/group')
+          .set('session-token', tokens[0])
+          .send({ 'text' : 'First', 'members': [ users[1].username ] })
+          .end (err, res)->
+            theGroup = res.body
+            cb()
+    ], (err, results)->
+      done()
 
   it 'should let a user connect to the socket.io server', (done)->
     options.query = 'token=' + tokens[0]
