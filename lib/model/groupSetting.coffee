@@ -18,6 +18,10 @@ GroupSetting.methods =
     @unread = 0
     @saveQ()
 
+  missed: ->
+    @unread++
+    @saveQ()
+
 
 GroupSetting.statics =
 

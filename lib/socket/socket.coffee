@@ -149,11 +149,10 @@ exports.setup = (server)->
           GroupSetting.findQ(user: user.id).then (gses)->
             thisGs = GroupSetting.forGroup gses, roomId
             return callback() unless thisGs
-            thisGs.unread++
-
+            thisGs.missed()
             text = "#{mes.fromUser.username}@#{group.name}:#{mes.text}"
             GroupSetting.totalUnread(gses).then (unread)->
-              console.log 'Sending push to: ', mes.fromUser.username
+              console.log 'Sending push to: ', mes.fromUser.username, unread
               user.push group, text, unread, false
             callback();
         (err)->
