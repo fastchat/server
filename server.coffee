@@ -127,11 +127,17 @@ params.extend(app)
 
 app.set('port', portNumber)
 app.use(favicon(__dirname + '/client/favicon.png'))
-app.use(require('morgan')())
-app.use(bodyParser())
+app.use(require('morgan')('combined'))
+app.use(bodyParser.json())
 app.use(require('method-override')())
 app.use(cookieParser('special turkey sauce is good'))
-app.use(session({ secret: 'this is another secret', name: 'sid', cookie: { secure: true }}))
+app.use(session({
+   secret: 'fastchat fast secret kitty'
+   cookie:
+     secure: true
+   resave: true
+  saveUninitialized: true
+}))
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(express.static(__dirname + '/client'))
