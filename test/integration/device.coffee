@@ -3,7 +3,7 @@ supertest = require('supertest')
 api = supertest('http://localhost:3000')
 mongoose = require('mongoose')
 async = require('async')
-User = require('../../index').User
+User = require('../../lib/model/user')
 tokens = []
 users = []
 

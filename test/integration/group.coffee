@@ -3,10 +3,10 @@ supertest = require('supertest')
 api = supertest('http://localhost:3000')
 async = require('async')
 mongoose = require('mongoose')
-User = require('../../index').User
-Group = require('../../index').Group
-Message = require('../../index').Message
-GroupSetting = require('../../index').GroupSetting
+User = require('../../lib/model/user')
+Group = require('../../lib/model/group')
+Message = require('../../lib/model/message')
+GroupSetting = require('../../lib/model/groupSetting')
 tokens = []
 users = []
 group = null
@@ -280,7 +280,6 @@ describe 'Groups', ->
               done()
 
   it 'should not let you leave a group you are not in', (done)->
-
     api.put('/group/' + group._id + '/leave')
       .set('session-token', tokens[2])
       .send()

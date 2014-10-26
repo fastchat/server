@@ -3,10 +3,10 @@ supertest = require('supertest')
 api = supertest('http://localhost:3000')
 async = require('async')
 mongoose = require('mongoose')
-User = require('../../index').User
-Group = require('../../index').Group
-Message = require('../../index').Message
-GroupSetting = require('../../index').GroupSetting
+User = require('../../lib/model/user')
+Group = require('../../lib/model/group')
+Message = require('../../lib/model/message')
+GroupSetting = require('../../lib/model/groupSetting')
 tokens = []
 users = []
 io = require('socket.io-client')
@@ -302,6 +302,7 @@ describe 'Socket.io', ->
             acknowledgement = ack
 
   it 'should not send a message if the group is not included', (done)->
+    @timeout 5000
 
     options.query = 'token=' + tokens[0]
     client1 = io.connect(socketURL, options)
@@ -336,6 +337,7 @@ describe 'Socket.io', ->
 
 
   it 'should not send a message if the text is not included', (done)->
+    @timeout 5000
     options.query = 'token=' + tokens[0]
     client1 = io.connect(socketURL, options)
 

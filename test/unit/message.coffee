@@ -1,6 +1,6 @@
-require('blanket')
+require 'blanket'
 should = require('chai').should()
-Message = require('../../index').Message
+Message = require '../../lib/model/message'
 
 describe 'Messages', ->
 
