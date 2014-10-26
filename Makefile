@@ -27,20 +27,22 @@ run:
 test:
 	@ENV=test \
 	AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) \
-	mocha --timeout 5000 --compilers coffee:coffee-script/register ./test/unit
+	mocha --compilers coffee:coffee-script/register ./test/unit
 
 unit:
+	@ENV=test \
+	AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) \
+	mocha --compilers coffee:coffee-script/register ./test/unit
 	@ENV=test \
 	AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) \
 	mocha --compilers coffee:coffee-script/register --require blanket -R html-cov > coverage.html ./test/unit
 	open coverage.html
 
 integration:
+	-rm nohup.out
 	ENV=test COV_FASTCHAT=true MONGOLAB_URI=mongodb://localhost/test AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) nohup node coffee_bridge &
 	sleep 3
-	curl -X POST "http://localhost:3000/coverage/reset" && echo
-	@ENV=test AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) mocha --compilers coffee:coffee-script/register ./test/integration --timeout 5000
-	open "http://localhost:3000/coverage"
+	@ENV=test AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) mocha --compilers coffee:coffee-script/register ./test/integration
 
 cov:
 	-rm nohup.out
@@ -66,9 +68,6 @@ test-cov:
 	curl -X POST "http://localhost:3000/coverage/reset" && echo
 	@COV_FASTCHAT=true $(MAKE) test
 	open "http://localhost:3000/coverage"
-
-kill-test:
-	ps aux | grep "node server.js" | grep -v grep | awk "{print \"kill -9 \" $2}" | sh
 
 # The .PHONY is needed to ensure that we recursively use the out/Makefile
 # to check for changes.m
