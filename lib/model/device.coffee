@@ -5,7 +5,9 @@ gcm = require 'node-gcm'
 Boom = require 'boom'
 Q = require 'q'
 IOS_DEFAULT_SOUND = "ping.aiff"
-apnConnection = new apn.Connection production: true
+
+apnConnection = new apn.Connection
+  production: if process.env.ENV is 'dev' then false else true
 Sender = new gcm.Sender 'AIzaSyCmtVuvS3OlV801Mlq8IJDXOnsOXA502xA'
 
 ###
