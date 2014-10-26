@@ -6,18 +6,6 @@ if process.env.ENV is 'production'
   d.on 'error', (err)->
     console.log(err)
 
-###
-Code Coverage Middleware. This is currently using a forked version,
-because the original hasn't been updated. It covers all files served
-by the server. See the Makefile for how to get to this.
-###
-im = require('istanbul-middleware')
-isCoverageEnabled = if process.env.COV_FASTCHAT then yes else no
-
-if isCoverageEnabled
-  console.log('Hook loader for coverage - ensure this is not production!')
-  im.hookLoader(__dirname)
-
 
 ###
 Setup Good Logging with line numbers so I can find my log statements
@@ -34,17 +22,16 @@ bodyParser = require('body-parser')
 favicon = require('serve-favicon')
 mongoose = require('mongoose-q')()
 http = require('http')
-config = require('./config')
 apn = require('apn')
-helpers = require('./helpers')
+helpers = require('./lib/extensions/helpers')
 
 ###
 Models
 ###
-User = require('./index').User
-Group = require('./index').Group
-Message = require('./index').Message
-Device = require('./index').Device
+User = require('./lib/model/user')
+Group = require('./lib/model/group')
+Message = require('./lib/model/message')
+Device = require('./lib/model/device')
 
 ###
 Database Setup
@@ -134,13 +121,8 @@ portNumber = Number(process.env.PORT or 3000)
 app = express()
 server = http.createServer(app)
 server.listen(portNumber)
-io = require('./index').Socket.setup(server)
+io = require('./lib/socket/socket').setup(server)
 params.extend(app)
-
-#add the coverage handler
-if isCoverageEnabled
-  #enable coverage endpoints under /coverage
-  app.use '/coverage', im.createHandler()
 
 
 app.set('port', portNumber)
@@ -157,13 +139,12 @@ app.use(express.static(__dirname + '/client'))
 #
 # Update how these are set to use app.set('development', stuff);
 #
-if 'dev' is process.env.ENV
-  app.use require('errorhandler')()
+app.use require('errorhandler')() if 'dev' is process.env.ENV
 
-userRoutes = require('./index').UserRoutes
-groupRoutes = require('./index').GroupRoutes
-messageRoutes = require('./index').MessageRoutes
-deviceRoutes = require('./index').DeviceRoutes
+userRoutes = require('./lib/routes/user')
+groupRoutes = require('./lib/routes/group')
+messageRoutes = require('./lib/routes/message')
+deviceRoutes = require('./lib/routes/device')
 
 #
 # Forces all 'id' parameters to be a proper Mongoose ObjectId, or else it will 404
