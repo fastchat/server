@@ -22,8 +22,6 @@ Group = new Schema
   name : {type: String, default: null}
 
 
-virtual = Group.virtual 'fullname'
-
 Group.virtual('unread').get ->
   if @_unread then @_unread else 0
 
@@ -51,29 +49,33 @@ sort = (a, b)->
 Group.methods =
 
   leave: (user)->
+    Q.all([
+      @removeMember user
+      user.leave @
+      @systemMessage user.username + ' has left the group.'
+    ]).spread (group, usr, message)=>
+        require('../socket/socket').messageToGroup @_id, 'member_left', message
 
+  removeMember: (user)->
     index = @members.indexOfEquals user._id
     throw Boom.notFound() if index is -1
-
     @members.splice index, 1
     @leftMembers.push user._id
-    @saveQ().then =>
-      index = user.groups.indexOfEquals @id
-      throw Boom.notFound() if index is -1
+    @saveQ()
 
-      user.groups.splice index, 1
-      user.leftGroups.push @id
-      user.saveQ()
-    .then =>
-      aMessage = new Message
-        from: null
-        group: @id
-        text: user.username + ' has left the group.'
-        sent: new Date()
-        type: 'system'
-
-      aMessage.saveQ().then =>
-        require('../socket/socket').messageToGroup @id, 'member_left', aMessage
+  systemMessage: (text)->
+    mes = new Message
+      from: null
+      group: @_id
+      text: text
+      sent: new Date()
+      type: 'system'
+    @messages.push mes
+    Q.all([
+      @saveQ()
+      mes.saveQ()
+    ]).then ->
+      mes
 
   add: (invitees)->
     throw 'invitees must be an Array!' if not Array.isArray invitees
@@ -81,74 +83,43 @@ Group.methods =
     User = require '../model/user'
     deferred = Q.defer()
 
-    console.log 'Adding'
-
     async.each(invitees, (username, cb)=>
-      console.log 'Adding', username
 
       User.findOneQ( username: username.toLowerCase() ).then (user)=>
-        console.log 'Found User', user
         throw Boom.notFound() unless user
-
-
-        ###
-        Don't add to the group if the user has left the group
-        ###
-        index = user.leftGroups.indexOfEquals @id
-        index2 = user.groups.indexOfEquals @id
-        throw 'A user who left cannot be readded!' if index isnt -1 or index2 isnt -1
-
-        ###
-        Each member in the group gets a GroupSetting object
-        ###
-        setting = new GroupSetting
-          user: user._id
-          group: @id
-
-        setting.saveQ()
-        user.groupSettings.push setting._id
-        @members.push user._id
-        @saveQ().then => user
-      .then (user)=>
-        user.groups.push @id
-        user.saveQ().then => user
-
-      .then (user)=>
-        aMessage = new Message
-          from: null
-          group: @id
-          text: user.username + ' has joined the group.'
-          sent : new Date()
-          type : 'system'
-        aMessage.saveQ()
-        io = require('../socket/socket')
-        io.messageToGroup @id, 'member_joined', aMessage
-        #This is broken...
-        didSend = io.emitNewGroup user._id, @
-        user.push( null, 'You have been added to the group: ' + @name, null, no ) unless didSend
-        cb()
-      .catch (err)->
-        cb err
+        Q.all([
+          user.add(@)
+          @addUser(user)
+        ]).spread (user, group) =>
+          @systemMessage(user.username + ' has joined the group.')
+          .then (mes)-> [user, group, mes]
+        .spread (user, group, message) =>
+          @pushMessageToUser user, message
+          cb()
+      .catch(cb)
     (err)->
-      console.log 'ERror adding user', err
       return deferred.reject(err) if err
       deferred.resolve()
     )
 
     deferred.promise
 
-  changeName: (name, user)->
-    @name = name
-    @saveQ().then =>
-      aMessage = new Message
-        from: null
-        group: @id
-        text: 'Group name changed to ' + @name
-        sent: new Date()
-        type: 'system'
+  addUser: (user)->
+    @members.push user._id
+    @saveQ()
 
-      return aMessage.saveQ().then =>
-        require('../socket/socket').messageToGroup @id, 'group_name', aMessage
+  pushMessageToUser: (user, message)->
+    io = require('../socket/socket')
+    io.messageToGroup @id, 'member_joined', message
+    didSend = io.emitNewGroup user._id, @
+    user.push( null, 'You have been added to the group: ' + @name, null, no ) unless didSend
+
+
+  changeName: (name)->
+    @name = name
+    @systemMessage('Group name changed to ' + @name)
+    .then (message)=>
+      require('../socket/socket').messageToGroup @id, 'group_name', message
 
 Group.statics =
 
@@ -168,29 +139,29 @@ Group.statics =
     ]).spread (gses, groups)=>
       return Q([]) unless groups
       groups.sort sort
+      groups.forEach (g)=> @setUnread(g, gses)
 
-      # For each group - find the group setting object associated with it
-      # and if it exists, add the unread count to this group
-      groups.forEach (g)->
-        index = gses.indexOfEquals g._id, 'group'
-        if index > -1
-          g.unread = gses[index].unread
-        else
-          g.unread = 0
       return groups
+
+  setUnread: (group, gses)->
+    index = gses.indexOfEquals group._id, 'group'
+    if index > -1
+      group.unread = gses[index].unread
+    else
+      group.unread = 0
 
   validateMembers: (members, user)->
     name.toLowerCase() for name in members
     User = require './user'
 
-    User.find(username: { $in: members }).execQ()
-      .then (users)=>
-        throw Boom.badRequest 'No users were found with those usernames!' if users.length is 0
+    User.findQ(username: { $in: members })
+    .then (users)=>
+      throw Boom.badRequest 'No users were found with those usernames!' if users.length is 0
 
-        otherMembers = users.filter (u)-> not u._id.equals user._id
-        if otherMembers.length is 0
-          throw Boom.badRequest "You can't make a group with only yourself!"
-        otherMembers
+      otherMembers = users.filter (u)-> not u._id.equals user._id
+      if otherMembers.length is 0
+        throw Boom.badRequest "You can't make a group with only yourself!"
+      otherMembers
 
   ###
    * Helper method to create a new group. Ensures that the information passed in
@@ -203,39 +174,24 @@ Group.statics =
   ###
   newGroup: (members, user, message, name)->
 
-    if typeof members is 'undefined' or members is null or not Array.isArray members or members.length is 0
+    if typeof members is 'undefined' or members is null or (not Array.isArray members) or members.length is 0
       throw Boom.badRequest 'The "members" value must be a valid array of length 1!'
 
     throw Boom.unauthorized() unless user
     message = 'Hello!' unless message
 
     @validateMembers(members, user).then (members)=>
-      membersWithUser = members.slice(0)
-      membersWithUser.push(user)
-      [members, membersWithUser, new @(name: name, members: membersWithUser)]
+      membersWithUser = members.copy().pushed(user) # "pushed" returns array
+      [
+        members
+        membersWithUser
+        new @(name: name, members: membersWithUser)
+      ]
     .spread (members, membersWithUser, group)=>
-
       membersWithUser.forEach (u)->
-        u.groups.push group._id
+        u.add group
 
-        # Each member in the group gets a GroupSetting object
-        setting = new GroupSetting
-          user: u._id
-          group: group._id
-
-        setting.saveQ()
-        u.groupSettings.push setting._id
-        u.saveQ()
-
-      aMessage = new Message
-        from: user._id
-        group: group._id
-        text: message
-        sent: new Date()
-
-      group.messages.push aMessage._id
-      group.lastMessage = aMessage._id
-      Q.all([aMessage.saveQ(), group.saveQ()]).then => [members, aMessage, group]
+      @firstMessage(user, group, message).then (mes)=> [members, mes, group]
     .spread (members, mes, group)=>
       @findOne(
         { '_id' : group._id },
@@ -253,5 +209,16 @@ Group.statics =
         if not require('../socket/socket').emitNewGroup user._id, group
           user.push(group, text, null, false)
       group
+
+  firstMessage: (from, group, text)->
+    mes = new Message
+      from: from._id
+      group: group._id
+      text: text
+      sent: new Date()
+
+    group.messages.push mes._id
+    group.lastMessage = mes._id
+    Q.all([group.saveQ(), mes.saveQ()]).then -> mes
 
 module.exports = mongoose.model('Group', Group)

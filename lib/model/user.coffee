@@ -4,11 +4,12 @@ bcrypt = require('bcrypt')
 SALT_WORK_FACTOR = 10
 Device = require('./device')
 Group = require('./group')
+GroupSetting = require './groupSetting'
 ObjectId = mongoose.Types.ObjectId
 Q = require('q')
 fs = require('fs')
-uuid = require('uuid')
-Boom = require('boom')
+uuid = require 'uuid'
+Boom = require 'boom'
 
 knox = require('knox').createClient
   key: process.env.AWS_KEY
@@ -85,7 +86,7 @@ User.statics =
   findByLowercaseUsername: (username)->
     @findOneQ(username: username.toLowerCase())
       .then (user)->
-        throw new Error 'Incorrect username or password!' unless user
+        throw new Error 'Incorrect username!' unless user
         user
 
 User.methods =
@@ -97,7 +98,7 @@ User.methods =
    * @candidatePassword The given password to compare
    * @cb The callback with the result. cb(error, isMatch)
   ###
-  comparePassword: (candidatePassword, cb)->
+  comparePassword: (candidatePassword)->
     compare = Q.denodeify(bcrypt.compare)
     compare(candidatePassword, @password).then (matched)->
       throw new Error('Incorrect username or password') unless matched
@@ -125,6 +126,30 @@ User.methods =
     Device.findQ(user: @id).then (devices)->
       device.send(group, message, unread, contentAvailable) for device in devices
 
+  # Leave a group
+  leave: (group)->
+    index = @groups.indexOfEquals group._id
+    throw Boom.notFound() if index is -1
+    @groups.splice index, 1
+    @leftGroups.push group._id
+    @saveQ()
+
+  add: (group)->
+    index = @leftGroups.indexOfEquals group._id
+    index2 = @groups.indexOfEquals group._id
+    throw 'A user who left cannot be readded!' if index isnt -1 or index2 isnt -1
+
+    setting = new GroupSetting
+      user: @_id
+      group: group._id
+
+    @groupSettings.push setting._id
+    @groups.push group._id
+    Q.all([
+      @saveQ()
+      setting.saveQ()
+    ]).then => @
+
   ###
    * A convenience method that will return if the user is in the group
    * requested.
@@ -145,7 +170,7 @@ User.methods =
 
     @groups.indexOfEquals(groupId) > -1
 
-  logout: (all, token)->
+  logout: (token, all = no)->
     tokens = []
     if all
       tokens = tokens.concat @accessToken
@@ -158,15 +183,15 @@ User.methods =
 
     Device.findQ({accessToken : {$in: tokens}}).then (devices)=>
       device.logout() for device in devices
-      @saveQ()
+    @saveQ()
+
 
   setAvatar: (name)->
     @avatar = name
     @saveQ()
 
-  uploadAvatar: (fields, files)->
-
-    console.log('GOT HERE!')
+  uploadAvatar: (files)->
+    console.log 'Files', files
     throw new Error('No files were found in the upload!') unless files
     throw new Error('Avatar was not found in the upload!') unless files.avatar
 
@@ -174,20 +199,21 @@ User.methods =
     throw new Error 'Avatar was not found in the files, in first index!' unless file
 
     stream = fs.createReadStream file.path
-    type = mimeTypes.indexOf(file.headers['content-type'])
+    contentType = file.headers['content-type']
+    type = mimeTypes.indexOf(contentType)
     throw new Error('File is not a supported type!') if type is -1
 
     randomName = uuid.v4() + '.' + EXTENSION_LOOKUP[mimeTypes[type]]
 
-    console.log('Uploading to S3', file)
-
     options =
-      'Content-Type': file.headers['content-type']
+      'Content-Type': contentType
       'Cache-Control': 'max-age=604800'
       'x-amz-acl': 'public-read'
       'Content-Length': file.size
 
     deferred = Q.defer()
+
+    console.log 'Uploading!'
 
     knox.putStream stream, randomName, options, (err, result)=>
       return deferred.reject err if err

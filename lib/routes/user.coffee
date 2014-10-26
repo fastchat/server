@@ -54,7 +54,7 @@ module.exports.logout = (req, res, next)->
   user = req.user
   all = req.query.all is 'true'
 
-  user.logout(all, req.headers['session-token'])
+  user.logout(req.headers['session-token'], all)
   .then ->
     req.user = null
     req.logout()
@@ -70,7 +70,7 @@ exports.postAvatar = (req, res, next)->
   form.parse req, (err, fields, files)->
     return next(err) if err
 
-    user.uploadAvatar(fields, files)
+    user.uploadAvatar(files)
     .then ->
       res.status(200).json({})
     .fail(next)

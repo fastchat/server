@@ -1,6 +1,5 @@
 mongoose = require('mongoose-q')()
 Schema = mongoose.Schema
-User = require('./user')
 Q = require('q')
 
 GroupSetting = new Schema
@@ -26,18 +25,18 @@ GroupSetting.statics =
     return Q(0) if arguments.length is 0
     arg = arguments[0]
 
-    if arg instanceof User
-      return @findQ(user: arg.id).then (gses)->
-        return calculateTotal(gses)
+    if arg instanceof require('./user')
+      return @findQ(user: arg._id).then (gses)->
+        calculateTotal(gses)
 
-    if Array.isArray(arg)
-      return Q(calculateTotal(arg))
+    return Q(calculateTotal(arg)) if Array.isArray(arg)
 
-    return Q(0)
+
+    Q(0)
 
   forGroup: (gses, groupId)->
     for gs in gses
-      return gs if gs.group.equls groupId
+      return gs if gs.group.equals groupId
     return null
 
 module.exports = mongoose.model('GroupSetting', GroupSetting)

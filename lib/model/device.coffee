@@ -1,11 +1,12 @@
 mongoose = require('mongoose-q')()
 Schema = mongoose.Schema
-apn = require('apn')
-gcm = require('node-gcm')
-Boom = require('boom')
+apn = require 'apn'
+gcm = require 'node-gcm'
+Boom = require 'boom'
+Q = require 'q'
 IOS_DEFAULT_SOUND = "ping.aiff"
 apnConnection = new apn.Connection production: true
-gcm = new gcm.Sender 'AIzaSyCmtVuvS3OlV801Mlq8IJDXOnsOXA502xA'
+Sender = new gcm.Sender 'AIzaSyCmtVuvS3OlV801Mlq8IJDXOnsOXA502xA'
 
 ###
  * Holds the information about a device. This is used to be able to run smart
@@ -53,10 +54,8 @@ DeviceSchema.methods =
     registrationIds = []
     registrationIds.push @token
 
-    console.log 'Android Message:', message
-
-    gcm.send message, registrationIds, 4, (err, result)->
-      console.log 'GCM: ', result, ' Err? ', err
+    Sender.send message, registrationIds, 4, (err, result)->
+      #console.log 'GCM: ', result, ' Err? ', err
 
   sendIOS: (group, message, badge, contentAvailable)->
     badge = 0 if not badge
@@ -65,7 +64,6 @@ DeviceSchema.methods =
     try
       device = new apn.Device @token
     catch err
-      console.log 'Error Forming Device for APN!', err
       return
 
     note = new apn.Notification()
@@ -79,8 +77,6 @@ DeviceSchema.methods =
     else
       note.sound = IOS_DEFAULT_SOUND
 
-    console.log 'FIRING AWAY: ', note, ' TO: ', @token
-
     apnConnection.pushNotification note, device
 
   logout: ->
@@ -92,30 +88,30 @@ DeviceSchema.statics =
 
   createOrUpdate: (user, token, type, sessionToken)->
 
-    throw Boom.badRequest 'You must specify a token to register a device!' if not token
+    throw Boom.badRequest 'You must specify a token to register a device!' unless token
     if not type or (type isnt 'ios' and type isnt 'android')
       throw Boom.badRequest 'Type must be "ios" or "android"!'
 
-    @findQ(token: token, user: user._id)
-      .then (devices)=>
-        if devices and devices.length > 0
-          devices.forEach (device)->
-            device.accessToken = sessionToken
-            device.active = yes
-            device.loggedIn = yes
-            device.saveQ()
-          throw new Error('done')
-      .then =>
-        device = new @
-          token: token
-          type: type
-          user: user._id
-          accessToken: sessionToken
-        device.saveQ().then -> device
+    @findOneQ(token: token, user: user._id)
+    .then (device)=>
+      return @updateDevice device, sessionToken if device
+      @createDevice(user, token, type, sessionToken)
       .then (device)->
         user.devices.push device
         user.saveQ().then -> device
-      .catch (err)->
-        throw err unless err.message is 'done'
 
-module.exports = mongoose.model('Device', DeviceSchema)
+  createDevice: (user, token, type, sessionToken)->
+    device = new @
+      token: token
+      type: type
+      user: user._id
+      accessToken: sessionToken
+    device.saveQ().then -> device
+
+  updateDevice: (device, sessionToken)->
+    device.accessToken = sessionToken
+    device.active = yes
+    device.loggedIn = yes
+    device.saveQ().then -> Q()
+
+module.exports = mongoose.model 'Device', DeviceSchema
