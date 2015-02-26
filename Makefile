@@ -1,6 +1,3 @@
-KEY = AKIAIOHCTJAAHBIJCIXA
-SECRET = 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
-
 # Default Goal. Just run node in development mode.
 # to start the server, just run 'make'
 run-dev:
@@ -20,29 +17,21 @@ run-test-for-cov:
 	$(MAKE) run
 
 run:
-	@AWS_KEY=$(KEY) \
-	AWS_SECRET=$(SECRET) \
 	node coffee_bridge.js
 
 test:
 	@ENV=test \
-	AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) \
 	mocha --compilers coffee:coffee-script/register ./test/unit
 
 unit:
 	@ENV=test \
-	AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) \
 	mocha --compilers coffee:coffee-script/register ./test/unit
-	@ENV=test \
-	AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) \
-	mocha --compilers coffee:coffee-script/register --require blanket -R html-cov > coverage.html ./test/unit
-	open coverage.html
 
 integration:
 	-rm nohup.out
 	ENV=test COV_FASTCHAT=true MONGOLAB_URI=mongodb://localhost/test AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) nohup node coffee_bridge &
 	sleep 3
-	@ENV=test AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) mocha --compilers coffee:coffee-script/register ./test/integration
+	@ENV=test mocha --compilers coffee:coffee-script/register ./test/integration
 
 cov:
 	-rm nohup.out
