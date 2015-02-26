@@ -1,55 +1,72 @@
-# About
+# FastChat Server
 
-This is the server. It's written in Node.js for fast concurrency. It can handle some users at once.
+This is the FastChat Server, written in CoffeeScript on Node.js. It uses socket.io for real time communication, and faciliates users to register, login, create private groups, invite users to groups, and chat. It has a web client written in Angular that allows users to chat on the web interface.
 
-# Features #
+* [iOS Client](https://github.com/fastchat/ios)
+* [Android Client](https://github.com/fastchat/android)
+* [Windows Client](https://github.com/fastchat/windows)
 
-1. Users can be created and logged in and out.
+## Features
+
+1. Users registration, login, logout
 2. Users can create group chats.
 3. Users can send messages to the people in the chats.
 4. Users can leave group chats at anypoint.
 5. Push notifications are sent out, but in an intelligent manner.
 
-# Development
+## Development
 
 Install MongoDB:
 
 Need Homebrew? Copy and paste the following line into the Terminal:
+
+```
 ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
+```
 
 Then run:
-brew update
-brew install mongodb
-
-Once installed, run:
-mongod
+1. brew update
+2. brew install mongodb
+3. [sudo] mongod
 
 In a new Terminal Window:
-run 'npm install' in this directory to get the dependencies.
+4. run `npm install` in this directory to get the dependencies.
 
 Then run:
-AWS_KEY=AKIAIOHCTJAAHBIJCIXA AWS_SECRET=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 ENV=development node server.js
+5.
+```
+AWS_KEY=AMAZON_KEY AWS_SECRET=AMAZON_SECRET ENV=development node server.js
+```
 
-# Test
+Of course, you will need your own key and secret.
+
+## Test
 
 If you want to run the tests, start the server like this:
 
-AWS_KEY=AKIAIOHCTJAAHBIJCIXA AWS_SECRET=7fSmSsasl0jl0d/3s1UvZPHJozdMEKX1j3wJqYvm ENV=test MONGOLAB_URI=mongodb://localhost/test node server.js
+```
+MONGOLAB_URI=mongodb://localhost/test ENV=test AWS_KEY=AMAZON_KEY AWS_SECRET=AMAZON_SECRET ENV=development node server.js
+```
 
 Then run:
 
+```
 make test
+```
 
 If you want code coverage, instead of the above command, start the server with this one:
 
-COV_FASTCHAT=true AWS_KEY=AKIAIOHCTJAAHBIJCIXA AWS_SECRET=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 ENV=development MONGOLAB_URI=mongodb://localhost/test node server.js
+```
+COV_FASTCHAT=true AWS_KEY=KEY AWS_SECRET=SECRET ENV=development MONGOLAB_URI=mongodb://localhost/test node server.js
+```
 
 And then run:
 
+```
 make test-cov
+```
 
-
-# End Points
+# End Points (outdated)
 
 ## Register
 POST /user
