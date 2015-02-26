@@ -16,18 +16,22 @@ This is the FastChat Server, written in CoffeeScript on Node.js. It uses socket.
 
 ## Development
 
-Install MongoDB:
+### Prerequisites
 
-Need Homebrew? Copy and paste the following line into the Terminal:
+* MongoDB
+
+### About Certificates
+
+The FastChat server requires push certificates to be available to send push notifications. To do so in a secure manner, we read in the certificate from an environment variable.
 
 ```
-ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
+FASTCHAT_PUSH_CERT=$(cat cert.pem)
+FASTCHAT_PUSH_KEY=$(cat key.pem)
 ```
 
-Then run:
-1. brew update
-2. brew install mongodb
-3. [sudo] mongod
+Ensure those variables are available to the server.
+
+### Running
 
 In a new Terminal Window:
 4. run `npm install` in this directory to get the dependencies.
