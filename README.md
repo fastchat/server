@@ -29,6 +29,8 @@ FASTCHAT_PUSH_CERT=$(cat cert.pem)
 FASTCHAT_PUSH_KEY=$(cat key.pem)
 ```
 
+Another key you will need is `GCM_API_KEY`, to send messages to Android devices.
+
 Ensure those variables are available to the server.
 
 ### Running

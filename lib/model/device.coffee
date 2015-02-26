@@ -8,7 +8,10 @@ IOS_DEFAULT_SOUND = "ping.aiff"
 
 apnConnection = new apn.Connection
   production: if process.env.ENV is 'dev' then false else true
-Sender = new gcm.Sender 'AIzaSyCmtVuvS3OlV801Mlq8IJDXOnsOXA502xA'
+  certData: process.env.FASTCHAT_PUSH_CERT
+  keyData: process.env.FASTCHAT_PUSH_KEY
+
+Sender = new gcm.Sender process.env.GCM_API_KEY
 
 ###
  * Holds the information about a device. This is used to be able to run smart
