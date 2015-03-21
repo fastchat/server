@@ -19,19 +19,25 @@ run-test-for-cov:
 run:
 	node coffee_bridge.js
 
-test:
-	@ENV=test \
-	WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register ./test/unit
-
 unit:
 	@ENV=test \
 	WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register ./test/unit
 
 integration:
-	-rm nohup.out
-	ENV=test COV_FASTCHAT=true MONGOLAB_URI=mongodb://localhost/test AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) nohup node coffee_bridge &
-	sleep 3
-	@ENV=test WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register ./test/integration
+	WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register ./test/integration
+
+cov:
+	WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register --require ./node_modules/blanket-node/bin/index.js -R travis-cov ./test/unit ./test/integration
+
+cov-report:
+	WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register --require ./node_modules/blanket-node/bin/index.js -R html-cov > coverage.html ./test/unit ./test/integration
+	open coverage.html
+
+test:
+	$(MAKE) unit
+	$(MAKE) integration
+	$(MAKE) cov
+	$(MAKE) lint
 
 cov:
 	-rm nohup.out
@@ -39,6 +45,11 @@ cov:
 	$(MAKE) unit
 	$(MAKE) integration
 
+lint:
+	./node_modules/coffeelint/bin/coffeelint ./lib ./test
+
+check-dependencies:
+	./node_modules/david/bin/david.js
 
 kill-node:
 	-kill `ps -eo pid,comm | awk '$$2 == "node" { print $$1 }'`
