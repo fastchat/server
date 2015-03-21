@@ -21,17 +21,17 @@ run:
 
 test:
 	@ENV=test \
-	mocha --compilers coffee:coffee-script/register ./test/unit
+	WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register ./test/unit
 
 unit:
 	@ENV=test \
-	mocha --compilers coffee:coffee-script/register ./test/unit
+	WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register ./test/unit
 
 integration:
 	-rm nohup.out
 	ENV=test COV_FASTCHAT=true MONGOLAB_URI=mongodb://localhost/test AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) nohup node coffee_bridge &
 	sleep 3
-	@ENV=test mocha --compilers coffee:coffee-script/register ./test/integration
+	@ENV=test WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register ./test/integration
 
 cov:
 	-rm nohup.out
