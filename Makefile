@@ -39,12 +39,6 @@ test:
 	$(MAKE) cov
 	$(MAKE) lint
 
-cov:
-	-rm nohup.out
-	$(MAKE) kill-node
-	$(MAKE) unit
-	$(MAKE) integration
-
 lint:
 	./node_modules/coffeelint/bin/coffeelint ./lib ./test
 

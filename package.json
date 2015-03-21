@@ -54,12 +54,16 @@
     "uuid": "1.4.1"
   },
   "devDependencies": {
-    "blanket": "1.1.6",
+    "blanket-node": "2.0.0",
     "chai": "1.9.2",
+    "coffeelint": "1.9.2",
+    "coffeelint-use-strict": "0.0.1",
+    "david": "6.1.5",
     "mocha": "2.0.1",
     "sinon": "1.10.3",
     "socket.io-client": "0.9.16",
-    "supertest": "0.14.0"
+    "supertest": "0.14.0",
+    "travis-cov": "0.2.5"
   },
   "engines": {
     "node": "0.10.x"
