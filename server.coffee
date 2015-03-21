@@ -126,7 +126,6 @@ params.extend(app)
 
 
 app.set('port', portNumber)
-app.use(favicon(__dirname + '/client/favicon.png'))
 app.use(require('morgan')('combined'))
 app.use(bodyParser.json())
 app.use(require('method-override')())
@@ -140,7 +139,6 @@ app.use(session({
 }))
 app.use(passport.initialize())
 app.use(passport.session())
-app.use(express.static(__dirname + '/client'))
 
 #
 # Update how these are set to use app.set('development', stuff);
