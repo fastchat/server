@@ -8,6 +8,7 @@ NotFound = require('boom').notFound
 Q = require 'q'
 log = require './helpers/log'
 SocketIO = require 'socket.io'
+Authentication = require './helpers/authentication'
 
 class Server
 
@@ -44,13 +45,15 @@ class Server
       else
         next err
 
-  routes: ->
+  setup: ->
     register = Q.nbind(@server.register, @server)
     register({
       register: require('hapi-router-coffee')
       options:
         routesDir: "#{__dirname}/routes/"
     }).then =>
+      Authentication(@server)
+    .then =>
       @server.route
         method: '*'
         path: '/{p*}'

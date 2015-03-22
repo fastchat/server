@@ -9,7 +9,7 @@ Server = require './lib/server'
 log = require './lib/helpers/log'
 
 s = new Server()
-s.routes()
+s.setup()
 .then ->
   s.start()
 .fail (err)->

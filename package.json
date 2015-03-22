@@ -37,6 +37,7 @@
     "boom": "2.6.1",
     "coffee-script": "1.8.0",
     "hapi": "8.4.0",
+    "hapi-auth-bearer-token": "3.1.1",
     "hapi-router-coffee": "1.2.0",
     "hashish": "0.0.4",
     "knox": "0.8.9",

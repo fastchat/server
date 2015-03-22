@@ -10,6 +10,7 @@ Q = require('q')
 fs = require('fs')
 uuid = require 'uuid'
 Boom = require 'boom'
+Unauthorized = Boom.unauthorized
 
 knox = require('knox').createClient
   key: process.env.AWS_KEY
@@ -88,6 +89,11 @@ User.statics =
       .then (user)->
         throw new Error 'Incorrect username!' unless user
         user
+
+  findWithToken: (token, required = yes)->
+    @findOneQ(accessToken: token).then (user)->
+      throw Unauthorized() unless user
+      user
 
 User.methods =
 
