@@ -3,8 +3,7 @@
   "version": "0.6.0",
   "description": "A fast, small, chat server.",
   "main": "coffee_bridge.js",
-  "scripts": {
-  },
+  "scripts": {},
   "keywords": [
     "chat",
     "server"
@@ -31,7 +30,7 @@
       "threshold": 90
     }
   },
-  "dependencies" : {
+  "dependencies": {
     "apn": "1.6.2",
     "async": "0.9.0",
     "bcrypt": "0.8.0",
@@ -41,13 +40,14 @@
     "hapi-router-coffee": "1.2.0",
     "hashish": "0.0.4",
     "knox": "0.8.9",
-    "mongoose" : "3.8.15",
+    "mongoose": "3.8.15",
     "mongoose-q": "0.0.12",
-    "multiparty" : "3.2.4",
+    "multiparty": "3.2.4",
     "node-gcm": "0.9.12",
-    "q":"1.0.1",
-    "socket.io" : "0.9.16",
-    "uuid": "1.4.1"
+    "q": "1.0.1",
+    "socket.io": "0.9.16",
+    "uuid": "1.4.1",
+    "winston": "^0.9.0"
   },
   "devDependencies": {
     "blanket-node": "2.0.0",
