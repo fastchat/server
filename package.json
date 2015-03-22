@@ -1,6 +1,6 @@
 {
   "name": "FastChat",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "A fast, small, chat server.",
   "main": "coffee_bridge.js",
   "scripts": {
@@ -11,16 +11,24 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:Wayfarer247/fast-chat-server.git"
+    "url": "git@github.com:fastchat/server.git"
   },
   "author": "Ethan Mick",
-  "license": "Private",
+  "license": "MIT",
   "config": {
     "blanket": {
+      "debug": true,
       "pattern": "lib",
       "shortnames": true,
+      "data-cover-flags": "debug",
+      "data-cover-reporter-options": {
+        "shortnames": true
+      },
       "data-cover-never": "node_modules",
       "loader": "./node-loaders/coffee-script"
+    },
+    "travis-cov": {
+      "threshold": 90
     }
   },
   "dependencies" : {
@@ -68,6 +76,6 @@
     "travis-cov": "0.2.5"
   },
   "engines": {
-    "node": "0.10.x"
+    "node": "0.12.x"
   }
 }
