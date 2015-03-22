@@ -1,3 +1,4 @@
+'use strict'
 #
 # FastChat
 # 2015
@@ -29,15 +30,20 @@ class Server
 
 
   setup: ->
+    log.debug 'go time'
     register = Q.nbind(@server.register, @server)
+    log.debug '0'
     Authentication(@server).then =>
+      log.debug '1'
       @server.auth.default('token')
+      log.debug '2'
       register({
         register: require('hapi-router-coffee')
         options:
           routesDir: "#{__dirname}/routes/"
       })
     .then =>
+      log.debug '3'
       @server.route
         method: '*'
         path: '/{p*}'
@@ -45,6 +51,8 @@ class Server
           auth: null
           handler: (req, reply)->
             reply(NotFound())
+    .fail (err)->
+      log.error 'FAILURE', err
 
   start: ->
     Q.nbind(@server.start, @server)()

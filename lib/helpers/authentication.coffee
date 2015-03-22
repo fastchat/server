@@ -3,10 +3,12 @@
 # 2015
 #
 
+Q = require 'q'
 log = require './log'
 User = require '../model/user'
 
 find = (token, cb)->
+  log.debug 'nope'
   User.findWithToken(token).then (user)->
     cb(null, true, user: user, token: token)
   .fail (err)->
@@ -14,10 +16,23 @@ find = (token, cb)->
   .done()
 
 module.exports = (server)->
-  register = Q.nbind(server.register, server)
-  register require('hapi-auth-bearer-token'), (err)->
+  deferred = Q.defer()
+  log.debug 'auth 1'
+  server.register require('hapi-auth-bearer-token'), (err)->
+    return deferred.reject(err) if err
+    log.debug 'auth 2'
     server.auth.strategy(
       'token',
       'bearer-access-token',
-      validateFunc: find
+      validateFunc: (token, cb)->
+        log.debug 'nope'
+        User.findWithToken(token).then (user)->
+          cb(null, true, user: user, token: token)
+        .fail (err)->
+          cb(null, false)
+        .done()
     )
+    deferred.resolve()
+
+    log.debug 'auth 3'
+  deferred.promise

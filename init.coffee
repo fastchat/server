@@ -9,8 +9,8 @@ Server = require './lib/server'
 log = require './lib/helpers/log'
 
 s = new Server()
-s.setup()
-.then ->
+s.setup().then ->
+  log.debug 'Starting...'
   s.start()
 .fail (err)->
   log.error '************* ERROR STARTING SERVER *************'
