@@ -19,13 +19,11 @@ module.exports = [
   {
     method: 'GET'
     path: '/user/device'
-    config:
-      handler: getDevices
+    handler: getDevices
   }
   {
     method: 'POST'
     path: '/user/device'
-    config:
-      handler: postDevice
+    handler: postDevice
   }
 ]
