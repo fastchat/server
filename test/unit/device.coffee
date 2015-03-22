@@ -1,4 +1,3 @@
-require 'blanket'
 should = require('chai').should()
 Device = require '../../lib/model/device'
 User = require '../../lib/model/user'

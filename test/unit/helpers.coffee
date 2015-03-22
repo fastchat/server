@@ -1,5 +1,4 @@
-require 'blanket'
-helpers = require '../../lib/extensions/helpers'
+Helpers = require('../../lib/helpers/helpers')()
 mongoose = require('mongoose-q')()
 ObjectId = mongoose.Types.ObjectId
 

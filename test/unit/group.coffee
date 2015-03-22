@@ -1,4 +1,3 @@
-require 'blanket'
 should = require('chai').should()
 Group = require '../../lib/model/group'
 User = require '../../lib/model/user'

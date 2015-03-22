@@ -1,4 +1,3 @@
-require 'blanket'
 mongoose = require 'mongoose'
 Q = require 'Q'
 sinon = require 'sinon'
