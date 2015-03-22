@@ -8,7 +8,7 @@ User = require '../model/user'
 
 find = (token, cb)->
   User.findWithToken(token).then (user)->
-    cb(null, true, user: user)
+    cb(null, true, user: user, token: token)
   .fail (err)->
     cb(null, false)
   .done()

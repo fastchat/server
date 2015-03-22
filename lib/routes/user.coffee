@@ -1,45 +1,40 @@
-User = require('../model/user')
-passport = require('passport')
+User = require '../model/user'
 ObjectId = require('mongoose-q')().Types.ObjectId
-multiparty = require('multiparty')
-Boom = require('boom')
+multiparty = require 'multiparty'
+Boom = require 'boom'
 
 # POST /login
 # This is an alternative implementation that uses a custom callback to
 # acheive the same functionality.
-exports.loginPOST = (req, res, next)->
-  console.log('Logging in user')
-  (passport.authenticate 'local', (err, user, info)->
-    return next(err) if err
-    return next(401) unless user
+login = (req, reply)->
+  console.log 'Logging in user'
 
-    req.logIn user, (err)->
-      return next(err) if err
-      #
-      # Set session-token to DB, not session
-      #
-      token = user.generateRandomToken()
-      user.accessToken.push token
-      user.saveQ().then ->
-        res.json({'session-token': token})
-      .catch(next)
-      .done()
-  )(req, res, next)
+  {username, password} = req.payload
+
+  User.findByLowercaseUsername(username).then (user)->
+    console.log 'Strategy Start 1'
+    [user, user.comparePassword(password)]
+  .spread (user, matched)->
+    token = user.generateRandomToken()
+    user.accessToken.push token
+    [token, user.saveQ()]
+  .spread (token)->
+    reply(access_token: token)
+  .fail (err)->
+    reply(err)
+  .done()
 
 # POST /user
-exports.register = (req, res, next)->
-  username = req.body.username
-  password = req.body.password
-
-  User.register(username, password)
+register = (req, reply)->
+  User.register(req.payload)
   .then (user)->
-    res.status(201).json(user)
+    reply(user).code(201)
   .fail(next)
   .done()
 
 
 # GET /user
-module.exports.profile = (req, res, next)->
+profile = (req, reply)->
   User.findOne(_id: req.user.id)
   .populate('groups', 'name')
   .populate('leftGroups', 'name')
@@ -50,35 +45,32 @@ module.exports.profile = (req, res, next)->
   .fail(next)
   .done()
 
-module.exports.logout = (req, res, next)->
-  user = req.user
-  all = req.query.all is 'true'
 
-  user.logout(req.headers['session-token'], all)
+logout = (req, reply)->
+  {user, token} = req.auth.credentials
+  user.logout(token, req.query.all is 'true')
   .then ->
-    req.user = null
-    req.logout()
-    res.json({})
+    reply()
   .fail(next)
   .done()
 
 
-exports.postAvatar = (req, res, next)->
-  user = req.user
+uploadAvatar = (req, reply)->
+  {user} = req.auth.credentials
   form = new multiparty.Form()
 
   form.parse req, (err, fields, files)->
-    return next(err) if err
+    return reply(err) if err
 
     user.uploadAvatar(files)
     .then ->
-      res.status(200).json({})
-    .fail(next)
+      reply({})
+    .fail(reply)
     .done()
 
 
-exports.getAvatar = (req, res, next)->
-  idParam = req.params.id.toString()
+getAvatar = (req, reply)->
+  idParam = req.params.id
   userId = new ObjectId(idParam)
 
   User.findOneQ(_id: userId)
@@ -86,8 +78,44 @@ exports.getAvatar = (req, res, next)->
     throw Boom.notFound() unless user
     user.getAvatar()
   .spread (meta, data)->
-    res.contentType(meta) #this is lying
-    res.write(data, encoding='binary')
-    res.end()
-  .fail(next)
+    reply(data).type(meta)
+  .fail(reply)
   .done()
+
+
+module.exports = [
+  {
+    method: 'POST'
+    path: '/login'
+    config:
+      handler: login
+      auth: null
+  }
+  {
+    method: 'POST'
+    path: '/user'
+    config:
+      handler: register
+      auth: null
+  }
+  {
+    method: 'GET'
+    path: '/user'
+    handler: register
+  }
+  {
+    method: 'DELETE'
+    path: '/logout'
+    handler: logout
+  }
+  {
+    method: 'POST'
+    path: '/user/{id}/avatar'
+    handler: uploadAvatar
+  }
+  {
+    method: 'GET'
+    path: '/user/{id}/avatar'
+    handler: getAvatar
+  }
+]
