@@ -9,7 +9,9 @@ NotFound = require('boom').notFound
 Q = require 'q'
 log = require './helpers/log'
 SocketIO = require 'socket.io'
+Boom = require 'boom'
 Authentication = require './helpers/authentication'
+MongoIDError = 'Uncaught error: Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
 
 class Server
 
@@ -28,22 +30,23 @@ class Server
     @server.connection(opts)
     @io = SocketIO.listen(@server.listener)
 
+    @server.ext 'onPreResponse', (req, reply)->
+      res = req.response
+      return reply(Boom.notFound()) if res.isBoom and res.message is MongoIDError
+      reply.continue()
+
 
   setup: ->
     log.debug 'go time'
     register = Q.nbind(@server.register, @server)
-    log.debug '0'
     Authentication(@server).then =>
-      log.debug '1'
       @server.auth.default('token')
-      log.debug '2'
       register({
         register: require('hapi-router-coffee')
         options:
           routesDir: "#{__dirname}/routes/"
       })
     .then =>
-      log.debug '3'
       @server.route
         method: '*'
         path: '/{p*}'
@@ -55,6 +58,7 @@ class Server
       log.error 'FAILURE', err
 
   start: ->
-    Q.nbind(@server.start, @server)()
+    Q.nbind(@server.start, @server)().then =>
+      log.warn 'Server started at: ', @server.info.uri
 
 module.exports = Server

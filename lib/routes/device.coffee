@@ -1,18 +1,19 @@
 Device = require('../model/device')
 
 getDevices = (req, reply)->
-  Device.findQ(user: req.user._id)
+  {user} = req.auth.credentials
+  Device.findQ(user: user._id)
   .then (devices)->
-    res.status(200).json(devices)
-  .fail(next)
+    reply(devices)
+  .fail(reply)
   .done()
 
 postDevice = (req, reply)->
-  Device.createOrUpdate(req.user, req.body.token, req.body.type, req.headers['session-token'])
+  {user, token} = req.auth.credentials
+  Device.createOrUpdate(user, req.payload.token, req.payload.type, token)
   .then (device)->
-    console.log 'Device', device
-    res.status(if device then 201 else 200).json(if device then device else {})
-  .fail(next)
+    reply(if device then device else {}).code(if device then 201 else 200)
+  .fail(reply)
   .done()
 
 module.exports = [

@@ -25,7 +25,7 @@ describe 'Users', ->
       should.exist(res.body)
       should.exist(res.body.error)
       should.not.exist(err)
-      res.body.error.should.contain('Username')
+      res.body.message.should.contain('Username')
       done()
 
 
@@ -35,6 +35,8 @@ describe 'Users', ->
     .expect(201)
     .expect('Content-Type', /json/)
     .end (err, res)->
+      console.log 'err', err
+      console.log 'res', res.body
       should.exist(res.body)
       should.not.exist(err)
       should.exist(res.body.username)

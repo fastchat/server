@@ -76,13 +76,15 @@ User.pre 'save', (next)->
 User.statics =
 
   register: (username, password)->
-
     throw Boom.badRequest 'Username is required!' unless username
     throw Boom.badRequest 'Password is required!' unless password
     throw Boom.badRequest 'Invalid username! Only alphanumeric values are allowed, with -, _, and .' if username.search(regex) is -1
 
+    console.log 'Making User', username
     newUser = new @ username: username, password: password
-    newUser.saveQ().then -> newUser
+    newUser.saveQ().then ->
+      console.log 'Saved!'
+      newUser
 
   findByLowercaseUsername: (username)->
     @findOneQ(username: username.toLowerCase())
@@ -111,7 +113,7 @@ User.methods =
       matched
 
   ###
-   * Creates the session token for the user.
+   * Creates the access token for the user.
    * Utilizes the crypto library to generate the token, from the docs it:
    * 'Generates cryptographically strong pseudo-random data'
    * We then change that to a hex string for nice representation.
@@ -143,7 +145,7 @@ User.methods =
   add: (group)->
     index = @leftGroups.indexOfEquals group._id
     index2 = @groups.indexOfEquals group._id
-    throw 'A user who left cannot be readded!' if index isnt -1 or index2 isnt -1
+    throw Boom.badRequest('A user who left cannot be readded!') if index isnt -1 or index2 isnt -1
 
     setting = new GroupSetting
       user: @_id

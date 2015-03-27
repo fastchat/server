@@ -7,7 +7,7 @@ Boom = require 'boom'
 # This is an alternative implementation that uses a custom callback to
 # acheive the same functionality.
 login = (req, reply)->
-  console.log 'Logging in user'
+  console.log 'Logging in user', req.payload
 
   {username, password} = req.payload
 
@@ -15,34 +15,42 @@ login = (req, reply)->
     console.log 'Strategy Start 1'
     [user, user.comparePassword(password)]
   .spread (user, matched)->
+    console.log 'Matched', matched
     token = user.generateRandomToken()
     user.accessToken.push token
     [token, user.saveQ()]
   .spread (token)->
+    console.log 'token', token
     reply(access_token: token)
   .fail (err)->
+    console.log 'FAILED', err
     reply(err)
   .done()
 
 # POST /user
 register = (req, reply)->
-  User.register(req.payload)
+  console.log 'register', req.payload
+  User.register(req.payload?.username, req.payload?.password)
   .then (user)->
+    console.log 'Done', user
     reply(user).code(201)
-  .fail(next)
+  .fail (err)->
+    console.log 'ERRROR', err
+    reply(err)
   .done()
 
 
 # GET /user
 profile = (req, reply)->
-  User.findOne(_id: req.user.id)
+  {user} = req.auth.credentials
+  User.findOne(_id: user.id)
   .populate('groups', 'name')
   .populate('leftGroups', 'name')
   .populate('groupSettings')
   .execQ()
   .then (user)->
-    res.json profile: user
-  .fail(next)
+    reply(profile: user)
+  .fail(reply)
   .done()
 
 
@@ -51,7 +59,7 @@ logout = (req, reply)->
   user.logout(token, req.query.all is 'true')
   .then ->
     reply()
-  .fail(next)
+  .fail(reply)
   .done()
 
 
@@ -89,19 +97,19 @@ module.exports = [
     path: '/login'
     config:
       handler: login
-      auth: null
+      auth: false
   }
   {
     method: 'POST'
     path: '/user'
     config:
       handler: register
-      auth: null
+      auth: false
   }
   {
     method: 'GET'
     path: '/user'
-    handler: register
+    handler: profile
   }
   {
     method: 'DELETE'

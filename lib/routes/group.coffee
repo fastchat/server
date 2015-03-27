@@ -10,7 +10,8 @@ getGroups = (req, reply)->
   .done()
 
 createGroup = (req, reply)->
-  Group.newGroup(req.body.members, req.user, req.body.text, req.body.name)
+  {user} = req.auth.credentials
+  Group.newGroup(req.payload.members, user, req.payload.text, req.payload.name)
   .then (group)->
     reply(group).code(201)
   .fail(reply)
@@ -33,13 +34,13 @@ changeSettings = (req, reply)->
   {user} = req.auth.credentials
   groupId = new ObjectId(req.params.id)
 
-  return next(Boom.notFound()) unless user.hasGroup(groupId)
+  return reply(Boom.notFound()) unless user.hasGroup(groupId)
 
   Group.findOneQ(_id : groupId).then (group)->
     throw Boom.notFound() unless group
     group.changeName req.payload.name, user
   .then ->
-    reply()
+    reply({})
   .fail(reply)
   .done()
 
@@ -48,13 +49,13 @@ add = (req, reply)->
   invites = req.payload.invitees
   groupId = new ObjectId(req.params.id)
 
-  return next Boom.notFound() unless user.hasGroup(groupId)
+  return reply Boom.notFound() unless user.hasGroup(groupId)
 
   Group.findOneQ(_id : groupId).then (group)->
     throw Boom.notFound() unless group
     group.add(invites)
   .then ->
-    reply()
+    reply({})
   .fail(reply)
   .done()
 

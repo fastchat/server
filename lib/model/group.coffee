@@ -78,7 +78,7 @@ Group.methods =
       mes
 
   add: (invitees)->
-    throw 'invitees must be an Array!' if not Array.isArray invitees
+    throw Boom.badRequest 'invitees must be an Array!' unless Array.isArray(invitees)
 
     User = require '../model/user'
     deferred = Q.defer()

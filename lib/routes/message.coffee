@@ -59,12 +59,12 @@ module.exports = [
   {
     method: 'GET'
     path: '/group/{id}/message'
-    handler: getAvatar
+    handler: getMessages
   }
   {
     method: 'POST'
     path: '/group/{id}/message'
-    handler: getAvatar
+    handler: postMessageData
   }
   {
     method: 'GET'

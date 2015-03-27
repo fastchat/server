@@ -8,7 +8,7 @@ log = require './log'
 User = require '../model/user'
 
 find = (token, cb)->
-  log.debug 'nope'
+  log.debug 'AUTH Got called'
   User.findWithToken(token).then (user)->
     cb(null, true, user: user, token: token)
   .fail (err)->
@@ -25,7 +25,7 @@ module.exports = (server)->
       'token',
       'bearer-access-token',
       validateFunc: (token, cb)->
-        log.debug 'nope'
+        log.debug 'AUTH CALLED', token
         User.findWithToken(token).then (user)->
           cb(null, true, user: user, token: token)
         .fail (err)->

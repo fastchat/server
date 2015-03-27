@@ -6,10 +6,13 @@
 # Initialize Helpers
 require('./lib/helpers/helpers')()
 Server = require './lib/server'
+Mongo = require './lib/model/mongo'
 log = require './lib/helpers/log'
 
-s = new Server()
+s = new Server(port: process.env.PORT or 3000)
 s.setup().then ->
+  Mongo()
+.then ->
   log.debug 'Starting...'
   s.start()
 .fail (err)->
@@ -22,4 +25,5 @@ s.setup().then ->
   log.error '    Are the Config values valid JSON?'
   log.error '    Did you use the Makefile? This is what it\'s there for.'
   log.error '    Did you start the process with the correct ENV Variables?'
+  process.exit(1)
 .done()
