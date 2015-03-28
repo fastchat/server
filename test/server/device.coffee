@@ -37,15 +37,16 @@ describe 'Devices', ->
         api.post('/login')
         .send({'username' : 'test1', 'password' : 'test'})
         .end (err, res)->
-          tokens.push res.body['session-token']
+          tokens.push res.body.access_token
           cb()
     ], (err, results)->
+      tokens.should.have.length 1
       done()
 
 
   it 'should be empty when you first request a token', (done)->
     api.get('/user/device')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .expect(200)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -56,7 +57,7 @@ describe 'Devices', ->
 
   it 'should return an error if you send nothing in the post request', (done)->
     api.post('/user/device')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .send({})
       .expect(400)
       .expect('Content-Type', /json/)
@@ -68,7 +69,7 @@ describe 'Devices', ->
 
   it 'should return an error if you send not ios or android', (done)->
     api.post('/user/device')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .send({token: 'something', type:'windows_phone'})
       .expect(400)
       .expect('Content-Type', /json/)
@@ -80,7 +81,7 @@ describe 'Devices', ->
 
   it 'should let you create an iOS device', (done)->
     api.post('/user/device')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .send({token: 'somethingcool', type:'ios'})
       .expect(201)
       .expect('Content-Type', /json/)
@@ -91,7 +92,7 @@ describe 'Devices', ->
 
   it 'should let you create an Android device', (done)->
     api.post('/user/device')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .send({token: 'awesometoken', type:'android'})
       .expect(201)
       .expect('Content-Type', /json/)
@@ -102,7 +103,7 @@ describe 'Devices', ->
 
   it 'should update your device if you sent in the same token', (done)->
     api.post('/user/device')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .send({token: 'somethingcool', type:'ios'})
       .expect(200)
       .expect('Content-Type', /json/)
@@ -113,7 +114,7 @@ describe 'Devices', ->
 
   it 'should show all your devices when you request them', (done)->
     api.get('/user/device')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .expect(200)
       .expect('Content-Type', /json/)
       .end (err, res)->

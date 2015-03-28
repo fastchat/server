@@ -50,24 +50,24 @@ describe 'Groups', ->
         api.post('/login')
           .send({'username' : 'test1', 'password' : 'test'})
           .end (err, res)->
-            tokens.push( res.body['session-token'] )
+            tokens.push( res.body.access_token )
             # login second user
             api.post('/login')
               .send({'username' : 'test2', 'password' : 'test'})
               .end (err, res)->
-                tokens.push( res.body['session-token'] )
+                tokens.push( res.body.access_token )
                 # login third user
                 api.post('/login')
                   .send({'username' : 'test3', 'password' : 'test'})
                   .end (err, res)->
-                    tokens.push( res.body['session-token'] )
+                    tokens.push( res.body.access_token )
                     callback()
     ], (err, results)->
        done()
 
   it 'should be empty for a brand new user', (done)->
     api.get('/group')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .expect(200)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -78,7 +78,7 @@ describe 'Groups', ->
 
   it 'should not allow a user to create a group with no information', (done)->
     api.post('/group')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .send({})
       .expect(400)
       .expect('Content-Type', /json/)
@@ -91,7 +91,7 @@ describe 'Groups', ->
   it 'should not allow a user to create a group with no message', (done)->
     user1 = users[1]
     api.post('/group')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .send({'members' : [user1._id]})
       .expect(400)
       .expect('Content-Type', /json/)
@@ -103,7 +103,7 @@ describe 'Groups', ->
 
   it 'should not allow a user to create a group with no members', (done)->
     api.post('/group')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .send({'text' : 'This is a test message!'})
       .expect(400)
       .expect('Content-Type', /json/)
@@ -117,7 +117,7 @@ describe 'Groups', ->
     user0 = users[0]
 
     api.post('/group')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .send({'text' : 'This is a test message!', 'members' : [user0.username]})
       .expect(400)
       .expect('Content-Type', /json/)
@@ -130,7 +130,7 @@ describe 'Groups', ->
 
   it 'should not allow a user to create a group with no members', (done)->
     api.post('/group')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .send({'text' : 'This is a test message!'})
       .expect(400)
       .expect('Content-Type', /json/)
@@ -142,7 +142,7 @@ describe 'Groups', ->
 
   it 'should not allow a user to create a group without an array', (done)->
     api.post('/group')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .send({'text' : 'This is a test message!', 'members': {'test': 'test'}})
       .expect(400)
       .expect('Content-Type', /json/)
@@ -157,7 +157,7 @@ describe 'Groups', ->
     user1 = users[1]
 
     api.post('/group')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .send({'text' : 'Proper Info Group!', 'members': [user1.username]})
       .expect(201)
       .expect('Content-Type', /json/)
@@ -194,7 +194,7 @@ describe 'Groups', ->
   it 'should show the new group for the user who created it', (done)->
 
     api.get('/group')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .expect(200)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -210,7 +210,7 @@ describe 'Groups', ->
 
   it 'should not allow a user not in the group to change the name', (done)->
     api.put('/group/' + group._id + '/settings')
-      .set('session-token', tokens[2])
+      .set('Authorization', "Bearer #{tokens[2]}")
       .send({'name': 'New Group Name!'})
       .expect(404)
       .expect('Content-Type', /json/)
@@ -225,7 +225,7 @@ describe 'Groups', ->
     badId = group._id.toString() + '111111'
 
     api.put('/group/' + badId + '/settings')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .send({'name': 'New Group Name!'})
       .expect(404)
       .expect('Content-Type', /json/)
@@ -241,7 +241,7 @@ describe 'Groups', ->
     anID = anID + '9999'
 
     api.put('/group/' + anID + '/settings')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .send({'name': 'New Group Name!'})
       .expect(404)
       .expect('Content-Type', /json/)
@@ -253,12 +253,12 @@ describe 'Groups', ->
 
   it 'should let a user in the group change the group name', (done)->
 
-    Message.find {'group': group._id}, (err, messages)->
+    Message.find group: group._id, (err, messages)->
       should.not.exist(err)
       messages.should.have.length(1)
 
       api.put('/group/' + group._id + '/settings')
-        .set('session-token', tokens[0])
+        .set('Authorization', "Bearer #{tokens[0]}")
         .send({'name': 'New Group Name!'})
         .expect(200)
         .expect('Content-Type', /json/)
@@ -281,7 +281,7 @@ describe 'Groups', ->
 
   it 'should not let you leave a group you are not in', (done)->
     api.put('/group/' + group._id + '/leave')
-      .set('session-token', tokens[2])
+      .set('Authorization', "Bearer #{tokens[2]}")
       .send()
       .expect(404)
       .expect('Content-Type', /json/)
@@ -297,7 +297,7 @@ describe 'Groups', ->
       messages.should.have.length(2)
 
       api.put('/group/' + group._id + '/leave')
-        .set('session-token', tokens[1])
+        .set('Authorization', "Bearer #{tokens[1]}")
         .expect(200)
         .expect('Content-Type', /json/)
         .end (err, res)->
@@ -330,7 +330,7 @@ describe 'Groups', ->
 
   it 'should return left groups in the user profile', (done)->
     api.get('/user')
-      .set('session-token', tokens[1])
+      .set('Authorization', "Bearer #{tokens[1]}")
       .expect(200)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -347,7 +347,7 @@ describe 'Groups', ->
   it 'it should fail to add nothing to a group', (done)->
 
     api.put('/group/' + group._id + '/add')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .send({})
       .expect(400)
       .expect('Content-Type', /json/)
@@ -360,7 +360,7 @@ describe 'Groups', ->
   it 'it should return OK if you add no one to a group', (done)->
 
     api.put('/group/' + group._id + '/add')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .send({'invitees' : []})
       .expect(200)
       .expect('Content-Type', /json/)
@@ -372,7 +372,7 @@ describe 'Groups', ->
 
   it 'it should not let a user add themselves', (done)->
     api.put('/group/' + group._id + '/add')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .send({'invitees' : []})
       .expect(200)
       .expect('Content-Type', /json/)
@@ -393,7 +393,7 @@ describe 'Groups', ->
       aGroup.leftMembers.should.contain(users[1]._id.toString())
 
       api.put('/group/' + group._id + '/add')
-        .set('session-token', tokens[0])
+        .set('Authorization', "Bearer #{tokens[0]}")
         .send({'invitees' : [users[1].username]})
         .expect(400)
         .expect('Content-Type', /json/)
@@ -415,7 +415,7 @@ describe 'Groups', ->
   it 'it should let you add a new user to the group', (done)->
     user2 = users[2]
     api.put('/group/' + group._id + '/add')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .send({'invitees' : [user2.username]})
       .expect(200)
       .expect('Content-Type', /json/)

@@ -80,10 +80,8 @@ User.statics =
     throw Boom.badRequest 'Password is required!' unless password
     throw Boom.badRequest 'Invalid username! Only alphanumeric values are allowed, with -, _, and .' if username.search(regex) is -1
 
-    console.log 'Making User', username
-    newUser = new @ username: username, password: password
+    newUser = new this(username: username, password: password)
     newUser.saveQ().then ->
-      console.log 'Saved!'
       newUser
 
   findByLowercaseUsername: (username)->
@@ -177,6 +175,11 @@ User.methods =
       return no
 
     @groups.indexOfEquals(groupId) > -1
+
+  login: ->
+    token = @generateRandomToken()
+    @accessToken.push(token)
+    Q.all([token, @saveQ()])
 
   logout: (token, all = no)->
     tokens = []

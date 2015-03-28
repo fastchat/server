@@ -178,7 +178,7 @@ Group.statics =
       throw Boom.badRequest 'The "members" value must be a valid array of length 1!'
 
     throw Boom.unauthorized() unless user
-    message = 'Hello!' unless message
+    throw Boom.badRequest() unless message
 
     @validateMembers(members, user).then (members)=>
       membersWithUser = members.copy().pushed(user) # "pushed" returns array

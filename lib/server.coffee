@@ -60,4 +60,8 @@ class Server
     Q.nbind(@server.start, @server)().then =>
       log.warn 'Server started at: ', @server.info.uri
 
+  stop: (opts)->
+    Q.nbind(@server.stop, @server)(opts)
+
+
 module.exports = Server

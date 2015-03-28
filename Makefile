@@ -24,7 +24,12 @@ unit:
 	WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register ./test/unit
 
 integration:
-	WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register ./test/integration
+	WINSTON=error \
+	MONGOLAB_URI=mongodb://localhost/test \
+	./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register ./test/integration
+
+server:
+	WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register ./test/server
 
 cov:
 	WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register --require ./node_modules/blanket-node/bin/index.js -R travis-cov ./test/unit ./test/integration

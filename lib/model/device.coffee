@@ -92,7 +92,6 @@ DeviceSchema.methods =
 DeviceSchema.statics =
 
   createOrUpdate: (user, token, type, sessionToken)->
-
     throw Boom.badRequest 'You must specify a token to register a device!' unless token
     if not type or (type isnt 'ios' and type isnt 'android')
       throw Boom.badRequest 'Type must be "ios" or "android"!'

@@ -54,16 +54,16 @@ describe 'Messages', ->
         api.post('/login')
           .send({'username' : 'test1', 'password' : 'test'})
           .end (err, res)->
-            tokens.push res.body['session-token']
+            tokens.push res.body.access_token
             # login second user
             api.post('/login')
               .send({'username' : 'test2', 'password' : 'test'})
               .end (err, res)->
-                tokens.push res.body['session-token']
+                tokens.push res.body.access_token
                 callback()
       (cb)->
         api.post('/group')
-          .set('session-token', tokens[0])
+          .set('Authorization', "Bearer #{tokens[0]}")
           .send({ 'text' : 'First', 'members': [ users[1].username ] })
           .end (err, res)->
             theGroup = res.body
@@ -78,10 +78,11 @@ describe 'Messages', ->
       done()
 
   it 'should let a user upload an image', (done)->
+    @timeout(5000)
     text = 'Example Text'
     req = api.post('/group/' + theGroup._id + '/message')
 
-    req.set('session-token', tokens[0])
+    req.set('Authorization', "Bearer #{tokens[0]}")
     req.field('text', text);
     req.attach('media', './test/integration/test_image.png')
     req.end (err, res)->
@@ -98,17 +99,17 @@ describe 'Messages', ->
 
   it 'should let a user download an image', (done)->
     api.get('/group/' + theGroup._id + '/message/' + mediaMessage._id + '/media')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .expect(200)
       .end (err, res)->
         should.not.exist(err)
         should.exist(res.body)
-        res.headers['content-length'].should.equal('7762')
+        res.headers['content-length'].should.equal('11026')
         done()
 
   it 'should get the messages from the group', (done)->
     api.get('/group/' + theGroup._id + '/message')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .expect(200)
       .end (err, res)->
         should.not.exist(err)
@@ -121,7 +122,7 @@ describe 'Messages', ->
   it 'should return a 404 if you try and get messages to a non-existant group', (done)->
     fakeId = mongoose.Types.ObjectId()
     api.get('/group/' + fakeId + '/message')
-      .set('session-token', tokens[0])
+      .set('Authorization', "Bearer #{tokens[0]}")
       .expect(404)
       .end (err, res)->
         should.not.exist(err)
