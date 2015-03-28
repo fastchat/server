@@ -87,9 +87,9 @@ User.statics =
       newUser
 
   findByLowercaseUsername: (username)->
-    @findOneQ(username: username.toLowerCase())
+    @findOneQ(username: username?.toLowerCase())
       .then (user)->
-        throw new Error 'Incorrect username!' unless user
+        throw Unauthorized() unless user
         user
 
   findWithToken: (token, required = yes)->
@@ -198,34 +198,22 @@ User.methods =
     @avatar = name
     @saveQ()
 
-  uploadAvatar: (files)->
-    console.log 'Files', files
-    throw new Error('No files were found in the upload!') unless files
-    throw new Error('Avatar was not found in the upload!') unless files.avatar
-
-    file = files.avatar[0]
-    throw new Error 'Avatar was not found in the files, in first index!' unless file
-
-    stream = fs.createReadStream file.path
-    contentType = file.headers['content-type']
-    type = mimeTypes.indexOf(contentType)
-    throw new Error('File is not a supported type!') if type is -1
-
-    randomName = uuid.v4() + '.' + EXTENSION_LOOKUP[mimeTypes[type]]
-
-    options =
-      'Content-Type': contentType
-      'Cache-Control': 'max-age=604800'
-      'x-amz-acl': 'public-read'
-      'Content-Length': file.size
-
+  uploadAvatar: (file)->
     deferred = Q.defer()
 
-    console.log 'Uploading!'
+    console.log 'Files', file
+    throw new Boom.badRequest('No files were found in the upload!') unless file
 
-    knox.putStream stream, randomName, options, (err, result)=>
-      return deferred.reject err if err
-      return deferred.resolve(@setAvatar(result.req.path.replace(/^.*[\\\/]/, '')))
+    options =
+      'Content-Type': file.headers['content-type']
+      'Cache-Control': 'max-age=604800'
+      'x-amz-acl': 'public-read'
+      'Content-Length': file.bytes
+
+    console.log 'Uploading!'
+    knox.putStream fs.createReadStream(file.path), uuid.v4(), options, (err, result)=>
+      return deferred.reject(err) if err
+      deferred.resolve(@setAvatar(result.req.path.replace(/^.*[\\\/]/, '')))
     return deferred.promise
 
   getAvatar: ->

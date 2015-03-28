@@ -35,8 +35,6 @@ describe 'Users', ->
     .expect(201)
     .expect('Content-Type', /json/)
     .end (err, res)->
-      console.log 'err', err
-      console.log 'res', res.body
       should.exist(res.body)
       should.not.exist(err)
       should.exist(res.body.username)
@@ -69,20 +67,20 @@ describe 'Users', ->
       .end (err, res)->
         should.exist(res.body)
         should.not.exist(err)
-        should.exist(res.body['session-token'])
-        token = res.body['session-token']
+        should.exist res.body.access_token
+        token = res.body.access_token
         done()
 
-  it 'should return a new  Session Token if you login again', (done)->
+  it 'should return a new Access Token if you login again', (done)->
     api.post('/login')
       .send({'username' : 'test1', 'password' : 'test'})
       .end (err, res)->
-        token.should.not.equal(res.body['session-token'])
+        token.should.not.equal res.body.access_token
         done()
 
   it 'should return the user profile', (done)->
     api.get('/user')
-      .set('session-token', token)
+      .set('Authorization', "Bearer #{token}")
       .expect(200)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -115,7 +113,7 @@ describe 'Users', ->
       arrayLength = user.accessToken.length
 
       api.del('/logout')
-        .set('session-token', token)
+        .set('Authorization', "Bearer #{token}")
         .expect(200)
         .expect('Content-Type', /json/)
         .end (err, res)->
@@ -132,7 +130,7 @@ describe 'Users', ->
 
   it 'should not let you login with your old session token', (done)->
     api.del('/logout')
-      .set('session-token', token)
+      .set('Authorization', "Bearer #{token}")
       .expect(401)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -147,12 +145,12 @@ describe 'Users', ->
     .auth('incorrect', 'credentials')
     .expect(401, done)
 
-  it 'should return a new  Session Token if you login for the last time', (done)->
+  it 'should return a new Session Token if you login for the last time', (done)->
     api.post('/login')
       .send({'username' : 'test1', 'password' : 'test'})
       .end (err, res)->
-        token.should.not.equal(res.body['session-token'])
-        token = res.body['session-token']
+        token.should.not.equal res.body.access_token
+        token = res.body.access_token
         done()
 
   it 'logging out of ALL should remove all session tokens', (done)->
@@ -164,7 +162,7 @@ describe 'Users', ->
       arrayLength.should.equal(2)
 
       api.del('/logout?all=true')
-        .set('session-token', token)
+        .set('Authorization', "Bearer #{token}")
         .expect(200)
         .expect('Content-Type', /json/)
         .end (err, res)->
@@ -187,12 +185,12 @@ describe 'Users', ->
       .end (err, res)->
         should.exist(res.body)
         should.not.exist(err)
-        should.exist(res.body['session-token'])
-        token = res.body['session-token']
+        should.exist res.body.access_token
+        token = res.body.access_token
 
         req = api.post('/user/' + createdUser._id + '/avatar')
 
-        req.set('session-token', token)
+        req.set('Authorization', "Bearer #{token}")
         req.attach('avatar', 'test/integration/test_image.png')
         req.end (err, res)->
           res.status.should.equal(200)
@@ -204,7 +202,7 @@ describe 'Users', ->
   it 'should allow the user to download an avatar', (done)->
 
     api.get('/user/' + createdUser._id + '/avatar')
-      .set('session-token', token)
+      .set('Authorization', "Bearer #{token}")
       .expect(200)
       .end (err, res)->
         should.not.exist(err)

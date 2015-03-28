@@ -1,6 +1,7 @@
 mongoose = require('mongoose-q')()
 Schema = mongoose.Schema
 Boom = require('boom')
+BadRequest = Boom.badRequest
 GroupSetting = require('./groupSetting')
 Q = require('q')
 fs = require('fs')
@@ -44,55 +45,50 @@ Message.statics =
         user.push null, null, unread, true
       return messages;
 
-  postMedia: (groupId, user, fields, files)->
+  postMedia: (groupId, user, fields, fileInfo)->
     deferred = Q.defer()
 
-    return deferred.reject 'File was not successfully uploaded!' unless files
-    return deferred.reject 'Media was not successfully uploaded!' unless files.media
+    throw BadRequest('File was not successfully uploaded!') unless fileInfo
 
-    file = files.media[0]
-    return deferred.reject('File was not successfully uploaded!') unless file
-
-    stream = fs.createReadStream(file.path)
-    ext = fileExtension(file.originalFilename)
-    randomName = uuid.v4() + (if ext then ('.' + ext) else '')
+    randomName = uuid.v4()
     Group = require('./group')
     io = require('../socket/socket')
+    contentType = fileInfo.headers['content-type']
 
-    s3req = knox.putStream stream, randomName, {
-      'Content-Type': file.headers['content-type']
+    s3req = knox.putStream fs.createReadStream(fileInfo.path), randomName, {
+      'Content-Type': contentType
       'Cache-Control': 'max-age=604800'
       'x-amz-acl': 'public-read'
-      'Content-Length': file.size
+      'Content-Length': fileInfo.bytes
     }, (err, result)=>
-      return deferred.reject 'There was an error uploading your image!' if err
+      return deferred.reject BadRequest('There was an error uploading your image!') if err
 
       # Add media name to the message to get later
       message = new @
         group: groupId
         from: user.id
-        text: if fields.text then fields.text[0] else null
+        text: if fields.text then fields.text else null
         sent: new Date()
         hasMedia: yes
         media: [result.req.path.replace(/^.*[\\\/]/, '')]
-        mediaHeader: [file.headers['content-type']]
-        media_size: [file.size]
+        mediaHeader: [contentType]
+        media_size: [fileInfo.bytes]
 
-      message.saveQ().then =>
+      message.saveQ().then ->
         Group.findOneQ(_id: groupId)
-      .then (group)=>
+      .then (group)->
         group.messages.push message
         group.saveQ()
-      .then =>
+      .then ->
         io.messageToGroup user.id, groupId, 'message', message
-        message;
+        message
       .then(deferred.resolve)
       .fail(deferred.reject)
       .done()
 
     s3req.on 'response', (s3res)->
       if s3res.statusCode < 200 or s3res.statusCode >= 300
-        return deferred.reject error : 'There was an error uploading your image!'
+        return deferred.reject BadRequest('There was an error uploading your image!')
 
     s3req.on 'error', (s3err)->
       console.log(s3err)
@@ -113,7 +109,7 @@ Message.methods =
     deferred = Q.defer()
     knox.get(@media).on 'response', (s3res)=>
       if s3res.statusCode < 200 or s3res.statusCode > 300
-        return deferred.reject 'There was an error fetching your image!'
+        return deferred.reject BadRequest('There was an error fetching your image!')
 
       s3res.setEncoding('binary')
       s3res.on 'data', (chunk)->
@@ -121,7 +117,7 @@ Message.methods =
 
       s3res.on 'end', =>
         if @media.length is 0 or @mediaHeader.length is 0
-          return deferred.reject 'No Media on this message!'
+          return deferred.reject BadRequest('No Media on this message!')
 
         deferred.resolve([@mediaHeader[0], @media_size, data])
     .end()

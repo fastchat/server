@@ -49,16 +49,16 @@ describe 'Socket.io', ->
         api.post('/login')
           .send({'username' : 'test1', 'password' : 'test'})
           .end (err, res)->
-            tokens.push res.body['session-token']
+            tokens.push res.body.access_token
             # login second user
             api.post('/login')
               .send({'username' : 'test2', 'password' : 'test'})
               .end (err, res)->
-                tokens.push res.body['session-token']
+                tokens.push res.body.access_token
                 callback()
       (cb)->
         api.post('/user/device')
-          .set('session-token', tokens[1])
+          .set('Authorization', "Bearer #{tokens[1]}")
           .send({token: 'somethingcool', type:'ios'})
           .expect(201)
           .expect('Content-Type', /json/)
@@ -66,7 +66,7 @@ describe 'Socket.io', ->
             should.not.exist(err)
             should.exist(res.body)
             api.post('/user/device')
-              .set('session-token', tokens[1])
+              .set('Authorization', "Bearer #{tokens[1]}")
               .send({token: 'awesometoken', type:'android'})
               .expect(201)
               .expect('Content-Type', /json/)
@@ -79,7 +79,7 @@ describe 'Socket.io', ->
         # Add a group for both members
         #
         api.post('/group')
-          .set('session-token', tokens[0])
+          .set('Authorization', "Bearer #{tokens[0]}")
           .send({'text' : 'This is a test message!', 'members': ['test2']})
           .expect(201)
           .expect('Content-Type', /json/)
@@ -89,14 +89,14 @@ describe 'Socket.io', ->
         # Add a group for both members
         #
         api.get('/user')
-          .set('session-token', tokens[0])
+          .set('Authorization', "Bearer #{tokens[0]}")
           .expect(200)
           .expect('Content-Type', /json/)
           .end (err, res)->
             users.push(res.body.profile)
 
             api.get('/user')
-              .set('session-token', tokens[1])
+              .set('Authorization', "Bearer #{tokens[1]}")
               .expect(200)
               .expect('Content-Type', /json/)
               .end (err, res)->

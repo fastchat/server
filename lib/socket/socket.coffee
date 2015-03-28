@@ -10,7 +10,7 @@ Q = require('q')
 sockets = {}
 
 exports.setup = (server)->
-  io = io.listen server, origins: '*:*'
+  io = io.listen(server.listener, origins: '*:*')
   io.set 'log level', 1
 
   #

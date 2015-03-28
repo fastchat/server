@@ -25,17 +25,16 @@ getMessages = (req, reply)->
 # /group/:id/message
 postMessageData = (req, reply)->
   {user} = req.auth.credentials
-  form = new multiparty.Form()
-  groupId = new ObjectId(req.params.id)
+  {text, media} = req.payload
 
+  groupId = new ObjectId(req.params.id)
   return NotFound() unless user.hasGroup(groupId)
 
-  form.parse req.raw.req, (err, fields, files)->
-    Message.postMedia(groupId, user, fields, files)
-      .then (message)->
-        reply(message)
-      .fail(reply)
-      .done()
+  Message.postMedia(groupId, user, text: text, media)
+  .then (message)->
+    reply(message)
+  .fail(reply)
+  .done()
 
 
 getMessageData = (req, reply)->
@@ -64,7 +63,10 @@ module.exports = [
   {
     method: 'POST'
     path: '/group/{id}/message'
-    handler: postMessageData
+    config:
+      handler: postMessageData
+      payload:
+        output: 'file'
   }
   {
     method: 'GET'

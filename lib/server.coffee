@@ -8,7 +8,6 @@ Hapi = require 'hapi'
 NotFound = require('boom').notFound
 Q = require 'q'
 log = require './helpers/log'
-SocketIO = require 'socket.io'
 Boom = require 'boom'
 Authentication = require './helpers/authentication'
 MongoIDError = 'Uncaught error: Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
@@ -28,7 +27,7 @@ class Server
             socket: no
     })
     @server.connection(opts)
-    @io = SocketIO.listen(@server.listener)
+    @io = require('./socket/socket').setup(@server)
 
     @server.ext 'onPreResponse', (req, reply)->
       res = req.response

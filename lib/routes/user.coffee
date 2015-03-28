@@ -58,23 +58,17 @@ logout = (req, reply)->
   {user, token} = req.auth.credentials
   user.logout(token, req.query.all is 'true')
   .then ->
-    reply()
+    reply({})
   .fail(reply)
   .done()
 
 
 uploadAvatar = (req, reply)->
   {user} = req.auth.credentials
-  form = new multiparty.Form()
-
-  form.parse req, (err, fields, files)->
-    return reply(err) if err
-
-    user.uploadAvatar(files)
-    .then ->
-      reply({})
-    .fail(reply)
-    .done()
+  user.uploadAvatar(req.payload.avatar).then ->
+    reply({})
+  .fail(reply)
+  .done()
 
 
 getAvatar = (req, reply)->
@@ -119,7 +113,10 @@ module.exports = [
   {
     method: 'POST'
     path: '/user/{id}/avatar'
-    handler: uploadAvatar
+    config:
+      handler: uploadAvatar
+      payload:
+        output: 'file'
   }
   {
     method: 'GET'
