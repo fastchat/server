@@ -8,7 +8,11 @@ run-dev:
 run-test:
 	@ENV=test \
 	MONGOLAB_URI=mongodb://localhost/test \
-	$(MAKE) run
+	node coffee_bridge.js 1>log/test.log 2>&1 & echo "$$!" > /tmp/node.pid
+	sleep 10
+
+kill-test-node:
+	-@kill -9 $(shell cat /tmp/node.pid) 2>/dev/null
 
 run-test-for-cov:
 	@ENV=test \
@@ -29,7 +33,13 @@ integration:
 	./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register ./test/integration
 
 server:
+	$(MAKE) run-test
 	WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register ./test/server
+	$(MAKE) kill-test-node
+	$(MAKE) cleanup
+
+cleanup:
+	-@rm /tmp/node.pid 2>/dev/null
 
 cov:
 	WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register --require ./node_modules/blanket-node/bin/index.js -R travis-cov ./test/unit ./test/integration
@@ -41,6 +51,7 @@ cov-report:
 test:
 	$(MAKE) unit
 	$(MAKE) integration
+	$(MAKE) server
 	$(MAKE) cov
 	$(MAKE) lint
 
