@@ -194,7 +194,7 @@ User.methods =
 
     Device.findQ({accessToken : {$in: tokens}}).then (devices)=>
       device.logout() for device in devices
-    @saveQ()
+      @saveQ()
 
 
   setAvatar: (name)->
@@ -204,7 +204,6 @@ User.methods =
   uploadAvatar: (file)->
     deferred = Q.defer()
 
-    console.log 'Files', file
     throw new Boom.badRequest('No files were found in the upload!') unless file
 
     options =
@@ -213,7 +212,6 @@ User.methods =
       'x-amz-acl': 'public-read'
       'Content-Length': file.bytes
 
-    console.log 'Uploading!'
     knox.putStream fs.createReadStream(file.path), uuid.v4(), options, (err, result)=>
       return deferred.reject(err) if err
       deferred.resolve(@setAvatar(result.req.path.replace(/^.*[\\\/]/, '')))

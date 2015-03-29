@@ -7,36 +7,25 @@ Boom = require 'boom'
 # This is an alternative implementation that uses a custom callback to
 # acheive the same functionality.
 login = (req, reply)->
-  console.log 'Logging in user', req.payload
-
   {username, password} = req.payload
 
   User.findByLowercaseUsername(username).then (user)->
-    console.log 'Strategy Start 1'
     [user, user.comparePassword(password)]
   .spread (user, matched)->
-    console.log 'Matched', matched
     token = user.generateRandomToken()
     user.accessToken.push token
     [token, user.saveQ()]
   .spread (token)->
-    console.log 'token', token
     reply(access_token: token)
-  .fail (err)->
-    console.log 'FAILED', err
-    reply(err)
+  .fail(reply)
   .done()
 
 # POST /user
 register = (req, reply)->
-  console.log 'register', req.payload
   User.register(req.payload?.username, req.payload?.password)
   .then (user)->
-    console.log 'Done', user
     reply(user).code(201)
-  .fail (err)->
-    console.log 'ERRROR', err
-    reply(err)
+  .fail(reply)
   .done()
 
 
