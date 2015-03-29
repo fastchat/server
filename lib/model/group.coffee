@@ -54,7 +54,7 @@ Group.methods =
       user.leave @
       @systemMessage user.username + ' has left the group.'
     ]).spread (group, usr, message)=>
-        require('../socket/socket').messageToGroup @_id, 'member_left', message
+      require('../socket/socket').messageToGroup @_id, 'member_left', message
 
   removeMember: (user)->
     index = @members.indexOfEquals user._id
@@ -155,7 +155,7 @@ Group.statics =
     User = require './user'
 
     User.findQ(username: { $in: members })
-    .then (users)=>
+    .then (users)->
       throw Boom.badRequest 'No users were found with those usernames!' if users.length is 0
 
       otherMembers = users.filter (u)-> not u._id.equals user._id
@@ -191,7 +191,7 @@ Group.statics =
       membersWithUser.forEach (u)->
         u.add group
 
-      @firstMessage(user, group, message).then (mes)=> [members, mes, group]
+      @firstMessage(user, group, message).then (mes)-> [members, mes, group]
     .spread (members, mes, group)=>
       @findOne(
         { '_id' : group._id },
@@ -199,8 +199,8 @@ Group.statics =
           .populate('members', 'username avatar')
           .populate('leftMembers', 'username avatar')
           .populate('lastMessage')
-          .execQ().then (found)=> [members, mes, found]
-    .spread (members, mes, group)=>
+          .execQ().then (found)-> [members, mes, found]
+    .spread (members, mes, group)->
 
       # Emit a new message to socket users
       text = user.username + '@' + group.name + ': ' + message

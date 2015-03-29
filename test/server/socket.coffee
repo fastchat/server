@@ -238,7 +238,7 @@ describe 'Socket.io', ->
         #
         # We are ready to go
         #
-        client1.emit('typing', { group: users[0].groups[0]._id, typing: 'yes' });
+        client1.emit('typing', { group: users[0].groups[0]._id, typing: 'yes' })
 
 
   it 'should send a message', (done)->

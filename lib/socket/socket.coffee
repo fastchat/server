@@ -1,9 +1,12 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 SocketIO = require('socket.io')
 ObjectId = require('mongoose').Types.ObjectId
-User = require('../model/user')
-Message = require('../model/message')
-Group = require('../model/group')
-GroupSetting = require('../model/groupSetting')
+{User, Group, Message, GroupSetting} = require '../../lib/model'
 async = require('async')
 Q = require('q')
 
@@ -23,7 +26,7 @@ exports.setup = (server)->
 
       User.findOneQ(accessToken: token)
         .then (user)->
-          throw 'Error' unless user
+          throw Error('Error') unless user
           handshakeData.user = user
           callback( null, true )
         .fail(callback)
@@ -119,7 +122,7 @@ exports.setup = (server)->
       # Save the object we have, and add it to the group
       #
       Group.findOneQ(_id: room).then (group)->
-        throw 'Not Found' unless group
+        throw Error('Not Found') unless group
 
         group.messages.push mes
         group.lastMessage = mes.id
@@ -134,7 +137,7 @@ exports.setup = (server)->
         # Let's send some notifications to all people not in the room.
         #
         clients = io.sockets.clients room
-        roomUsers = []; #all currently in the room
+        roomUsers = [] #all currently in the room
         clients.forEach (client)->
           roomUsers.push client.handshake.user
 
@@ -154,7 +157,7 @@ exports.setup = (server)->
             GroupSetting.totalUnread(gses).then (unread)->
               console.log 'Sending push to: ', mes.fromUser.username, unread
               user.push group, text, unread, false
-            callback();
+            callback()
         (err)->
           console.log 'Error Occured in sending push notifications: ', err if err
       .catch (err)->
@@ -195,4 +198,4 @@ exports.emitNewGroup = (userId, group)->
   if userSocket
     userSocket.emit 'new_group', group
     return true
-   false;
+   false

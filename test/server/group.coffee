@@ -63,7 +63,7 @@ describe 'Groups', ->
                     tokens.push( res.body.access_token )
                     callback()
     ], (err, results)->
-       done()
+      done()
 
   it 'should be empty for a brand new user', (done)->
     api.get('/group')
@@ -236,7 +236,7 @@ describe 'Groups', ->
         done()
 
   it 'should not let a user change a group name with a valid, but not found, id', (done)->
-    anID = group._id;
+    anID = group._id
     anID = anID.substr(0, anID.length - 4)
     anID = anID + '9999'
 

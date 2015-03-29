@@ -11,7 +11,7 @@ describe 'Users', ->
 
   before (done)->
     mongoose.connect 'mongodb://localhost/test'
-    db = mongoose.connection;
+    db = mongoose.connection
     db.once 'open', ->
       User.remove {}, (err)->
         done()

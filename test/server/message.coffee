@@ -83,7 +83,7 @@ describe 'Messages', ->
     req = api.post('/group/' + theGroup._id + '/message')
 
     req.set('Authorization', "Bearer #{tokens[0]}")
-    req.field('text', text);
+    req.field('text', text)
     req.attach('media', './test/integration/test_image.png')
     req.end (err, res)->
       should.not.exist(err)
