@@ -1,4 +1,4 @@
-io = require('socket.io')
+SocketIO = require('socket.io')
 ObjectId = require('mongoose').Types.ObjectId
 User = require('../model/user')
 Message = require('../model/message')
@@ -10,7 +10,7 @@ Q = require('q')
 sockets = {}
 
 exports.setup = (server)->
-  io = io.listen(server.listener, origins: '*:*')
+  io = SocketIO.listen(server.listener, origins: '*:*')
   io.set 'log level', 1
 
   #
