@@ -1,5 +1,8 @@
 # FastChat Server
 
+[![Build Status](https://travis-ci.org/fastchat/server.svg?branch=develop)](https://travis-ci.org/fastchat/server.svg?branch=develop)
+
+
 This is the FastChat Server, written in CoffeeScript on Node.js. It uses socket.io for real time communication, and faciliates users to register, login, create private groups, invite users to groups, and chat. It has a web client written in Angular that allows users to chat on the web interface.
 
 * [iOS Client](https://github.com/fastchat/ios)
