@@ -243,19 +243,14 @@ describe 'Group', ->
         group.lastMessage.text.should.equal 'Hello world!'
         done()
 
-    it 'should give a default message', (done)->
+    it 'should not give a default message', (done)->
       user = new User(username: 'sup4', password: 'testing')
       user1 = new User(username: 'testing4', password: 'testing')
       user2 = new User(username: 'johnny4', password: 'testing')
       Q.all([user.saveQ(), user1.saveQ(), user2.saveQ()]).then ->
         Group.newGroup(['testing4', 'johnny4'], user)
-      .then (group)->
-        should.exist group
-        should.not.exist group.name
-        group.members.should.have.length 3
-        group.leftMembers.should.have.length 0
-        should.exist group.lastMessage
-        group.lastMessage.text.should.equal 'Hello!'
+      .fail (err)->
+        err.message.should.be.ok
         done()
 
 

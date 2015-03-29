@@ -1,6 +1,6 @@
 # Default Goal. Just run node in development mode.
 # to start the server, just run 'make'
-run-dev:
+run:
 	@ENV=dev \
 	MONGOLAB_URI=mongodb://localhost/dev \
 	$(MAKE) run
@@ -11,17 +11,9 @@ run-test:
 	node coffee_bridge.js 1>log/test.log 2>&1 & echo "$$!" > /tmp/node.pid
 	sleep 10
 
+
 kill-test-node:
 	-@kill -9 $(shell cat /tmp/node.pid) 2>/dev/null
-
-run-test-for-cov:
-	@ENV=test \
-	COV_FASTCHAT=true \
-	MONGOLAB_URI=mongodb://localhost/test \
-	$(MAKE) run
-
-run:
-	node coffee_bridge.js
 
 unit:
 	@ENV=test \
@@ -42,10 +34,22 @@ cleanup:
 	-@rm /tmp/node.pid 2>/dev/null
 
 cov:
-	WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register --require ./node_modules/blanket-node/bin/index.js -R travis-cov ./test/unit ./test/integration
+	WINSTON=error \
+	MONGOLAB_URI=mongodb://localhost/test \
+	./node_modules/mocha/bin/mocha \
+	--compilers coffee:coffee-script/register \
+	--require ./node_modules/blanket-node/bin/index.js \
+	-R travis-cov \
+	./test/unit ./test/integration
 
 cov-report:
-	WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register --require ./node_modules/blanket-node/bin/index.js -R html-cov > coverage.html ./test/unit ./test/integration
+	WINSTON=error \
+	MONGOLAB_URI=mongodb://localhost/test \
+	./node_modules/mocha/bin/mocha \
+	--compilers coffee:coffee-script/register \
+	--require ./node_modules/blanket-node/bin/index.js \
+	-R html-cov > coverage.html \
+	./test/unit ./test/integration
 	open coverage.html
 
 test:
