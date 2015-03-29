@@ -1,6 +1,6 @@
 {
   "name": "FastChat",
-  "version": "0.6.0",
+  "version": "0.6.0-pre",
   "description": "A fast, small, chat server.",
   "main": "coffee_bridge.js",
   "scripts": {
