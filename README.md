@@ -1,6 +1,6 @@
 # FastChat Server
 
-[![Build Status](https://travis-ci.org/fastchat/server.svg?branch=develop)](https://travis-ci.org/fastchat/server.svg?branch=develop)
+[![Build Status](https://travis-ci.org/fastchat/server.svg?branch=develop)](https://travis-ci.org/fastchat/server.svg?branch=develop) [![Coverage Status](https://coveralls.io/repos/fastchat/server/badge.svg)](https://coveralls.io/r/fastchat/server)
 
 This is the FastChat Server, written in CoffeeScript on Node.js. It uses socket.io for real time communication, and faciliates users to register, login, create private groups, invite users to groups, and chat. It has many clients that can be used to chat.
 
