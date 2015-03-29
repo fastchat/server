@@ -3,7 +3,9 @@
   "version": "0.6.0",
   "description": "A fast, small, chat server.",
   "main": "coffee_bridge.js",
-  "scripts": {},
+  "scripts": {
+    "test": "make test"
+  },
   "keywords": [
     "chat",
     "server"
