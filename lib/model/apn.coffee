@@ -28,7 +28,7 @@ class APN
     @connection = new apn.Connection(opts)
 
   send: (opts)->
-
+    device = new apn.Device opts.token
 
 
 module.exports = new APN()
