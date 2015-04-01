@@ -6,7 +6,7 @@ GroupSetting = require '../../lib/model/groupSetting'
 sinon = require 'sinon'
 mongoose = require 'mongoose'
 async = require 'async'
-Q = require 'Q'
+Q = require 'q'
 
 describe 'Group', ->
 

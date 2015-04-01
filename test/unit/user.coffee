@@ -6,7 +6,7 @@
 
 require('../../lib/helpers/helpers')()
 mongoose = require 'mongoose'
-Q = require 'Q'
+Q = require 'q'
 sinon = require 'sinon'
 ObjectId = mongoose.Types.ObjectId
 should = require('chai').should()

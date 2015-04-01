@@ -4,7 +4,7 @@ User = require '../../lib/model/user'
 sinon = require 'sinon'
 mongoose = require 'mongoose'
 ObjectId = mongoose.Types.ObjectId
-Q = require 'Q'
+Q = require 'q'
 
 describe 'GroupSetting', ->
 
