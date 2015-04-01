@@ -4,8 +4,9 @@
 # 2015
 #
 
+BadRequest = require 'boom'
 apn = require 'apn'
-IOS_DEFAULT_SOUND = "ping.aiff"
+IOS_DEFAULT_SOUND = 'ping.aiff'
 
 ###
 * class APN
@@ -27,13 +28,28 @@ class APN
   setup: (opts)->
     @connection = new apn.Connection(opts)
 
-  send: (opts)->
+  send: (opts = {})->
+    return BadRequest('Token is required!') unless opts.token
+
+    opts?.badge = 0
+
     try
       device = new apn.Device opts.token
     catch err
+      return BadRequest('Bad iOS Token!')
 
+    note = new apn.Notification()
+    note.expiry = Math.floor(Date.now() / 1000) + 3600 #Expires 1 hour from now.
+    note.badge = opts.badge if opts.badge or badge is 0
+    note.alert = opts.message if opts.message
+    note.payload = group: opts.group._id if opts.group
+
+    if opts.contentAvailable
+      note.setContentAvailable(yes)
+    else
+      note.sound = IOS_DEFAULT_SOUND
+
+    @connection.pushNotification note, device
 
 
 module.exports = new APN()
-
-
