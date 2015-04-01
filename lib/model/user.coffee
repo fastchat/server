@@ -10,12 +10,9 @@ Q = require('q')
 fs = require('fs')
 uuid = require 'uuid'
 Boom = require 'boom'
+AWS = require './aws'
 Unauthorized = Boom.unauthorized
-
-knox = require('knox').createClient
-  key: process.env.AWS_KEY
-  secret: process.env.AWS_SECRET
-  bucket: 'com.fastchat.dev.avatars'
+BUCKET = 'com.fastchat.dev.avatars'
 
 EXTENSION_LOOKUP =
   'image/jpeg': 'jpg'
@@ -212,10 +209,11 @@ User.methods =
       'x-amz-acl': 'public-read'
       'Content-Length': file.bytes
 
-    knox.putStream fs.createReadStream(file.path), uuid.v4(), options, (err, result)=>
+    aws = new AWS(BUCKET)
+    aws.upload fs.createReadStream(file.path), uuid.v4(), options, (err, result)=>
       return deferred.reject(err) if err
       deferred.resolve(@setAvatar(result.req.path.replace(/^.*[\\\/]/, '')))
-    return deferred.promise
+    deferred.promise
 
   getAvatar: ->
     throw Boom.notFound() unless @avatar
@@ -223,7 +221,8 @@ User.methods =
     deferred = Q.defer()
     data = ''
 
-    knox.get(@avatar).on 'response', (res)->
+    aws = new AWS(BUCKET)
+    aws.get(@avatar).on 'response', (res)->
 
       if res.statusCode < 200 or res.statusCode > 300
         deferred.reject new Error('There was an error fetching your image!')

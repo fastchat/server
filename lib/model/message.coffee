@@ -6,14 +6,9 @@ GroupSetting = require('./groupSetting')
 Q = require('q')
 fs = require('fs')
 uuid = require('uuid')
+AWS = require './aws'
 PER_PAGE = 30
-
-
-knox = require('knox').createClient
-  key: process.env.AWS_KEY
-  secret: process.env.AWS_SECRET
-  bucket: 'com.fastchat.dev.messages'
-
+BUCKET = 'com.fastchat.dev.messages'
 
 Message = new Schema
   from: {type: Schema.Types.ObjectId, ref: 'User'}
@@ -55,7 +50,8 @@ Message.statics =
     io = require('../socket/socket')
     contentType = fileInfo.headers['content-type']
 
-    s3req = knox.putStream fs.createReadStream(fileInfo.path), randomName, {
+    aws = new AWS(BUCKET)
+    s3req = aws.upload  fs.createReadStream(fileInfo.path), randomName, {
       'Content-Type': contentType
       'Cache-Control': 'max-age=604800'
       'x-amz-acl': 'public-read'
@@ -98,7 +94,6 @@ Message.statics =
 
 fileExtension = (filename)->
   filename.split('.').pop()
-
 
 Message.methods =
 
