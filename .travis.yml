@@ -10,5 +10,8 @@ branches:
   - master
   - develop
 
+services:
+  - mongodb
+  
 notifications:
   email: ethan@ethanmick.com
