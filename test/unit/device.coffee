@@ -3,7 +3,7 @@ Device = require '../../lib/model/device'
 User = require '../../lib/model/user'
 sinon = require 'sinon'
 mongoose = require 'mongoose'
-Q = require 'Q'
+Q = require 'q'
 
 describe 'Device', ->
 
