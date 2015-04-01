@@ -23,7 +23,7 @@ class APN
       keyData: process.env.FASTCHAT_PUSH_KEY
       production: if process.env.ENV is 'dev' then false else true
 
-    @setup(@opts) if opts.certData and opts.keyData
+    @setup(@opts) if @opts.certData and @opts.keyData
 
   setup: (opts)->
     @connection = new apn.Connection(opts)
