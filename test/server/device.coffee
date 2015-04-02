@@ -10,6 +10,7 @@ users = []
 describe 'Devices', ->
 
   before (done)->
+    @timeout(4000)
     mongoose.connect 'mongodb://localhost/test'
     db = mongoose.connection
 
