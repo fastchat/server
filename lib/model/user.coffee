@@ -1,3 +1,9 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 mongoose = require('mongoose-q')()
 Schema = mongoose.Schema
 bcrypt = require('bcrypt')
@@ -17,7 +23,7 @@ BUCKET = 'com.fastchat.dev.avatars'
 EXTENSION_LOOKUP =
   'image/jpeg': 'jpg'
   'image/png': 'png'
-  'image/gif' : 'gif'
+  'image/gif': 'gif'
 
 mimeTypes = ['image/jpeg', 'image/png', 'image/gif']
 
@@ -151,7 +157,7 @@ User.methods =
     Q.all([
       @saveQ()
       setting.saveQ()
-    ]).then => @
+    ]).then => this
 
   ###
    * A convenience method that will return if the user is in the group
@@ -189,7 +195,7 @@ User.methods =
         @accessToken.splice index, 1
         tokens.push token
 
-    Device.findQ({accessToken : {$in: tokens}}).then (devices)=>
+    Device.findQ(accessToken: {$in: tokens}).then (devices)=>
       device.logout() for device in devices
       @saveQ()
 

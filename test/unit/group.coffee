@@ -1,3 +1,9 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 should = require('chai').should()
 Group = require '../../lib/model/group'
 User = require '../../lib/model/user'
@@ -107,7 +113,7 @@ describe 'Group', ->
 
     it 'should push to a user', ->
       user = new User()
-      pushed = sinon.spy(user, "push")
+      pushed = sinon.spy(user, 'push')
       group.pushMessageToUser user, {}
       pushed.called.should.be.true
 

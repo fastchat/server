@@ -88,7 +88,7 @@ exports.setup = (server)->
         fn(error: 'No Message Text') if fn
         return
 
-      if !socketUser.hasGroup(room)
+      if not socketUser.hasGroup(room)
         fn(error: 'Not Found') if fn
         return
 
@@ -141,7 +141,7 @@ exports.setup = (server)->
         clients.forEach (client)->
           roomUsers.push client.handshake.user
 
-        User.findQ({groups: { $in : [room] } }).then (users)->
+        User.findQ({groups: { $in: [room] } }).then (users)->
           [group, message, users, roomUsers]
       .spread (group, message, users, roomUsers)->
         #refactor this?

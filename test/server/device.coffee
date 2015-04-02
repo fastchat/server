@@ -1,3 +1,9 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 should = require('chai').should()
 supertest = require('supertest')
 api = supertest('http://localhost:3000')
@@ -30,13 +36,13 @@ describe 'Devices', ->
         # this has already been tested, so we know it works.
         #
         api.post('/user')
-        .send({'username' : 'test1', 'password' : 'test'})
+        .send(username: 'test1', password: 'test')
         .end (err, res)->
           users.push res.body
           cb()
       (cb)->
         api.post('/login')
-        .send({'username' : 'test1', 'password' : 'test'})
+        .send(username: 'test1', password: 'test')
         .end (err, res)->
           tokens.push res.body.access_token
           cb()
@@ -71,7 +77,7 @@ describe 'Devices', ->
   it 'should return an error if you send not ios or android', (done)->
     api.post('/user/device')
       .set('Authorization', "Bearer #{tokens[0]}")
-      .send({token: 'something', type:'windows_phone'})
+      .send(token: 'something', type: 'windows_phone')
       .expect(400)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -83,7 +89,7 @@ describe 'Devices', ->
   it 'should let you create an iOS device', (done)->
     api.post('/user/device')
       .set('Authorization', "Bearer #{tokens[0]}")
-      .send({token: 'somethingcool', type:'ios'})
+      .send(token: 'somethingcool', type: 'ios')
       .expect(201)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -94,7 +100,7 @@ describe 'Devices', ->
   it 'should let you create an Android device', (done)->
     api.post('/user/device')
       .set('Authorization', "Bearer #{tokens[0]}")
-      .send({token: 'awesometoken', type:'android'})
+      .send(token: 'awesometoken', type: 'android')
       .expect(201)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -105,7 +111,7 @@ describe 'Devices', ->
   it 'should update your device if you sent in the same token', (done)->
     api.post('/user/device')
       .set('Authorization', "Bearer #{tokens[0]}")
-      .send({token: 'somethingcool', type:'ios'})
+      .send(token: 'somethingcool', type: 'ios')
       .expect(200)
       .expect('Content-Type', /json/)
       .end (err, res)->

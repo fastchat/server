@@ -1,3 +1,9 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 mongoose = require('mongoose-q')()
 Schema = mongoose.Schema
 Hash = require('hashish')
@@ -15,11 +21,11 @@ GroupSetting = require('./groupSetting')
  * (so invites can be cleared later).
 ###
 Group = new Schema
-  members : [{ type: Schema.Types.ObjectId, ref: 'User' }]
-  leftMembers : [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }]
-  messages : [{type: Schema.Types.ObjectId, ref: 'Message', default: [] }]
-  lastMessage : { type: Schema.Types.ObjectId, ref: 'Message', default: null }
-  name : {type: String, default: null}
+  members: [{ type: Schema.Types.ObjectId, ref: 'User' }]
+  leftMembers: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }]
+  messages: [{type: Schema.Types.ObjectId, ref: 'Message', default: [] }]
+  lastMessage: { type: Schema.Types.ObjectId, ref: 'Message', default: null }
+  name: {type: String, default: null}
 
 
 Group.virtual('unread').get ->
@@ -51,7 +57,7 @@ Group.methods =
   leave: (user)->
     Q.all([
       @removeMember user
-      user.leave @
+      user.leave(this)
       @systemMessage user.username + ' has left the group.'
     ]).spread (group, usr, message)=>
       require('../socket/socket').messageToGroup @_id, 'member_left', message
@@ -88,7 +94,7 @@ Group.methods =
       User.findOneQ( username: username.toLowerCase() ).then (user)=>
         throw Boom.notFound() unless user
         Q.all([
-          user.add(@)
+          user.add(this)
           @addUser(user)
         ]).spread (user, group) =>
           @systemMessage(user.username + ' has joined the group.')
@@ -111,7 +117,7 @@ Group.methods =
   pushMessageToUser: (user, message)->
     io = require('../socket/socket')
     io.messageToGroup @id, 'member_joined', message
-    didSend = io.emitNewGroup user._id, @
+    didSend = io.emitNewGroup user._id, this
     user.push( null, 'You have been added to the group: ' + @name, null, no ) unless didSend
 
 
@@ -131,7 +137,7 @@ Group.statics =
 
     Q.all([
       GroupSetting.findQ( user: user._id )
-      @find( {members : user._id}, '_id members leftMembers name lastMessage')
+      @find( {members: user._id}, '_id members leftMembers name lastMessage')
         .populate('members', 'username avatar')
         .populate('leftMembers', 'username avatar')
         .populate('lastMessage')
@@ -185,7 +191,7 @@ Group.statics =
       [
         members
         membersWithUser
-        new @(name: name, members: membersWithUser)
+        new this(name: name, members: membersWithUser)
       ]
     .spread (members, membersWithUser, group)=>
       membersWithUser.forEach (u)->
@@ -194,7 +200,7 @@ Group.statics =
       @firstMessage(user, group, message).then (mes)-> [members, mes, group]
     .spread (members, mes, group)=>
       @findOne(
-        { '_id' : group._id },
+        { _id: group._id },
         '_id members leftMembers name lastMessage messages')
           .populate('members', 'username avatar')
           .populate('leftMembers', 'username avatar')

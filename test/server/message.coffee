@@ -1,3 +1,9 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 should = require('chai').should()
 supertest = require('supertest')
 api = supertest('http://localhost:3000')
@@ -33,7 +39,7 @@ describe 'Messages', ->
         #
         db.once 'open', ->
           User.remove {}, (err)->
-          callback()
+            callback()
       (callback)->
         #
         # Add three users to seed our DB. We have to do it via the post request,
@@ -41,31 +47,31 @@ describe 'Messages', ->
         # this has already been tested, so we know it works.
         #
           api.post('/user')
-            .send({'username' : 'test1', 'password' : 'test'})
+            .send(username: 'test1', password: 'test')
             .end (err, res)->
               users.push(res.body)
               # Number 2
               api.post('/user')
-                .send({'username' : 'test2', 'password' : 'test'})
+                .send(username: 'test2', password: 'test')
                 .end (err, res)->
                   users.push(res.body)
                   callback()
 
       (callback)->
         api.post('/login')
-          .send({'username' : 'test1', 'password' : 'test'})
+          .send(username: 'test1', password: 'test')
           .end (err, res)->
             tokens.push res.body.access_token
             # login second user
             api.post('/login')
-              .send({'username' : 'test2', 'password' : 'test'})
+              .send(username: 'test2', password: 'test')
               .end (err, res)->
                 tokens.push res.body.access_token
                 callback()
       (cb)->
         api.post('/group')
           .set('Authorization', "Bearer #{tokens[0]}")
-          .send({ 'text' : 'First', 'members': [ users[1].username ] })
+          .send(text: 'First', members [ users[1].username ] )
           .end (err, res)->
             theGroup = res.body
             cb()

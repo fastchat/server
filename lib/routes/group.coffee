@@ -1,3 +1,9 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 Group = require('../model/group')
 ObjectId = require('mongoose-q')().Types.ObjectId
 Boom = require('boom')
@@ -22,7 +28,7 @@ leaveGroup = (req, reply)->
   {user} = req.auth.credentials
   id = new ObjectId(req.params.id)
 
-  Group.findOneQ(_id : id).then (group)->
+  Group.findOneQ(_id: id).then (group)->
     throw Boom.notFound() unless group
     group.leave(user)
   .then ->
@@ -36,7 +42,7 @@ changeSettings = (req, reply)->
 
   return reply(Boom.notFound()) unless user.hasGroup(groupId)
 
-  Group.findOneQ(_id : groupId).then (group)->
+  Group.findOneQ(_id: groupId).then (group)->
     throw Boom.notFound() unless group
     group.changeName req.payload.name, user
   .then ->
@@ -51,7 +57,7 @@ add = (req, reply)->
 
   return reply Boom.notFound() unless user.hasGroup(groupId)
 
-  Group.findOneQ(_id : groupId).then (group)->
+  Group.findOneQ(_id: groupId).then (group)->
     throw Boom.notFound() unless group
     group.add(invites)
   .then ->

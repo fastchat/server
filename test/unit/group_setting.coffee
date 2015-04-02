@@ -1,3 +1,9 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 should = require('chai').should()
 GroupSetting = require '../../lib/model/groupSetting'
 User = require '../../lib/model/user'

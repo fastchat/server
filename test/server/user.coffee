@@ -1,3 +1,9 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 should = require('chai').should()
 supertest = require('supertest')
 api = supertest('http://localhost:3000')
@@ -32,7 +38,7 @@ describe 'Users', ->
 
   it 'should allow a user to be registered with a username and password', (done)->
     api.post('/user')
-    .send({'username' : 'test1', 'password' : 'test'})
+    .send(username: 'test1', password: 'test')
     .expect(201)
     .expect('Content-Type', /json/)
     .end (err, res)->
@@ -62,7 +68,7 @@ describe 'Users', ->
 
   it 'should allow you to login with a username and password', (done)->
     api.post('/login')
-      .send({'username' : 'test1', 'password' : 'test'})
+      .send(username: 'test1', password: 'test')
       .expect(200)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -74,7 +80,7 @@ describe 'Users', ->
 
   it 'should return a new Access Token if you login again', (done)->
     api.post('/login')
-      .send({'username' : 'test1', 'password' : 'test'})
+      .send(username: 'test1', password: 'test')
       .end (err, res)->
         token.should.not.equal res.body.access_token
         done()
@@ -148,7 +154,7 @@ describe 'Users', ->
 
   it 'should return a new Session Token if you login for the last time', (done)->
     api.post('/login')
-      .send({'username' : 'test1', 'password' : 'test'})
+      .send(username: 'test1', password: 'test')
       .end (err, res)->
         token.should.not.equal res.body.access_token
         token = res.body.access_token
@@ -181,7 +187,7 @@ describe 'Users', ->
     return done() unless AvatarTests
 
     api.post('/login')
-      .send({'username' : 'test1', 'password' : 'test'})
+      .send(username: 'test1', password: 'test')
       .expect(200)
       .expect('Content-Type', /json/)
       .end (err, res)->

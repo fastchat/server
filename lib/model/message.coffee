@@ -1,3 +1,9 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 mongoose = require('mongoose-q')()
 Schema = mongoose.Schema
 Boom = require('boom')
@@ -60,7 +66,7 @@ Message.statics =
       return deferred.reject BadRequest('There was an error uploading your image!') if err
 
       # Add media name to the message to get later
-      message = new @
+      message = new this({
         group: groupId
         from: user.id
         text: if fields.text then fields.text else null
@@ -69,6 +75,7 @@ Message.statics =
         media: [result.req.path.replace(/^.*[\\\/]/, '')]
         mediaHeader: [contentType]
         media_size: [fileInfo.bytes]
+      })
 
       message.saveQ().then ->
         Group.findOneQ(_id: groupId)

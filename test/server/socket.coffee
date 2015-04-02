@@ -1,3 +1,9 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 should = require('chai').should()
 supertest = require('supertest')
 api = supertest('http://localhost:3000')
@@ -29,7 +35,7 @@ describe 'Socket.io', ->
         #
         db.once 'open', ->
           User.remove {}, (err)->
-          callback()
+            callback()
       (callback)->
         #
         # Add three users to seed our DB. We have to do it via the post request,
@@ -37,29 +43,29 @@ describe 'Socket.io', ->
         # this has already been tested, so we know it works.
         #
           api.post('/user')
-            .send({'username' : 'test1', 'password' : 'test'})
+            .send(username: 'test1', password: 'test')
             .end (err, res)->
               # Number 2
               api.post('/user')
-                .send({'username' : 'test2', 'password' : 'test'})
+                .send(username: 'test2', password: 'test')
                 .end (err, res)->
                   callback()
 
       (callback)->
         api.post('/login')
-          .send({'username' : 'test1', 'password' : 'test'})
+          .send(username: 'test1', password: 'test')
           .end (err, res)->
             tokens.push res.body.access_token
             # login second user
             api.post('/login')
-              .send({'username' : 'test2', 'password' : 'test'})
+              .send(username: 'test2', password: 'test')
               .end (err, res)->
                 tokens.push res.body.access_token
                 callback()
       (cb)->
         api.post('/user/device')
           .set('Authorization', "Bearer #{tokens[1]}")
-          .send({token: 'somethingcool', type:'ios'})
+          .send(token: 'somethingcool', type: 'ios')
           .expect(201)
           .expect('Content-Type', /json/)
           .end (err, res)->
@@ -67,7 +73,7 @@ describe 'Socket.io', ->
             should.exist(res.body)
             api.post('/user/device')
               .set('Authorization', "Bearer #{tokens[1]}")
-              .send({token: 'awesometoken', type:'android'})
+              .send(token: 'awesometoken', type: 'android')
               .expect(201)
               .expect('Content-Type', /json/)
               .end (err, res)->
@@ -80,7 +86,7 @@ describe 'Socket.io', ->
         #
         api.post('/group')
           .set('Authorization', "Bearer #{tokens[0]}")
-          .send({'text' : 'This is a test message!', 'members': ['test2']})
+          .send(text: 'This is a test message!', members: ['test2'])
           .expect(201)
           .expect('Content-Type', /json/)
           .end (err, res)-> callback()
@@ -187,7 +193,7 @@ describe 'Socket.io', ->
         #
         # We are ready to go
         #
-        client1.emit('typing', { group: users[0].groups[0]._id })
+        client1.emit('typing', group: users[0].groups[0]._id)
 
   it 'should send typing=true if you specify true', (done)->
     options.query = 'token=' + tokens[0]

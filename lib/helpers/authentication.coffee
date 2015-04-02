@@ -1,3 +1,4 @@
+'use strict'
 #
 # FastChat
 # 2015

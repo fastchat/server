@@ -1,12 +1,15 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 mongoose = require('mongoose-q')()
 Schema = mongoose.Schema
 gcm = require 'node-gcm'
 Boom = require 'boom'
 Q = require 'q'
 APN = require './apn'
-IOS_DEFAULT_SOUND = "ping.aiff"
-
-
 
 Sender = new gcm.Sender process.env.GCM_API_KEY
 
@@ -49,15 +52,13 @@ DeviceSchema.methods =
     data.group = group._id if group
     data.text = message if message
     data.alert = badge if badge
-    data.sound = IOS_DEFAULT_SOUND
 
     message = new gcm.Message data: data
 
     registrationIds = []
     registrationIds.push @token
 
-    Sender.send message, registrationIds, 4, (err, result)->
-      #console.log 'GCM: ', result, ' Err? ', err
+    Sender.send(message, registrationIds, 4)
 
   sendIOS: (group, message, badge, contentAvailable)->
     APN.send({
@@ -71,7 +72,6 @@ DeviceSchema.methods =
   logout: ->
     @loggedIn = no
     @saveQ()
-
 
 DeviceSchema.statics =
 
@@ -89,11 +89,12 @@ DeviceSchema.statics =
         user.saveQ().then -> device
 
   createDevice: (user, token, type, sessionToken)->
-    device = new @
+    device = new this({
       token: token
       type: type
       user: user._id
       accessToken: sessionToken
+    })
     device.saveQ().then -> device
 
   updateDevice: (device, sessionToken)->

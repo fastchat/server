@@ -1,3 +1,9 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 should = require('chai').should()
 supertest = require('supertest')
 api = supertest('http://localhost:3000')
@@ -32,33 +38,33 @@ describe 'Groups', ->
         # this has already been tested, so we know it works.
         #
         api.post('/user')
-          .send({'username' : 'test1', 'password' : 'test'})
+          .send(username: 'test1', password: 'test')
           .end (err, res)->
             users.push(res.body)
             # Number 2
             api.post('/user')
-              .send({'username' : 'test2', 'password' : 'test'})
+              .send(username: 'test2', password: 'test')
               .end (err, res)->
                 users.push(res.body)
                 # Number 3
                 api.post('/user')
-                  .send({'username' : 'test3', 'password' : 'test'})
+                  .send(username: 'test3', password: 'test')
                   .end (err, res)->
                     users.push(res.body)
                     callback()
       (callback)->
         api.post('/login')
-          .send({'username' : 'test1', 'password' : 'test'})
+          .send(username: 'test1', password: 'test')
           .end (err, res)->
             tokens.push( res.body.access_token )
             # login second user
             api.post('/login')
-              .send({'username' : 'test2', 'password' : 'test'})
+              .send(username: 'test2', password: 'test')
               .end (err, res)->
                 tokens.push( res.body.access_token )
                 # login third user
                 api.post('/login')
-                  .send({'username' : 'test3', 'password' : 'test'})
+                  .send(username: 'test3', password: 'test')
                   .end (err, res)->
                     tokens.push( res.body.access_token )
                     callback()
@@ -92,7 +98,7 @@ describe 'Groups', ->
     user1 = users[1]
     api.post('/group')
       .set('Authorization', "Bearer #{tokens[0]}")
-      .send({'members' : [user1._id]})
+      .send(members: [user1._id])
       .expect(400)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -104,7 +110,7 @@ describe 'Groups', ->
   it 'should not allow a user to create a group with no members', (done)->
     api.post('/group')
       .set('Authorization', "Bearer #{tokens[0]}")
-      .send({'text' : 'This is a test message!'})
+      .send(text: 'This is a test message!')
       .expect(400)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -118,7 +124,7 @@ describe 'Groups', ->
 
     api.post('/group')
       .set('Authorization', "Bearer #{tokens[0]}")
-      .send({'text' : 'This is a test message!', 'members' : [user0.username]})
+      .send(text: 'This is a test message!', members: [user0.username])
       .expect(400)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -131,7 +137,7 @@ describe 'Groups', ->
   it 'should not allow a user to create a group with no members', (done)->
     api.post('/group')
       .set('Authorization', "Bearer #{tokens[0]}")
-      .send({'text' : 'This is a test message!'})
+      .send(text: 'This is a test message!')
       .expect(400)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -143,7 +149,7 @@ describe 'Groups', ->
   it 'should not allow a user to create a group without an array', (done)->
     api.post('/group')
       .set('Authorization', "Bearer #{tokens[0]}")
-      .send({'text' : 'This is a test message!', 'members': {'test': 'test'}})
+      .send(text: 'This is a test message!', members: {'test': 'test'})
       .expect(400)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -158,7 +164,7 @@ describe 'Groups', ->
 
     api.post('/group')
       .set('Authorization', "Bearer #{tokens[0]}")
-      .send({'text' : 'Proper Info Group!', 'members': [user1.username]})
+      .send(text: 'Proper Info Group!', members: [user1.username])
       .expect(201)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -211,7 +217,7 @@ describe 'Groups', ->
   it 'should not allow a user not in the group to change the name', (done)->
     api.put('/group/' + group._id + '/settings')
       .set('Authorization', "Bearer #{tokens[2]}")
-      .send({'name': 'New Group Name!'})
+      .send(name: 'New Group Name!')
       .expect(404)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -226,7 +232,7 @@ describe 'Groups', ->
 
     api.put('/group/' + badId + '/settings')
       .set('Authorization', "Bearer #{tokens[0]}")
-      .send({'name': 'New Group Name!'})
+      .send(name: 'New Group Name!')
       .expect(404)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -242,7 +248,7 @@ describe 'Groups', ->
 
     api.put('/group/' + anID + '/settings')
       .set('Authorization', "Bearer #{tokens[0]}")
-      .send({'name': 'New Group Name!'})
+      .send(name: 'New Group Name!')
       .expect(404)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -259,7 +265,7 @@ describe 'Groups', ->
 
       api.put('/group/' + group._id + '/settings')
         .set('Authorization', "Bearer #{tokens[0]}")
-        .send({'name': 'New Group Name!'})
+        .send(name: 'New Group Name!')
         .expect(200)
         .expect('Content-Type', /json/)
         .end (err, res)->
@@ -361,7 +367,7 @@ describe 'Groups', ->
 
     api.put('/group/' + group._id + '/add')
       .set('Authorization', "Bearer #{tokens[0]}")
-      .send({'invitees' : []})
+      .send(invitees: [])
       .expect(200)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -373,7 +379,7 @@ describe 'Groups', ->
   it 'it should not let a user add themselves', (done)->
     api.put('/group/' + group._id + '/add')
       .set('Authorization', "Bearer #{tokens[0]}")
-      .send({'invitees' : []})
+      .send(invitees: [])
       .expect(200)
       .expect('Content-Type', /json/)
       .end (err, res)->
@@ -394,7 +400,7 @@ describe 'Groups', ->
 
       api.put('/group/' + group._id + '/add')
         .set('Authorization', "Bearer #{tokens[0]}")
-        .send({'invitees' : [users[1].username]})
+        .send(invitees: [users[1].username])
         .expect(400)
         .expect('Content-Type', /json/)
         .end (err, res)->
@@ -416,7 +422,7 @@ describe 'Groups', ->
     user2 = users[2]
     api.put('/group/' + group._id + '/add')
       .set('Authorization', "Bearer #{tokens[0]}")
-      .send({'invitees' : [user2.username]})
+      .send(invitees: [user2.username])
       .expect(200)
       .expect('Content-Type', /json/)
       .end (err, res)->

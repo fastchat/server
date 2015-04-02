@@ -1,3 +1,4 @@
+'use strict'
 #
 # FastChat
 # 2015
@@ -16,7 +17,7 @@ module.exports = ->
   '_id' to the val.
   ###
   Array.prototype.indexOfEquals = (val, key)->
-    for value, i in @
+    for value, i in this
       if key
         return i if value[key] and value[key].equals and value[key].equals val
       else
@@ -37,5 +38,5 @@ module.exports = ->
     @slice(0)
 
   Array.prototype.pushed = ->
-    @push.apply @, arguments
-    @
+    @push.apply this, arguments
+    this

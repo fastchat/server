@@ -1,3 +1,9 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 User = require '../model/user'
 ObjectId = require('mongoose-q')().Types.ObjectId
 multiparty = require 'multiparty'

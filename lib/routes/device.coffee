@@ -1,3 +1,9 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 Device = require('../model/device')
 
 getDevices = (req, reply)->

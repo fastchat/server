@@ -1,3 +1,9 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 should = require('chai').should()
 Device = require '../../lib/model/device'
 User = require '../../lib/model/user'
@@ -22,8 +28,8 @@ describe 'Device', ->
     it 'should not send if inactive', ->
       device.active = no
 
-      android = sinon.spy(device, "sendAndroid")
-      ios = sinon.spy(device, "sendIOS")
+      android = sinon.spy(device, 'sendAndroid')
+      ios = sinon.spy(device, 'sendIOS')
       device.send()
       android.calledOnce.should.be.false
       ios.calledOnce.should.be.false
@@ -31,8 +37,8 @@ describe 'Device', ->
     it 'Should not send if logged out', ->
       device.loggedIn = no
 
-      android = sinon.spy(device, "sendAndroid")
-      ios = sinon.spy(device, "sendIOS")
+      android = sinon.spy(device, 'sendAndroid')
+      ios = sinon.spy(device, 'sendIOS')
       device.send()
       android.calledOnce.should.be.false
       ios.calledOnce.should.be.false
@@ -41,8 +47,8 @@ describe 'Device', ->
       device.loggedIn = no
       device.active = no
 
-      android = sinon.spy(device, "sendAndroid")
-      ios = sinon.spy(device, "sendIOS")
+      android = sinon.spy(device, 'sendAndroid')
+      ios = sinon.spy(device, 'sendIOS')
       device.send()
       android.calledOnce.should.be.false
       ios.calledOnce.should.be.false
@@ -50,8 +56,8 @@ describe 'Device', ->
     it 'should send an android message', ->
       device.type = 'android'
 
-      android = sinon.spy(device, "sendAndroid")
-      ios = sinon.spy(device, "sendIOS")
+      android = sinon.spy(device, 'sendAndroid')
+      ios = sinon.spy(device, 'sendIOS')
       device.send('213', 'Message', 5)
       android.calledOnce.should.be.ok
       ios.calledOnce.should.be.false
@@ -60,8 +66,8 @@ describe 'Device', ->
       device.type = 'ios'
       device.token = 'ba60aa0fa63e3ad5d3b0a35e389d391f48f945f1be8a8731da2b48979c80dcfa'
 
-      android = sinon.spy(device, "sendAndroid")
-      ios = sinon.spy(device, "sendIOS")
+      android = sinon.spy(device, 'sendAndroid')
+      ios = sinon.spy(device, 'sendIOS')
       device.send('3424', 'text', 1)
       android.calledOnce.should.be.false
       ios.calledOnce.should.be.ok
