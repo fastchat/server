@@ -71,7 +71,7 @@ describe 'Messages', ->
       (cb)->
         api.post('/group')
           .set('Authorization', "Bearer #{tokens[0]}")
-          .send(text: 'First', members [ users[1].username ] )
+          .send(text: 'First', members: [ users[1].username ] )
           .end (err, res)->
             theGroup = res.body
             cb()
