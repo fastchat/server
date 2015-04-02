@@ -11,6 +11,10 @@ run-test:
 	node coffee_bridge.js 1>log/test.log 2>&1 & echo "$$!" > /tmp/node.pid
 	sleep 10
 
+run-test-visible:
+	@ENV=test \
+	MONGOLAB_URI=mongodb://localhost/test \
+	node coffee_bridge.js
 
 kill-test-node:
 	-@kill -9 $(shell cat /tmp/node.pid) 2>/dev/null

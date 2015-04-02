@@ -1,13 +1,15 @@
+'use strict'
+#
+#
+#
+#
+#
+
 Message = require('../model/message')
 ObjectId = require('mongoose').Types.ObjectId
 multiparty = require('multiparty')
 Boom = require 'boom'
 NotFound = Boom.notFound
-
-knox = require('knox').createClient
-  key: process.env.AWS_KEY
-  secret: process.env.AWS_SECRET
-  bucket: 'com.fastchat.dev.messages'
 
 getMessages = (req, reply)->
   idParam = req.params.id
