@@ -60,7 +60,7 @@ coveralls:
 	WINSTON=error \
 	MONGOLAB_URI=mongodb://localhost/test \
 	mocha --compilers coffee:coffee-script/register \
-	--require ./node_modules/blanket-node/bin/index.js ]
+	--require ./node_modules/blanket-node/bin/index.js \
 	--reporter mocha-lcov-reporter | ./node_modules/coveralls/bin/coveralls.js
 
 
@@ -70,6 +70,14 @@ test:
 	$(MAKE) server
 	$(MAKE) cov
 	$(MAKE) lint
+
+travis:
+	$(MAKE) unit
+	$(MAKE) integration
+	$(MAKE) server
+	$(MAKE) cov
+	$(MAKE) lint
+	$(MAKE) coveralls
 
 lint:
 	./node_modules/coffeelint/bin/coffeelint ./lib ./test

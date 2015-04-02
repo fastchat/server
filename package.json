@@ -4,7 +4,7 @@
   "description": "A fast, small, chat server.",
   "main": "coffee_bridge.js",
   "scripts": {
-    "test": "make test"
+    "test": "make travis"
   },
   "keywords": [
     "chat",
