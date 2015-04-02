@@ -46,6 +46,15 @@ class Server
           routesDir: "#{__dirname}/routes/"
       })
     .then =>
+      swaggerOptions =
+        basePath: 'http://localhost:3000'
+        apiVersion: 'v1'
+
+      register({
+        register: require('hapi-swagger')
+        options: swaggerOptions
+      })
+    .then =>
       @server.route
         method: '*'
         path: '/{p*}'

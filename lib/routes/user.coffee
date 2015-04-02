@@ -8,6 +8,7 @@ User = require '../model/user'
 ObjectId = require('mongoose-q')().Types.ObjectId
 multiparty = require 'multiparty'
 Boom = require 'boom'
+Joi = require 'joi'
 
 # POST /login
 # This is an alternative implementation that uses a custom callback to
@@ -94,6 +95,20 @@ module.exports = [
     config:
       handler: register
       auth: false
+      description: 'Registers a user'
+      notes: "The starting place for users. This endpoint registers a new user and
+sets the default  values on the profile. This endpoint does *not* log them in, so you
+will have to hit /login"
+      tags: ['api']
+      validate:
+        payload:
+          username: (
+            Joi.string()
+            .min(4).max(100).lowercase().trim().regex(/^[a-zA-Z0-9-_.]+$/).required()
+            )
+          password: (
+            Joi.string().min(1).max(100).required()
+          )
   }
   {
     method: 'GET'

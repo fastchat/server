@@ -3,7 +3,7 @@
 run:
 	@ENV=dev \
 	MONGOLAB_URI=mongodb://localhost/dev \
-	$(MAKE) run
+	node coffee_bridge.js
 
 run-test:
 	@ENV=test \
