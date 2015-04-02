@@ -3,7 +3,9 @@ sudo: false
 node_js:
   - '0.10'
   - '0.12'
-  - 'iojs'
+# We want to support this, but our code coverage library doesn't really work
+# well with it, nor does bcrypt.
+#  - 'iojs'
 
 branches:
   only:
