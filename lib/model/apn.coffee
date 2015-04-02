@@ -4,7 +4,7 @@
 # 2015
 #
 
-BadRequest = require 'boom'
+BadRequest = require('boom').badRequest
 apn = require 'apn'
 IOS_DEFAULT_SOUND = 'ping.aiff'
 
@@ -40,7 +40,7 @@ class APN
 
     note = new apn.Notification()
     note.expiry = Math.floor(Date.now() / 1000) + 3600 #Expires 1 hour from now.
-    note.badge = opts.badge if opts.badge or badge is 0
+    note.badge = opts.badge if opts.badge or opts.badge is 0
     note.alert = opts.message if opts.message
     note.payload = group: opts.group._id if opts.group
 
@@ -49,7 +49,8 @@ class APN
     else
       note.sound = IOS_DEFAULT_SOUND
 
-    @connection.pushNotification note, device
+
+    @connection.pushNotification note, device if @connection
 
 
 module.exports = new APN()

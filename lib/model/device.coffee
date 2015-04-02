@@ -1,15 +1,12 @@
 mongoose = require('mongoose-q')()
 Schema = mongoose.Schema
-apn = require 'apn'
 gcm = require 'node-gcm'
 Boom = require 'boom'
 Q = require 'q'
+APN = require './apn'
 IOS_DEFAULT_SOUND = "ping.aiff"
 
-apnConnection = new apn.Connection
-  production: if process.env.ENV is 'dev' then false else true
-  certData: process.env.FASTCHAT_PUSH_CERT
-  keyData: process.env.FASTCHAT_PUSH_KEY
+
 
 Sender = new gcm.Sender process.env.GCM_API_KEY
 
@@ -63,26 +60,13 @@ DeviceSchema.methods =
       #console.log 'GCM: ', result, ' Err? ', err
 
   sendIOS: (group, message, badge, contentAvailable)->
-    badge = 0 if not badge
-
-    device = null
-    try
-      device = new apn.Device @token
-    catch err
-      return
-
-    note = new apn.Notification()
-    note.expiry = Math.floor(Date.now() / 1000) + 3600 #Expires 1 hour from now.
-    note.badge = badge if badge or badge is 0
-    note.alert = message if message
-    note.payload = group: group._id if group
-
-    if contentAvailable
-      note.setContentAvailable yes
-    else
-      note.sound = IOS_DEFAULT_SOUND
-
-    apnConnection.pushNotification note, device
+    APN.send({
+      token: @token
+      badge: if badge then badge else 0
+      message: message
+      group: group?._id
+      contentAvailable: contentAvailable
+    })
 
   logout: ->
     @loggedIn = no

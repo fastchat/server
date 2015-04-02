@@ -13,7 +13,7 @@ should = require('chai').should()
 User = require '../../lib/model/user'
 Device = require '../../lib/model/device'
 Group = require '../../lib/model/group'
-
+AvatarTests = process.env.AWS_KEY? and process.env.AWS_SECRET?
 
 describe 'User', ->
 
@@ -183,6 +183,7 @@ describe 'User', ->
 
     avatarId = null
     it 'should upload the avatar', (done)->
+      return done() unless AvatarTests
       user.username = 'uploader'
       user.password = 'testing'
       should.not.exist user.avatar
@@ -196,6 +197,7 @@ describe 'User', ->
       (-> user.getAvatar()).should.throw /Not Found/
 
     it 'should pull down the avatar', (done)->
+      return done() unless AvatarTests
       User.findOneQ(username: 'uploader').then (found)->
         found.getAvatar()
       .spread (type, data)->
@@ -226,7 +228,8 @@ describe 'User', ->
         done()
       .done()
 
-    it 'should find the user', (done)->
+    it 'should find the user by lowercase', (done)->
+      return done() unless AvatarTests
       User.findByLowercaseUsername('uploader').then (found)->
         should.exist found
         found.username.should.equal 'uploader'
