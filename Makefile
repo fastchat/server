@@ -8,7 +8,7 @@ run:
 run-test:
 	@ENV=test \
 	MONGOLAB_URI=mongodb://localhost/test \
-	node coffee_bridge.js 1>log/test.log 2>&1 & echo "$$!" > /tmp/node.pid
+	node coffee_bridge.js 1>test.log 2>&1 & echo "$$!" > node.pid
 	sleep 10
 
 run-test-visible:
@@ -17,7 +17,7 @@ run-test-visible:
 	node coffee_bridge.js
 
 kill-test-node:
-	-@kill -9 $(shell cat /tmp/node.pid) 2>/dev/null
+	-@kill -9 $(shell cat node.pid) 2>/dev/null
 
 unit:
 	@ENV=test \
