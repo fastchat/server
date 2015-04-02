@@ -29,7 +29,7 @@
       "loader": "./node-loaders/coffee-script"
     },
     "travis-cov": {
-      "threshold": 90
+      "threshold": 50
     }
   },
   "dependencies": {
