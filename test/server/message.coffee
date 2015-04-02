@@ -11,6 +11,7 @@ tokens = []
 users = []
 theGroup = null
 mediaMessage = null
+AvatarTests = process.env.AWS_KEY? and process.env.AWS_SECRET?
 
 io = require('socket.io-client')
 socketURL = 'http://localhost:3000'
@@ -78,6 +79,7 @@ describe 'Messages', ->
       done()
 
   it 'should let a user upload an image', (done)->
+    return done() unless AvatarTests
     @timeout(5000)
     text = 'Example Text'
     req = api.post('/group/' + theGroup._id + '/message')
@@ -98,6 +100,7 @@ describe 'Messages', ->
       done()
 
   it 'should let a user download an image', (done)->
+    return done() unless AvatarTests
     api.get('/group/' + theGroup._id + '/message/' + mediaMessage._id + '/media')
       .set('Authorization', "Bearer #{tokens[0]}")
       .expect(200)
@@ -108,15 +111,19 @@ describe 'Messages', ->
         done()
 
   it 'should get the messages from the group', (done)->
+    l = if AvatarTests then 2 else 1
     api.get('/group/' + theGroup._id + '/message')
       .set('Authorization', "Bearer #{tokens[0]}")
       .expect(200)
       .end (err, res)->
         should.not.exist(err)
         should.exist(res.body)
-        res.body.should.have.length(2)
-        res.body[0].text.should.equal('Example Text')
-        res.body[1].text.should.equal('First')
+        res.body.should.have.length(l)
+        if AvatarTests
+          res.body[0].text.should.equal('Example Text')
+          res.body[1].text.should.equal('First')
+        else
+          res.body[0].text.should.equal('First')
         done()
 
   it 'should return a 404 if you try and get messages to a non-existant group', (done)->

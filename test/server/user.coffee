@@ -6,6 +6,7 @@ User = require('../../lib/model/user')
 token = null
 createdUser = null
 UNAUTHENTICATED_MESSAGE = 'Unauthorized'
+AvatarTests = process.env.AWS_KEY? and process.env.AWS_SECRET?
 
 describe 'Users', ->
 
@@ -177,6 +178,7 @@ describe 'Users', ->
 
 
   it 'should let a user upload an avatar', (done)->
+    return done() unless AvatarTests
 
     api.post('/login')
       .send({'username' : 'test1', 'password' : 'test'})
@@ -200,6 +202,7 @@ describe 'Users', ->
           done()
 
   it 'should allow the user to download an avatar', (done)->
+    return done() unless AvatarTests
 
     api.get('/user/' + createdUser._id + '/avatar')
       .set('Authorization', "Bearer #{token}")
