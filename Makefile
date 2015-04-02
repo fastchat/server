@@ -59,8 +59,9 @@ cov-report:
 coveralls:
 	WINSTON=error \
 	MONGOLAB_URI=mongodb://localhost/test \
-	mocha --compilers coffee:coffee-script/register \
+	./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register \
 	--require ./node_modules/blanket-node/bin/index.js \
+	./test/unit ./test/integration \
 	--reporter mocha-lcov-reporter | ./node_modules/coveralls/bin/coveralls.js
 
 
