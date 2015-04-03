@@ -16,6 +16,7 @@ This is the FastChat Server, written in CoffeeScript on Node.js. It uses socket.
 3. Users can send messages to the people in the chats.
 4. Users can leave group chats at anypoint.
 5. Push notifications are sent out, but in an intelligent manner.
+6. Swagger documentation
 
 ## Development
 FastChat uses Mongo as it's storage, as well as certain environment variables for API keys. If these keys are not present, FastChat will disable that functionality.
