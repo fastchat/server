@@ -152,6 +152,7 @@ module.exports = [
       tags: ['api']
       plugins:
         'hapi-swagger':
+          payloadType: 'form'
           responseMessages: [
             {
               code: 400
@@ -185,7 +186,7 @@ module.exports = [
             })
         payload:
           text: Joi.string()
-          media: Joi.binary().required()
+          media: Joi.binary().required().meta(swaggerType: 'file')
       response:
         schema:
           Joi.object({

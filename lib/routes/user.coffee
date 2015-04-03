@@ -280,6 +280,7 @@ will have to hit /login"
       tags: ['api']
       plugins:
         'hapi-swagger':
+          payloadType: 'form'
           responseMessages: [
             {
               code: 400
@@ -312,7 +313,7 @@ will have to hit /login"
               otherwise: Joi.forbidden()
             })
         payload:
-          avatar: Joi.binary().required()
+          avatar: Joi.binary().required().meta(swaggerType: 'file')
       response:
         schema:
           Joi.object({})
