@@ -45,7 +45,7 @@ class Server
         options:
           routesDir: "#{__dirname}/routes/"
       })
-    .then =>
+    .then ->
       swaggerOptions =
         apiVersion: 'v1'
         info:

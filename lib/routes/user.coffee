@@ -89,7 +89,7 @@ module.exports = [
       handler: login
       auth: false
       description: 'Logs a user in.'
-      notes: "Given a username and unhashed password, logs in the user."
+      notes: 'Given a username and unhashed password, logs in the user.'
       tags: ['api']
       plugins:
         'hapi-swagger':

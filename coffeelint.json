@@ -34,9 +34,6 @@
   "no_stand_alone_at": {
     "level": "error"
   },
-  "no_unnecessary_double_quotes": {
-    "level": "error"
-  },
   "prefer_english_operator": {
     "level": "error"
   },
