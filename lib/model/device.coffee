@@ -105,6 +105,8 @@ DeviceSchema.statics =
     device.accessToken = sessionToken
     device.active = yes
     device.loggedIn = yes
-    device.saveQ().then -> Q()
+    device.saveQ().then =>
+      [device, updated]
+
 
 module.exports = mongoose.model 'Device', DeviceSchema

@@ -18,8 +18,8 @@ getDevices = (req, reply)->
 postDevice = (req, reply)->
   {user, token} = req.auth.credentials
   Device.createOrUpdate(user, req.payload.token, req.payload.type, token)
-  .then (device)->
-    reply(device.objectify()).code(if device then 201 else 200)
+  .spread (device)->
+    reply(device).code(if updated then 201 else 200)
   .fail(reply)
   .done()
 
@@ -69,8 +69,8 @@ module.exports = [
         schema:
           Joi.array().items(
             Joi.object({
-              _id: Joi.string().required().description("The id for the device")
-              user: Joi.string().required().description("The user ID for this device")
+              _id: Joi.required().description("The id for the device")
+              user: Joi.required().description("The user ID for this device")
               accessToken: Joi.string().required("The Access Token used to create this device.
               When the this access token is logged out, we will stop sending push notifications
               to the device.")
@@ -133,8 +133,8 @@ module.exports = [
       response:
         schema:
           Joi.object({
-            _id: Joi.string().required().description("The id for the device")
-            user: Joi.string().required().description("The user ID for this device")
+            _id: Joi.required().description("The id for the device")
+            user: Joi.required().description("The user ID for this device")
             accessToken: Joi.string().required("The Access Token used to create this device.
             When the this access token is logged out, we will stop sending push notifications
             to the device.")
