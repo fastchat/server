@@ -19,7 +19,7 @@ postDevice = (req, reply)->
   {user, token} = req.auth.credentials
   Device.createOrUpdate(user, req.payload.token, req.payload.type, token)
   .then (device)->
-    reply(if device then device else {}).code(if device then 201 else 200)
+    reply(device.objectify()).code(if device then 201 else 200)
   .fail(reply)
   .done()
 
@@ -52,16 +52,19 @@ module.exports = [
       validate:
         query:
           access_token: Joi.string().min(1).lowercase().trim().when(
-            '$headers.authorization', {
+            '$headers.Authorization', {
               is: Joi.exist(),
               otherwise: Joi.forbidden()
             })
-        headers:
+        headers: Joi.object({
           authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
-            'query.access_token', {
-              is: Joi.exist(),
-              otherwise: Joi.forbidden()
-            })
+            '$query.access_token', {
+              is: Joi.forbidden(),
+              otherwise: Joi.exist()
+            }
+          )
+        }).unknown()
+
       response:
         schema:
           Joi.array().items(
@@ -113,15 +116,17 @@ module.exports = [
         query:
           access_token: Joi.string().min(1).lowercase().trim().when(
             '$headers.authorization', {
-              is: Joi.exist(),
+              is: Joi.exist()
               otherwise: Joi.forbidden()
             })
-        headers:
+        headers: Joi.object({
           authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
-            'query.access_token', {
-              is: Joi.exist(),
-              otherwise: Joi.forbidden()
-            })
+            '$query.access_token', {
+              is: Joi.forbidden()
+              otherwise: Joi.exist()
+            }
+          )
+        }).unknown()
         payload:
           token: Joi.string().required()
           type: Joi.string().required().valid('ios', 'android')
@@ -137,8 +142,6 @@ module.exports = [
             active: Joi.boolean().required()
             token: Joi.string().required()
             type: Joi.string().required().valid('ios', 'android')
-            lastActiveDate:  Joi.date()
-            failedAttempts: Joi.number()
           }).meta({
             className: 'Device'
           })

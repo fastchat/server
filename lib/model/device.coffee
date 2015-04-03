@@ -62,6 +62,17 @@ DeviceSchema.methods =
       contentAvailable: contentAvailable
     })
 
+  objectify: ->
+    {
+      _id: @_id.toString()
+      user: @user.toString()
+      accessToken: @accessToken
+      loggedIn: @loggedIn
+      active: @active
+      token: @token
+      type: @type
+    }
+
   logout: ->
     @loggedIn = no
     @saveQ()
