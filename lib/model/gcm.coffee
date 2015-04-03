@@ -5,6 +5,7 @@
 #
 
 gcm = require 'node-gcm'
+BadRequest = require('boom').badRequest
 
 class GCM
 
