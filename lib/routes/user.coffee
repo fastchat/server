@@ -96,7 +96,7 @@ module.exports = [
           responseMessages: [
             {
               code: 400
-              message: 'Bad Request'
+              message: 'Bad Request. Occurs when you fail to give the required data.'
             }
           ]
       validate:
@@ -131,7 +131,7 @@ will have to hit /login"
           responseMessages: [
             {
               code: 400
-              message: 'Bad Request'
+              message: 'Bad Request. Occurs when you fail to give the required data.'
             }
             {
               code: 409
@@ -179,6 +179,10 @@ will have to hit /login"
       plugins:
         'hapi-swagger':
           responseMessages: [
+            {
+              code: 400
+              message: 'Bad Request. Occurs when you fail to give the required data.'
+            }
             {
               code: 401
               message: 'Unauthorized'
@@ -231,6 +235,10 @@ will have to hit /login"
         'hapi-swagger':
           responseMessages: [
             {
+              code: 400
+              message: 'Bad Request. Occurs when you fail to give the required data.'
+            }
+            {
               code: 401
               message: 'Unauthorized'
             }
@@ -273,6 +281,10 @@ will have to hit /login"
       plugins:
         'hapi-swagger':
           responseMessages: [
+            {
+              code: 400
+              message: 'Bad Request. Occurs when you fail to give the required data.'
+            }
             {
               code: 401
               message: 'Unauthorized'
@@ -323,6 +335,10 @@ will have to hit /login"
       plugins:
         'hapi-swagger':
           responseMessages: [
+            {
+              code: 400
+              message: 'Bad Request. Occurs when you fail to give the required data.'
+            }
             {
               code: 401
               message: 'Unauthorized'
