@@ -6,12 +6,10 @@
 
 mongoose = require('mongoose-q')()
 Schema = mongoose.Schema
-gcm = require 'node-gcm'
 Boom = require 'boom'
 Q = require 'q'
 APN = require './apn'
-
-Sender = new gcm.Sender process.env.GCM_API_KEY
+GCM = require './gcm'
 
 ###
  * Holds the information about a device. This is used to be able to run smart
@@ -48,17 +46,12 @@ DeviceSchema.methods =
       @sendIOS group, message, badge, contentAvailable
 
   sendAndroid: (group, message, badge, contentAvailable)->
-    data = {}
-    data.group = group._id if group
-    data.text = message if message
-    data.alert = badge if badge
-
-    message = new gcm.Message data: data
-
-    registrationIds = []
-    registrationIds.push @token
-
-    Sender.send(message, registrationIds, 4)
+    GCM.send({
+      group: group._id if group
+      text: message if message
+      alert: badge if badge
+      token: @token
+    })
 
   sendIOS: (group, message, badge, contentAvailable)->
     APN.send({
