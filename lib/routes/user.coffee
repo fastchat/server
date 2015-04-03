@@ -88,6 +88,32 @@ module.exports = [
     config:
       handler: login
       auth: false
+      description: 'Logs a user in.'
+      notes: "Given a username and unhashed password, logs in the user."
+      tags: ['api']
+      plugins:
+        'hapi-swagger':
+          responseMessages: [
+            {
+              code: 400
+              message: 'Bad Request'
+            }
+          ]
+      validate:
+        payload:
+          username: (
+            Joi.string()
+            .min(4).max(100).lowercase().trim().regex(/^[a-zA-Z0-9-_.]+$/).required()
+            )
+          password: (
+            Joi.string().min(1).max(100).required()
+          )
+      response:
+        schema:
+          Joi.object({
+            access_token: Joi.string().required().description("The Access Token used for
+            authentication. The client should store this and keep it safe and secret").example('token')
+          })
   }
   {
     method: 'POST'
@@ -110,10 +136,6 @@ will have to hit /login"
             {
               code: 409
               message: 'Conflict. The username is already taken.'
-            }
-            {
-              code: 500
-              message: 'Internal Server Error'
             }
           ]
       validate:
@@ -144,24 +166,196 @@ will have to hit /login"
   {
     method: 'GET'
     path: '/user'
-    handler: profile
+    config:
+      handler: profile
+      description: 'Gets the user profile.'
+      notes: "Gets the currently logged in user's profile.
+
+      This route requires the user's access token, either as a query param,
+      or a header, but not both.
+      The header format must be: authorization: Bearer {token}.
+      The query format must be: access_token={token}"
+      tags: ['api']
+      plugins:
+        'hapi-swagger':
+          responseMessages: [
+            {
+              code: 401
+              message: 'Unauthorized'
+            }
+          ]
+      validate:
+        query:
+          access_token: Joi.string().min(1).lowercase().trim().when(
+            '$headers.authorization', {
+              is: Joi.exist(),
+              otherwise: Joi.forbidden()
+            })
+        headers:
+          authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
+            'query.access_token', {
+              is: Joi.exist(),
+              otherwise: Joi.forbidden()
+            })
+      response:
+        schema:
+           Joi.object({
+            username: Joi.string().required().description('The username signed up with')
+            password: Joi.string().required().description("The user's hashed password")
+            _id: Joi.string().required().description("The unique id for the user")
+            avatar: Joi.string().required()
+            groupSettings: Joi.array().length(0).required()
+            devices: Joi.array().length(0).required()
+            leftGroups: Joi.array().items(Joi.string()).length(0).required()
+            groups: Joi.array().length(0).required()
+            accessToken: Joi.array().length(0).required()
+          }).meta({
+            className: 'User'
+          })
   }
   {
     method: 'DELETE'
     path: '/logout'
-    handler: logout
+    config:
+      handler: logout
+      description: 'Logs the user out'
+      notes: "Logs the user out. Optionally logs the user out of all devices, by clearing
+      out all session tokens.
+
+      This route requires the user's access token, either as a query param,
+      or a header, but not both.
+      The header format must be: authorization: Bearer {token}.
+      The query format must be: access_token={token}"
+      tags: ['api']
+      plugins:
+        'hapi-swagger':
+          responseMessages: [
+            {
+              code: 401
+              message: 'Unauthorized'
+            }
+          ]
+      validate:
+        query:
+          access_token: Joi.string().min(1).lowercase().trim().when(
+            '$headers.authorization', {
+              is: Joi.exist(),
+              otherwise: Joi.forbidden()
+            })
+          all: Joi.boolean()
+        headers:
+          authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
+            'query.access_token', {
+              is: Joi.exist(),
+              otherwise: Joi.forbidden()
+            })
+      response:
+        schema:
+           Joi.object({})
   }
   {
     method: 'POST'
     path: '/user/{id}/avatar'
     config:
-      handler: uploadAvatar
       payload:
         output: 'file'
+      handler: uploadAvatar
+      description: 'Uploads an avatar for the user.'
+      notes: "The avatar must be an image, and it will be shown in a smaller scale,
+      so uploading large images will not help. The images will be cropped into a circle
+      on some platforms. This work is done client side.
+
+      This route requires the user's access token, either as a query param,
+      or a header, but not both.
+      The header format must be: authorization: Bearer {token}
+      The query format must be: access_token={token}"
+      tags: ['api']
+      plugins:
+        'hapi-swagger':
+          responseMessages: [
+            {
+              code: 401
+              message: 'Unauthorized'
+            }
+            {
+              code: 501
+              message: "Not Implemented. This indicates that the server does not have
+              acess to the AWS_KEY and AWS_SECRET, or was configured incorrectly."
+            }
+          ]
+      validate:
+        params:
+          id:
+            Joi.string().regex(/^[0-9a-f]{24}$/)
+        query:
+          access_token: Joi.string().min(1).lowercase().trim().when(
+            '$headers.authorization', {
+              is: Joi.exist(),
+              otherwise: Joi.forbidden()
+            })
+        headers:
+          authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
+            'query.access_token', {
+              is: Joi.exist(),
+              otherwise: Joi.forbidden()
+            })
+        payload:
+          avatar: Joi.binary().required()
+      response:
+        schema:
+          Joi.object({})
   }
   {
     method: 'GET'
     path: '/user/{id}/avatar'
-    handler: getAvatar
+    config:
+      handler: getAvatar
+      description: 'Gets the Avatar for the user'
+      notes: "For protection, the avatar is stored on AWS, but must be accessed through
+      the server with the key and secret. This means that the information is not public.
+      This route returns the binary data for the image.
+
+      This route requires the user's access token, either as a query param,
+      or a header, but not both.
+      The header format must be: authorization: Bearer {token}
+      The query format must be: access_token={token}"
+      tags: ['api']
+      plugins:
+        'hapi-swagger':
+          responseMessages: [
+            {
+              code: 401
+              message: 'Unauthorized'
+            }
+            {
+              code: 404
+              message: "Not Found. Thrown when you try and access a user's avatar when
+              you are not in any groups with that user."
+            }
+            {
+              code: 501
+              message: "Not Implemented. This indicates that the server does not have
+              acess to the AWS_KEY and AWS_SECRET, or was configured incorrectly."
+            }
+          ]
+      validate:
+        params:
+          id:
+            Joi.string().regex(/^[0-9a-f]{24}$/)
+        query:
+          access_token: Joi.string().min(1).lowercase().trim().when(
+            '$headers.authorization', {
+              is: Joi.exist(),
+              otherwise: Joi.forbidden()
+            })
+        headers:
+          authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
+            'query.access_token', {
+              is: Joi.exist(),
+              otherwise: Joi.forbidden()
+            })
+      response:
+        schema:
+          Joi.binary().required()
   }
 ]
