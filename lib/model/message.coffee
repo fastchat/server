@@ -11,6 +11,7 @@ BadRequest = Boom.badRequest
 GroupSetting = require('./groupSetting')
 Q = require('q')
 fs = require('fs')
+log = require '../helpers/log'
 uuid = require('uuid')
 AWS = require './aws'
 PER_PAGE = 30
@@ -94,8 +95,7 @@ Message.statics =
         return deferred.reject BadRequest('There was an error uploading your image!')
 
     s3req.on 'error', (s3err)->
-      console.log(s3err)
-      console.trace()
+      log.debug(s3err)
 
     deferred.promise
 

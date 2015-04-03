@@ -9,6 +9,7 @@ ObjectId = require('mongoose').Types.ObjectId
 {User, Group, Message, GroupSetting} = require '../../lib/model'
 async = require('async')
 Q = require('q')
+log = require '../helpers/log'
 
 sockets = {}
 
@@ -95,7 +96,7 @@ exports.setup = (server)->
       try
         roomId = new ObjectId room
       catch err
-        console.log 'Tried to make the room ID and failed! ', err
+        log.debug 'Tried to make the room ID and failed! ', err
         return
 
       #
@@ -155,13 +156,13 @@ exports.setup = (server)->
             thisGs.missed()
             text = "#{mes.fromUser.username}@#{group.name}:#{mes.text}"
             GroupSetting.totalUnread(gses).then (unread)->
-              console.log 'Sending push to: ', mes.fromUser.username, unread
+              log.debug 'Sending push to: ', mes.fromUser.username, unread
               user.push group, text, unread, false
             callback()
         (err)->
-          console.log 'Error Occured in sending push notifications: ', err if err
+          log.debug 'Error Occured in sending push notifications: ', err if err
       .catch (err)->
-        console.log 'Duh:', err
+        log.debug 'Duh:', err
 
 
     socket.on 'disconnect', ->

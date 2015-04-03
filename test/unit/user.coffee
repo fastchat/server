@@ -191,7 +191,7 @@ describe 'User', ->
         should.exist user.avatar
         avatarId = user.avatar
         done()
-      .catch(console.log)
+      .done()
 
     it 'should throw without an avatar', ->
       (-> user.getAvatar()).should.throw /Not Found/

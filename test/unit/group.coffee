@@ -183,7 +183,7 @@ describe 'Group', ->
           user.saveQ()
           message.saveQ()
         ]).then -> cb()
-          .catch(console.log)
+        .done()
 
       next = ->
         Group.groupsForUser(user)
