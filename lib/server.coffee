@@ -47,8 +47,14 @@ class Server
       })
     .then =>
       swaggerOptions =
-        basePath: 'http://localhost:3000'
         apiVersion: 'v1'
+        info:
+          title: 'FastChat Documentation'
+          description: "FastChat is a fast, efficient, and simple chat application built
+          on Node and written in CoffeeScript. It uses Socket.io has the realtime communication
+          mechanism. FastChat supports two person conversations, group chats, images, and
+          push notifications. This is the API Documentation, if you are interested in
+          developing on the Server, you should checkout the GitHub repo."
 
       register({
         register: require('hapi-swagger')

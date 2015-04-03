@@ -100,6 +100,22 @@ module.exports = [
 sets the default  values on the profile. This endpoint does *not* log them in, so you
 will have to hit /login"
       tags: ['api']
+      plugins:
+        'hapi-swagger':
+          responseMessages: [
+            {
+              code: 400
+              message: 'Bad Request'
+            }
+            {
+              code: 409
+              message: 'Conflict. The username is already taken.'
+            }
+            {
+              code: 500
+              message: 'Internal Server Error'
+            }
+          ]
       validate:
         payload:
           username: (
@@ -109,6 +125,21 @@ will have to hit /login"
           password: (
             Joi.string().min(1).max(100).required()
           )
+      response:
+        schema:
+          Joi.object({
+            username: Joi.string().required().description('The username signed up with')
+            password: Joi.string().required().description("The user's hashed password")
+            _id: Joi.string().required().description("The unique id for the user")
+            avatar: Joi.string().required()
+            groupSettings: Joi.array().length(0).required()
+            devices: Joi.array().length(0).required()
+            leftGroups: Joi.array().items(Joi.string()).length(0).required()
+            groups: Joi.array().length(0).required()
+            accessToken: Joi.array().length(0).required()
+          }).meta({
+            className: 'User'
+          })
   }
   {
     method: 'GET'
