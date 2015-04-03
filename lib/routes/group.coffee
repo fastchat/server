@@ -7,6 +7,7 @@
 Group = require('../model/group')
 ObjectId = require('mongoose-q')().Types.ObjectId
 Boom = require('boom')
+Joi = require 'joi'
 
 getGroups = (req, reply)->
   {user} = req.auth.credentials
@@ -69,26 +70,319 @@ module.exports = [
   {
     method: 'GET'
     path: '/group'
-    handler: getGroups
+    config:
+      handler: getGroups
+      description: 'Gets the groups for the current user.'
+      notes: "Gets the groups for the current logged in user.
+
+      This route requires the user's access token, either as a query param,
+      or a header, but not both.
+      The header format must be: authorization: Bearer {token}.
+      The query format must be: access_token={token}"
+      tags: ['api']
+      plugins:
+        'hapi-swagger':
+          responseMessages: [
+            {
+              code: 400
+              message: 'Bad Request. Occurs when you fail to give the required data.'
+            }
+            {
+              code: 401
+              message: 'Unauthorized'
+            }
+          ]
+      validate:
+        query:
+          access_token: Joi.string().min(1).lowercase().trim().when(
+            '$headers.authorization', {
+              is: Joi.exist(),
+              otherwise: Joi.forbidden()
+            })
+        headers:
+          authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
+            'query.access_token', {
+              is: Joi.exist(),
+              otherwise: Joi.forbidden()
+            })
+      response:
+        schema:
+          Joi.array().items(
+            Joi.object({
+              members: Joi.array().items(
+                Joi.object({
+                  _id: Joi.string().required().description("The unique id for the user")
+                  username: Joi.string().required()
+                  avatar: Joi.string().required()
+                })
+              )
+              leftMembers: Joi.array().items(
+                Joi.object({
+                  _id: Joi.string().required().description("The unique id for the user")
+                  username: Joi.string().required()
+                  avatar: Joi.string().required()
+                })
+              )
+              lastMessage: Joi.object({
+                _id: Joi.string().required().description("The id for the message")
+                from: Joi.string().required().description("The user id this message is from.
+                Clients should use this to map the message to the user account stored locally.")
+                group: Joi.string().required().description("The group id this message is from.")
+                text: Joi.string().optional().description("The message text may be null if they
+                didn't type anything, and just sent a picture.")
+                sent: Joi.date().required()
+                type: Joi.string().required().description("This will almost always be 'message',
+                but sometimes may be 'system' or the name of an integration.")
+                hasMedia: Joi.boolean().required()
+                media: Joi.array().items(Joi.string())
+                mediaHeader: Joi.array().items(Joi.string())
+                media_size: Joi.array().items(Joi.number())
+              }).meta({
+                className: 'Message'
+              })
+              name: Joi.string().required()
+            }).meta({
+              className: 'Group'
+            })
+          )
   }
   {
     method: 'POST'
     path: '/group'
-    handler: createGroup
+    config:
+      handler: createGroup
+      description: 'Creates a new group'
+      notes: "Creates a new group with the members in it, and an optional first message
+      sent. This is similar to how iMessage would create a group. The client selects the
+      members of the group, and it's not really 'created' until you've sent a message
+      to all the members.
+
+      This route requires the user's access token, either as a query param,
+      or a header, but not both.
+      The header format must be: authorization: Bearer {token}
+      The query format must be: access_token={token}"
+      tags: ['api']
+      plugins:
+        'hapi-swagger':
+          responseMessages: [
+            {
+              code: 400
+              message: 'Bad Request. Occurs when you fail to give the required data.'
+            }
+            {
+              code: 401
+              message: 'Unauthorized'
+            }
+          ]
+      validate:
+        query:
+          access_token: Joi.string().min(1).lowercase().trim().when(
+            '$headers.authorization', {
+              is: Joi.exist(),
+              otherwise: Joi.forbidden()
+            })
+        headers:
+          authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
+            'query.access_token', {
+              is: Joi.exist(),
+              otherwise: Joi.forbidden()
+            })
+        payload:
+          members: Joi.array().items(Joi.string()).required().unique().min(1).description("Usernames of the members to include in the group.")
+          text: Joi.string().required().description("The first message to send")
+          name: Joi.string().description("An optional group name")
+      response:
+        schema:
+          Joi.object({
+            members: Joi.array().items(
+              Joi.object({
+                _id: Joi.string().required().description("The unique id for the user")
+                username: Joi.string().required()
+                avatar: Joi.string().required()
+              })
+            )
+            leftMembers: Joi.array().items(
+              Joi.object({
+                _id: Joi.string().required().description("The unique id for the user")
+                username: Joi.string().required()
+                avatar: Joi.string().required()
+              })
+            )
+            lastMessage: Joi.object({
+              _id: Joi.string().required().description("The id for the message")
+              from: Joi.string().required().description("The user id this message is from.
+              Clients should use this to map the message to the user account stored locally.")
+              group: Joi.string().required().description("The group id this message is from.")
+              text: Joi.string().optional().description("The message text may be null if they
+              didn't type anything, and just sent a picture.")
+              sent: Joi.date().required()
+              type: Joi.string().required().description("This will almost always be 'message',
+              but sometimes may be 'system' or the name of an integration.")
+              hasMedia: Joi.boolean().required()
+              media: Joi.array().items(Joi.string())
+              mediaHeader: Joi.array().items(Joi.string())
+              media_size: Joi.array().items(Joi.number())
+            }).meta({
+              className: 'Message'
+            })
+            name: Joi.string().required()
+          }).meta({
+            className: 'Group'
+          })
   }
   {
     method: 'PUT'
     path: '/group/{id}/leave'
-    handler: leaveGroup
+    config:
+      handler: leaveGroup
+      description: 'Leaves the group'
+      notes: "Leaves the given group. A person who has left the group cannot be
+      re-added, to stop being forced into a group.
+
+      This route requires the user's access token, either as a query param,
+      or a header, but not both.
+      The header format must be: authorization: Bearer {token}
+      The query format must be: access_token={token}"
+      tags: ['api']
+      plugins:
+        'hapi-swagger':
+          responseMessages: [
+            {
+              code: 400
+              message: 'Bad Request. Occurs when you fail to give the required data.'
+            }
+            {
+              code: 401
+              message: 'Unauthorized'
+            }
+            {
+              code: 404
+              message: 'Not Found'
+            }
+          ]
+      validate:
+        params:
+          id:
+            Joi.string().regex(/^[0-9a-f]{24}$/)
+        query:
+          access_token: Joi.string().min(1).lowercase().trim().when(
+            '$headers.authorization', {
+              is: Joi.exist(),
+              otherwise: Joi.forbidden()
+            })
+        headers:
+          authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
+            'query.access_token', {
+              is: Joi.exist(),
+              otherwise: Joi.forbidden()
+            })
+      response:
+        schema:
+          Joi.object({})
   }
   {
     method: 'PUT'
     path: '/group/{id}/settings'
-    handler: changeSettings
+    config:
+      handler: changeSettings
+      description: 'Changes the group settings'
+      notes: "Allows any user who is in the group to change the group settings. For now,
+      the only setting that can be changed is the name of the group. Additional settings
+      will be added, and can be used with the new keys.
+
+      This route requires the user's access token, either as a query param,
+      or a header, but not both.
+      The header format must be: authorization: Bearer {token}
+      The query format must be: access_token={token}"
+      tags: ['api']
+      plugins:
+        'hapi-swagger':
+          responseMessages: [
+            {
+              code: 400
+              message: 'Bad Request. Occurs when you fail to give the required data.'
+            }
+            {
+              code: 401
+              message: 'Unauthorized'
+            }
+            {
+              code: 404
+              message: 'Not Found'
+            }
+          ]
+      validate:
+        params:
+          id:
+            Joi.string().regex(/^[0-9a-f]{24}$/)
+        query:
+          access_token: Joi.string().min(1).lowercase().trim().when(
+            '$headers.authorization', {
+              is: Joi.exist(),
+              otherwise: Joi.forbidden()
+            })
+        headers:
+          authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
+            'query.access_token', {
+              is: Joi.exist(),
+              otherwise: Joi.forbidden()
+            })
+        payload:
+          name: Joi.string()
+      response:
+        schema:
+          Joi.object({})
   }
   {
     method: 'PUT'
     path: '/group/{id}/add'
-    handler: add
+    config:
+      handler: add
+      description: 'Adds users to the group'
+      notes: "This will just automatically add the users to the group, without any necessary
+      confirmation on their part. You cannot add a user who has left though.
+
+      This route requires the user's access token, either as a query param,
+      or a header, but not both.
+      The header format must be: authorization: Bearer {token}
+      The query format must be: access_token={token}"
+      tags: ['api']
+      plugins:
+        'hapi-swagger':
+          responseMessages: [
+            {
+              code: 400
+              message: 'Bad Request. Occurs when you fail to give the required data.'
+            }
+            {
+              code: 401
+              message: 'Unauthorized'
+            }
+            {
+              code: 404
+              message: 'Not Found'
+            }
+          ]
+      validate:
+        params:
+          id:
+            Joi.string().regex(/^[0-9a-f]{24}$/)
+        query:
+          access_token: Joi.string().min(1).lowercase().trim().when(
+            '$headers.authorization', {
+              is: Joi.exist(),
+              otherwise: Joi.forbidden()
+            })
+        headers:
+          authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
+            'query.access_token', {
+              is: Joi.exist(),
+              otherwise: Joi.forbidden()
+            })
+        payload:
+          invitees: Joi.array().items(Joi.string()).required().unique().min(1).description("Usernames of the members to add to the group.")
+      response:
+        schema:
+          Joi.object({})
   }
 ]
