@@ -99,35 +99,37 @@ module.exports = [
               is: Joi.exist(),
               otherwise: Joi.forbidden()
             })
-        headers:
+        headers: Joi.object({
           authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
-            'query.access_token', {
-              is: Joi.exist(),
-              otherwise: Joi.forbidden()
-            })
+            '$query.access_token', {
+              is: Joi.forbidden(),
+              otherwise: Joi.exist()
+            }
+          )
+        }).unknown()
       response:
         schema:
           Joi.array().items(
             Joi.object({
               members: Joi.array().items(
                 Joi.object({
-                  _id: Joi.string().required().description("The unique id for the user")
+                  _id: Joi.required().description("The unique id for the user")
                   username: Joi.string().required()
-                  avatar: Joi.string().required()
-                })
+                  avatar: Joi.optional()
+                }).unknown()
               )
               leftMembers: Joi.array().items(
                 Joi.object({
-                  _id: Joi.string().required().description("The unique id for the user")
+                  _id: Joi.required().description("The unique id for the user")
                   username: Joi.string().required()
-                  avatar: Joi.string().required()
-                })
+                  avatar: Joi.optional()
+                }).unknown()
               )
               lastMessage: Joi.object({
-                _id: Joi.string().required().description("The id for the message")
-                from: Joi.string().required().description("The user id this message is from.
+                _id: Joi.required().description("The id for the message")
+                from: Joi.required().description("The user id this message is from.
                 Clients should use this to map the message to the user account stored locally.")
-                group: Joi.string().required().description("The group id this message is from.")
+                group: Joi.required().description("The group id this message is from.")
                 text: Joi.string().optional().description("The message text may be null if they
                 didn't type anything, and just sent a picture.")
                 sent: Joi.date().required()
@@ -139,11 +141,11 @@ module.exports = [
                 media_size: Joi.array().items(Joi.number())
               }).meta({
                 className: 'Message'
-              })
-              name: Joi.string().required()
+              }).unknown()
+              name: Joi.optional()
             }).meta({
               className: 'Group'
-            })
+            }).unknown()
           )
   }
   {
@@ -181,38 +183,40 @@ module.exports = [
               is: Joi.exist(),
               otherwise: Joi.forbidden()
             })
-        headers:
+        headers: Joi.object({
           authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
-            'query.access_token', {
-              is: Joi.exist(),
-              otherwise: Joi.forbidden()
-            })
+            '$query.access_token', {
+              is: Joi.forbidden(),
+              otherwise: Joi.exist()
+            }
+          )
+        }).unknown()
         payload:
           members: Joi.array().items(Joi.string()).required().unique().min(1).description("Usernames of the members to include in the group.")
           text: Joi.string().required().description("The first message to send")
-          name: Joi.string().description("An optional group name")
+          name: Joi.optional().description("An optional group name")
       response:
         schema:
           Joi.object({
             members: Joi.array().items(
               Joi.object({
-                _id: Joi.string().required().description("The unique id for the user")
+                _id: Joi.required().description("The unique id for the user")
                 username: Joi.string().required()
-                avatar: Joi.string().required()
-              })
+                avatar: Joi.optional()
+              }).unknown()
             )
             leftMembers: Joi.array().items(
               Joi.object({
-                _id: Joi.string().required().description("The unique id for the user")
+                _id: Joi.required().description("The unique id for the user")
                 username: Joi.string().required()
-                avatar: Joi.string().required()
-              })
+                avatar: Joi.optional()
+              }).unknown()
             )
             lastMessage: Joi.object({
-              _id: Joi.string().required().description("The id for the message")
-              from: Joi.string().required().description("The user id this message is from.
+              _id: Joi.required().description("The id for the message")
+              from: Joi.required().description("The user id this message is from.
               Clients should use this to map the message to the user account stored locally.")
-              group: Joi.string().required().description("The group id this message is from.")
+              group: Joi.required().description("The group id this message is from.")
               text: Joi.string().optional().description("The message text may be null if they
               didn't type anything, and just sent a picture.")
               sent: Joi.date().required()
@@ -224,11 +228,11 @@ module.exports = [
               media_size: Joi.array().items(Joi.number())
             }).meta({
               className: 'Message'
-            })
-            name: Joi.string().required()
+            }).unknown()
+            name: Joi.optional()
           }).meta({
             className: 'Group'
-          })
+          }).unknown()
   }
   {
     method: 'PUT'
@@ -270,12 +274,14 @@ module.exports = [
               is: Joi.exist(),
               otherwise: Joi.forbidden()
             })
-        headers:
+        headers: Joi.object({
           authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
-            'query.access_token', {
-              is: Joi.exist(),
-              otherwise: Joi.forbidden()
-            })
+            '$query.access_token', {
+              is: Joi.forbidden(),
+              otherwise: Joi.exist()
+            }
+          )
+        }).unknown()
       response:
         schema:
           Joi.object({})
@@ -321,12 +327,14 @@ module.exports = [
               is: Joi.exist(),
               otherwise: Joi.forbidden()
             })
-        headers:
+        headers: Joi.object({
           authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
-            'query.access_token', {
-              is: Joi.exist(),
-              otherwise: Joi.forbidden()
-            })
+            '$query.access_token', {
+              is: Joi.forbidden(),
+              otherwise: Joi.exist()
+            }
+          )
+        }).unknown()
         payload:
           name: Joi.string()
       response:
@@ -373,12 +381,14 @@ module.exports = [
               is: Joi.exist(),
               otherwise: Joi.forbidden()
             })
-        headers:
+        headers: Joi.object({
           authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
-            'query.access_token', {
-              is: Joi.exist(),
-              otherwise: Joi.forbidden()
-            })
+            '$query.access_token', {
+              is: Joi.forbidden(),
+              otherwise: Joi.exist()
+            }
+          )
+        }).unknown()
         payload:
           invitees: Joi.array().items(Joi.string()).required().unique().min(1).description("Usernames of the members to add to the group.")
       response:

@@ -213,7 +213,12 @@ will have to hit /login"
             avatar: Joi.optional()
             groupSettings: Joi.array().required()
             devices: Joi.array().required()
-            leftGroups: Joi.array().items(Joi.string()).required()
+            leftGroups: Joi.array().items(
+              Joi.object(
+                _id: Joi.required()
+                name: Joi.optional()
+              ).unknown()
+            ).required()
             groups: Joi.array().required()
             accessToken: Joi.array().required()
           }).meta({

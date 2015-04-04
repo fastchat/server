@@ -221,15 +221,15 @@ describe 'Groups', ->
         Authorization: "Bearer #{users[0].accessToken[0]}"
 
     s.server.inject req, (res)->
-      res.statusCode.should.equal 404
+      res.statusCode.should.equal 400
       res.headers['content-type'].should.match /json/
       should.exist res.result.error
       done()
 
   it 'should not let a user change a group name with a valid, but not found, id', (done)->
-    anID = group._id
-    anID = anID.toString().substr(0, anID.length - 4)
-    anID = anID + '9999'
+    anID = group._id.toString()
+    anID = anID.substr(0, anID.length - 4)
+    anID = "#{anID}9999"
 
     req =
       method: 'PUT'
@@ -334,10 +334,10 @@ describe 'Groups', ->
     s.server.inject req, (res)->
       res.statusCode.should.equal 200
       res.headers['content-type'].should.match /json/
-      should.exist res.result.profile
-      res.result.profile.groups.should.have.length(0)
-      res.result.profile.leftGroups.should.have.length(1)
-      left = res.result.profile.leftGroups[0]
+      should.exist res.result
+      res.result.groups.should.have.length(0)
+      res.result.leftGroups.should.have.length(1)
+      left = res.result.leftGroups[0]
       should.exist(left.name)
       should.exist(left._id)
       done()
@@ -356,7 +356,7 @@ describe 'Groups', ->
       should.exist res.result.error
       done()
 
-  it 'it should return OK if you add no one to a group', (done)->
+  it 'it should return a 400 if you add no one to a group', (done)->
     req =
       method: 'PUT'
       url: "/group/#{group._id}/add"
@@ -367,9 +367,9 @@ describe 'Groups', ->
         Authorization: "Bearer #{users[0].accessToken[0]}"
 
     s.server.inject req, (res)->
-      res.statusCode.should.equal 200
+      res.statusCode.should.equal 400
       res.headers['content-type'].should.match /json/
-      should.not.exist res.result.error
+      should.exist res.result.error
       done()
 
   it 'it should not let a user add themselves', (done)->
