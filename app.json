@@ -1,0 +1,18 @@
+{
+  "name": "FastChat Server",
+  "description": "A fast, small, efficient, chat application built on Node.js",
+  "keywords": [
+    "chat",
+    "fastchat",
+    "realtime",
+    "socket",
+    "socket.io",
+    "coffeescript"
+  ],
+  "addons": [
+    "mongolab:sandbox"
+  ],
+  "env": {
+    "ENV": "production"
+  }
+}
