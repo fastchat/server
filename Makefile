@@ -9,7 +9,7 @@ run-test:
 	@ENV=test \
 	MONGOLAB_URI=mongodb://localhost/test \
 	node coffee_bridge.js 1>test.log 2>&1 & echo "$$!" > node.pid
-	sleep 10
+	sleep 5
 
 run-test-visible:
 	@ENV=test \
