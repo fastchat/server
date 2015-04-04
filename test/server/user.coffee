@@ -32,7 +32,7 @@ describe 'Users', ->
       should.exist(res.body)
       should.exist(res.body.error)
       should.not.exist(err)
-      res.body.message.should.contain('Username')
+      res.body.message.should.contain('username')
       done()
 
 
@@ -57,13 +57,12 @@ describe 'Users', ->
   it 'should not allow you to login without a username and password', (done)->
     api.post('/login')
     .send({})
-    .expect(401)
+    .expect(400)
     .expect('Content-Type', /json/)
     .end (err, res)->
+      should.not.exist(err)
       should.exist(res.body)
       should.exist(res.body.error)
-      should.not.exist(err)
-      res.body.error.should.equal('Unauthorized')
       done()
 
   it 'should allow you to login with a username and password', (done)->
@@ -92,14 +91,13 @@ describe 'Users', ->
       .expect('Content-Type', /json/)
       .end (err, res)->
         should.exist(res.body)
-        should.exist(res.body.profile)
-        createdUser.username.should.equal(res.body.profile.username)
-        createdUser.password.should.equal(res.body.profile.password)
-        createdUser._id.should.equal(res.body.profile._id)
+        createdUser.username.should.equal(res.body.username)
+        createdUser.password.should.equal(res.body.password)
+        createdUser._id.should.equal(res.body._id)
 
         # It should have your past groups
-        res.body.profile.groups.should.have.length(0)
-        res.body.profile.leftGroups.should.have.length(0)
+        res.body.groups.should.have.length(0)
+        res.body.leftGroups.should.have.length(0)
         done()
 
   it 'should not allow you to logout without a session token', (done)->

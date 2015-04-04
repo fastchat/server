@@ -233,7 +233,7 @@ describe 'Groups', ->
     api.put('/group/' + badId + '/settings')
       .set('Authorization', "Bearer #{tokens[0]}")
       .send(name: 'New Group Name!')
-      .expect(404)
+      .expect(400)
       .expect('Content-Type', /json/)
       .end (err, res)->
         should.not.exist(err)
@@ -341,11 +341,9 @@ describe 'Groups', ->
       .expect('Content-Type', /json/)
       .end (err, res)->
         should.exist(res.body)
-        should.exist(res.body.profile)
-
-        res.body.profile.groups.should.have.length(0)
-        res.body.profile.leftGroups.should.have.length(1)
-        left = res.body.profile.leftGroups[0]
+        res.body.groups.should.have.length(0)
+        res.body.leftGroups.should.have.length(1)
+        left = res.body.leftGroups[0]
         should.exist(left.name)
         should.exist(left._id)
         done()
@@ -368,24 +366,22 @@ describe 'Groups', ->
     api.put('/group/' + group._id + '/add')
       .set('Authorization', "Bearer #{tokens[0]}")
       .send(invitees: [])
-      .expect(200)
+      .expect(400)
       .expect('Content-Type', /json/)
       .end (err, res)->
         should.not.exist(err)
-        should.exist(res.body)
-        should.not.exist(res.body.error)
+        should.exist(res.body.error)
         done()
 
   it 'it should not let a user add themselves', (done)->
     api.put('/group/' + group._id + '/add')
       .set('Authorization', "Bearer #{tokens[0]}")
-      .send(invitees: [])
-      .expect(200)
+      .send(invitees: [users[0].username])
+      .expect(400)
       .expect('Content-Type', /json/)
       .end (err, res)->
         should.not.exist(err)
-        should.exist(res.body)
-        should.not.exist(res.body.error)
+        should.exist(res.body.error)
         done()
 
   it 'Another user cannot add a user who has left a group', (done)->

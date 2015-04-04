@@ -99,14 +99,14 @@ describe 'Socket.io', ->
           .expect(200)
           .expect('Content-Type', /json/)
           .end (err, res)->
-            users.push(res.body.profile)
+            users.push(res.body)
 
             api.get('/user')
               .set('Authorization', "Bearer #{tokens[1]}")
               .expect(200)
               .expect('Content-Type', /json/)
               .end (err, res)->
-                users.push(res.body.profile)
+                users.push(res.body)
                 callback()
     ], (err, results)->
       done()
