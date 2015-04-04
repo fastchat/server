@@ -35,8 +35,8 @@ class Server
       reply.continue()
 
     @server.on 'request-error', (req, err)->
-      console.log 'INTERNAL SERVER ERROR', err
-      console.log 'INTERNAL SERVER ERROR', req.path
+      log.warn 'INTERNAL SERVER ERROR', err
+      log.warn 'INTERNAL SERVER ERROR', req.path
 
 
   setup: ->

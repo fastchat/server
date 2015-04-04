@@ -99,7 +99,6 @@ describe 'Messages', ->
         Authorization: "Bearer #{users[0].accessToken[0]}"
 
     s.server.inject req, (res)->
-      console.log 'res', res.result
       res.statusCode.should.equal 200
       res.headers['content-type'].should.match /json/
       res.result.should.have.length 1 #no image upload
@@ -112,7 +111,6 @@ describe 'Messages', ->
       url: "/group/#{theGroup._id}/message?access_token=#{users[0].accessToken[0]}"
 
     s.server.inject req, (res)->
-      console.log 'res', res.result
       res.statusCode.should.equal 200
       res.headers['content-type'].should.match /json/
       res.result.should.have.length 1 #no image upload

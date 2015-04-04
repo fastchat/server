@@ -89,7 +89,6 @@ describe 'Devices', ->
         Authorization: "Bearer #{user.accessToken[0]}"
 
     s.server.inject req, (res)->
-      console.log 'res', res.result
       res.statusCode.should.equal 201
       res.headers['content-type'].should.match /json/
       should.exist res.result
@@ -107,7 +106,6 @@ describe 'Devices', ->
         Authorization: "Bearer #{user.accessToken[0]}"
 
     s.server.inject req, (res)->
-      console.log 'res', res.result
       res.statusCode.should.equal 201
       res.headers['content-type'].should.match /json/
       should.exist res.result

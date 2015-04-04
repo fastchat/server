@@ -45,7 +45,6 @@ profile = (req, reply)->
   .populate('groupSettings')
   .execQ()
   .then (user)->
-    console.log 'profile', user
     reply(user)
   .fail(reply)
   .done()
