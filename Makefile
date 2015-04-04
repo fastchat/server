@@ -35,7 +35,7 @@ server:
 	$(MAKE) cleanup
 
 cleanup:
-	-@rm /tmp/node.pid 2>/dev/null
+	-@rm node.pid 2>/dev/null
 
 cov:
 	WINSTON=error \
