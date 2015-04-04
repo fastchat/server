@@ -21,14 +21,30 @@ GCM = require './gcm'
  * correct gateways. More can be added later.
 ###
 DeviceSchema = new Schema
-  user: {type: Schema.Types.ObjectId, ref: 'User'}
-  accessToken: {type: String, default: ''}
-  loggedIn: {type: Boolean, default: true}
-  active: {type: Boolean, default: true}
-  token: String
-  type: String
+  user:
+    type: Schema.Types.ObjectId
+    ref: 'User'
+  accessToken:
+    type: String
+    default: ''
+  loggedIn:
+    type: Boolean
+    default: true
+  active:
+    type: Boolean
+    default: true
+  token:
+    type: String
+    required: true
+  type:
+    type: String
+    required: true
   lastActiveDate: Date
   failedAttempts: Number
+
+DeviceSchema.path('type').validate (value)->
+  /ios|android/i.test(value)
+, 'Invalid Type'
 
 ###
  * Sends a string to the device.
@@ -70,7 +86,7 @@ DeviceSchema.methods =
 DeviceSchema.statics =
 
   createOrUpdate: (user, token, type, sessionToken)->
-    @findOneQ(token: token, user: user._id).then (device)=>
+    @findOneQ(token: token, user: user?._id).then (device)=>
       return @updateDevice device, sessionToken if device
       @createDevice(user, token, type, sessionToken).then (device)->
         user.devices.push(device)
@@ -81,7 +97,7 @@ DeviceSchema.statics =
     device = new this({
       token: token
       type: type
-      user: user._id
+      user: user?._id
       accessToken: sessionToken
     })
     device.saveQ().then -> device

@@ -99,24 +99,19 @@ describe 'Device', ->
   describe 'Creating and Updating', ->
 
     it 'should throw an error without a token', (done)->
-      try
-        Device.createOrUpdate()
-      catch err
-        err.message.should.contain 'token'
+      Device.createOrUpdate().fail (err)->
+        err.message.should.equal 'Validation failed'
         done()
+      .done()
 
     it 'should throw an error without a type', (done)->
-      try
-        Device.createOrUpdate {}, 'token'
-      catch err
-        err.message.should.contain 'Type'
+      Device.createOrUpdate({}, 'token').fail (err)->
+        err.message.should.equal 'Validation failed'
         done()
 
     it 'should throw an error with windows phone', (done)->
-      try
-        Device.createOrUpdate {}, 'token', 'windows-phone'
-      catch err
-        err.message.should.contain 'Type'
+      Device.createOrUpdate({}, 'token', 'windows-phone').fail (err)->
+        err.message.should.equal 'Validation failed'
         done()
 
     it 'should create a new device when not found', (done)->
@@ -136,6 +131,8 @@ describe 'Device', ->
         active: no
         loggedIn: no
         accessToken: 'old'
+        type: 'android'
+        token: 'tokentoken'
 
       update = sinon.spy(Device, 'updateDevice')
       sinon.stub(Device, 'findOneQ').returns( Q(device) )
@@ -143,6 +140,7 @@ describe 'Device', ->
         update.called.should.be.true
         Device.findOneQ.restore()
         done()
+      .done()
 
   after (done)->
     mongoose.disconnect()

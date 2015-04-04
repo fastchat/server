@@ -78,7 +78,7 @@ module.exports = [
               active: Joi.boolean().required()
               token: Joi.string().required()
               type: Joi.string().required().valid('ios', 'android')
-              lastActiveDate:  Joi.date()
+              lastActiveDate: Joi.date()
               failedAttempts: Joi.number()
             }).meta({
               className: 'Device'
