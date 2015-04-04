@@ -7,6 +7,7 @@
 mongoose = require('mongoose-q')()
 Schema = mongoose.Schema
 Boom = require 'boom'
+BadRequest = Boom.badRequest
 Q = require 'q'
 APN = require './apn'
 GCM = require './gcm'
@@ -62,17 +63,6 @@ DeviceSchema.methods =
       contentAvailable: contentAvailable
     })
 
-  objectify: ->
-    {
-      _id: @_id.toString()
-      user: @user.toString()
-      accessToken: @accessToken
-      loggedIn: @loggedIn
-      active: @active
-      token: @token
-      type: @type
-    }
-
   logout: ->
     @loggedIn = no
     @saveQ()
@@ -80,17 +70,12 @@ DeviceSchema.methods =
 DeviceSchema.statics =
 
   createOrUpdate: (user, token, type, sessionToken)->
-    throw Boom.badRequest 'You must specify a token to register a device!' unless token
-    if not type or (type isnt 'ios' and type isnt 'android')
-      throw Boom.badRequest 'Type must be "ios" or "android"!'
-
-    @findOneQ(token: token, user: user._id)
-    .then (device)=>
+    @findOneQ(token: token, user: user._id).then (device)=>
       return @updateDevice device, sessionToken if device
-      @createDevice(user, token, type, sessionToken)
-      .then (device)->
-        user.devices.push device
-        user.saveQ().then -> device
+      @createDevice(user, token, type, sessionToken).then (device)->
+        user.devices.push(device)
+        user.saveQ().then ->
+          [device]
 
   createDevice: (user, token, type, sessionToken)->
     device = new this({
@@ -105,8 +90,8 @@ DeviceSchema.statics =
     device.accessToken = sessionToken
     device.active = yes
     device.loggedIn = yes
-    device.saveQ().then =>
-      [device, updated]
+    device.saveQ().then ->
+      [device, updated = yes]
 
 
 module.exports = mongoose.model 'Device', DeviceSchema

@@ -34,6 +34,10 @@ class Server
       return reply(Boom.notFound()) if res.isBoom and res.message is MongoIDError
       reply.continue()
 
+    @server.on 'request-error', (req, err)->
+      console.log 'INTERNAL SERVER ERROR', err
+      console.log 'INTERNAL SERVER ERROR', req.path
+
 
   setup: ->
     log.debug 'go time'

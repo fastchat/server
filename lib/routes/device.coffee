@@ -18,8 +18,8 @@ getDevices = (req, reply)->
 postDevice = (req, reply)->
   {user, token} = req.auth.credentials
   Device.createOrUpdate(user, req.payload.token, req.payload.type, token)
-  .spread (device)->
-    reply(device).code(if updated then 201 else 200)
+  .spread (device, updated)->
+    reply(device).code(if updated then 200 else 201)
   .fail(reply)
   .done()
 
@@ -82,7 +82,7 @@ module.exports = [
               failedAttempts: Joi.number()
             }).meta({
               className: 'Device'
-            })
+            }).unknown()
           )
   }
   {
@@ -144,6 +144,6 @@ module.exports = [
             type: Joi.string().required().valid('ios', 'android')
           }).meta({
             className: 'Device'
-          })
+          }).unknown()
   }
 ]
