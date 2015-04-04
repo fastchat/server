@@ -78,7 +78,8 @@ describe 'Users', ->
       payload: JSON.stringify({})
 
     s.server.inject req, (res)->
-      res.statusCode.should.equal 401
+      res.statusCode.should.equal 400
+      res.result.error.should.equal 'Bad Request'
       res.headers['content-type'].should.match /json/
       should.exist res.result.error
       done()
@@ -126,15 +127,14 @@ describe 'Users', ->
       res.statusCode.should.equal 200
       res.headers['content-type'].should.match /json/
       should.exist res.result
-      should.exist res.result.profile
-      createdUser.username.should.equal res.result.profile.username
-      createdUser.password.should.equal res.result.profile.password
-      createdUser._id.toString().should.equal res.result.profile._id.toString()
-      res.result.profile.groups.should.have.length 0
-      res.result.profile.leftGroups.should.have.length 0
+      createdUser.username.should.equal res.result.username
+      createdUser.password.should.equal res.result.password
+      createdUser._id.toString().should.equal res.result._id.toString()
+      res.result.groups.should.have.length 0
+      res.result.leftGroups.should.have.length 0
       done()
 
-  it 'should not allow you to logout without a session token', (done)->
+  it 'should not allow you to logout without an access token', (done)->
     req =
       method: 'DELETE'
       url: '/logout'
@@ -145,7 +145,7 @@ describe 'Users', ->
       res.result.error.should.contain UNAUTHENTICATED_MESSAGE
       done()
 
-  it 'should log you out and remove your session token', (done)->
+  it 'should log you out and remove your access token', (done)->
     arrayLength = -1
 
     User.findOneQ(_id: createdUser._id).then (user)->
@@ -169,7 +169,7 @@ describe 'Users', ->
       done()
     .done()
 
-  it 'should not let you login with your old session token', (done)->
+  it 'should not let you login with your old access token', (done)->
     req =
       method: 'DELETE'
       url: '/logout'
@@ -191,7 +191,7 @@ describe 'Users', ->
       res.headers['content-type'].should.match /json/
       done()
 
-  it 'should return a new Session Token if you login again', (done)->
+  it 'should return a new Access Token if you login again', (done)->
     req =
       method: 'POST'
       url: '/login'
@@ -206,7 +206,7 @@ describe 'Users', ->
       token = res.result.access_token
       done()
 
-  it 'logging out of ALL should remove all session tokens', (done)->
+  it 'logging out of ALL should remove all access tokens', (done)->
     arrayLength = -1
 
     User.findOneQ(_id: createdUser._id).then (user)->

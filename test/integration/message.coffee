@@ -99,6 +99,20 @@ describe 'Messages', ->
         Authorization: "Bearer #{users[0].accessToken[0]}"
 
     s.server.inject req, (res)->
+      console.log 'res', res.result
+      res.statusCode.should.equal 200
+      res.headers['content-type'].should.match /json/
+      res.result.should.have.length 1 #no image upload
+      res.result[0].text.should.equal('first')
+#      res.result[1].text.should.equal('First')
+      done()
+
+  it 'should get the messages from the group with a query token', (done)->
+    req =
+      url: "/group/#{theGroup._id}/message?access_token=#{users[0].accessToken[0]}"
+
+    s.server.inject req, (res)->
+      console.log 'res', res.result
       res.statusCode.should.equal 200
       res.headers['content-type'].should.match /json/
       res.result.should.have.length 1 #no image upload

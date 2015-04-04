@@ -102,20 +102,22 @@ module.exports = [
               otherwise: Joi.forbidden()
             })
           page: Joi.number().integer().min(0).optional().default(0)
-        headers:
+        headers: Joi.object({
           authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
-            'query.access_token', {
-              is: Joi.exist(),
-              otherwise: Joi.forbidden()
-            })
+            '$query.access_token', {
+              is: Joi.forbidden(),
+              otherwise: Joi.exist()
+            }
+          )
+        }).unknown()
       response:
         schema:
           Joi.array().items(
             Joi.object({
-              _id: Joi.string().required().description("The id for the message")
-              from: Joi.string().required().description("The user id this message is from.
+              _id: Joi.required().description("The id for the message")
+              from: Joi.required().description("The user id this message is from.
               Clients should use this to map the message to the user account stored locally.")
-              group: Joi.string().required().description("The group id this message is from.")
+              group: Joi.required().description("The group id this message is from.")
               text: Joi.string().optional().description("The message text may be null if they
               didn't type anything, and just sent a picture.")
               sent: Joi.date().required()
@@ -127,7 +129,7 @@ module.exports = [
               media_size: Joi.array().items(Joi.number())
             }).meta({
               className: 'Message'
-            })
+            }).unknown()
           )
   }
   {
@@ -178,22 +180,24 @@ module.exports = [
               is: Joi.exist(),
               otherwise: Joi.forbidden()
             })
-        headers:
+        headers: Joi.object({
           authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
-            'query.access_token', {
-              is: Joi.exist(),
-              otherwise: Joi.forbidden()
-            })
+            '$query.access_token', {
+              is: Joi.forbidden(),
+              otherwise: Joi.exist()
+            }
+          )
+        }).unknown()
         payload:
           text: Joi.string()
           media: Joi.binary().required().meta(swaggerType: 'file')
       response:
         schema:
           Joi.object({
-            _id: Joi.string().required().description("The id for the message")
-            from: Joi.string().required().description("The user id this message is from.
+            _id: Joi.required().description("The id for the message")
+            from: Joi.required().description("The user id this message is from.
             Clients should use this to map the message to the user account stored locally.")
-            group: Joi.string().required().description("The group id this message is from.")
+            group: Joi.required().description("The group id this message is from.")
             text: Joi.string().optional().description("The message text may be null if they
             didn't type anything, and just sent a picture.")
             sent: Joi.date().required()
@@ -205,7 +209,7 @@ module.exports = [
             media_size: Joi.array().items(Joi.number())
           }).meta({
             className: 'Message'
-          })
+          }).unknown()
   }
   {
     method: 'GET'
@@ -256,12 +260,14 @@ module.exports = [
               is: Joi.exist(),
               otherwise: Joi.forbidden()
             })
-        headers:
+        headers: Joi.object({
           authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
-            'query.access_token', {
-              is: Joi.exist(),
-              otherwise: Joi.forbidden()
-            })
+            '$query.access_token', {
+              is: Joi.forbidden(),
+              otherwise: Joi.exist()
+            }
+          )
+        }).unknown()
       response:
         schema:
           Joi.binary().required()

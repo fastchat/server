@@ -45,14 +45,15 @@ profile = (req, reply)->
   .populate('groupSettings')
   .execQ()
   .then (user)->
-    reply(profile: user)
+    console.log 'profile', user
+    reply(user)
   .fail(reply)
   .done()
 
 
 logout = (req, reply)->
   {user, token} = req.auth.credentials
-  user.logout(token, req.query.all is 'true')
+  user.logout(token, req.query.all)
   .then ->
     reply({})
   .fail(reply)
@@ -152,8 +153,8 @@ will have to hit /login"
           Joi.object({
             username: Joi.string().required().description('The username signed up with')
             password: Joi.string().required().description("The user's hashed password")
-            _id: Joi.string().required().description("The unique id for the user")
-            avatar: Joi.string().required()
+            _id: Joi.required().description("The unique id for the user")
+            avatar: Joi.optional()
             groupSettings: Joi.array().length(0).required()
             devices: Joi.array().length(0).required()
             leftGroups: Joi.array().items(Joi.string()).length(0).required()
@@ -161,7 +162,7 @@ will have to hit /login"
             accessToken: Joi.array().length(0).required()
           }).meta({
             className: 'User'
-          })
+          }).unknown()
   }
   {
     method: 'GET'
@@ -195,27 +196,29 @@ will have to hit /login"
               is: Joi.exist(),
               otherwise: Joi.forbidden()
             })
-        headers:
+        headers: Joi.object({
           authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
-            'query.access_token', {
-              is: Joi.exist(),
-              otherwise: Joi.forbidden()
-            })
+            '$query.access_token', {
+              is: Joi.forbidden(),
+              otherwise: Joi.exist()
+            }
+          )
+        }).unknown()
       response:
         schema:
-           Joi.object({
+          Joi.object({
             username: Joi.string().required().description('The username signed up with')
             password: Joi.string().required().description("The user's hashed password")
-            _id: Joi.string().required().description("The unique id for the user")
-            avatar: Joi.string().required()
-            groupSettings: Joi.array().length(0).required()
-            devices: Joi.array().length(0).required()
-            leftGroups: Joi.array().items(Joi.string()).length(0).required()
-            groups: Joi.array().length(0).required()
-            accessToken: Joi.array().length(0).required()
+            _id: Joi.required().description("The unique id for the user")
+            avatar: Joi.optional()
+            groupSettings: Joi.array().required()
+            devices: Joi.array().required()
+            leftGroups: Joi.array().items(Joi.string()).required()
+            groups: Joi.array().required()
+            accessToken: Joi.array().required()
           }).meta({
             className: 'User'
-          })
+          }).unknown()
   }
   {
     method: 'DELETE'
@@ -251,12 +254,14 @@ will have to hit /login"
               otherwise: Joi.forbidden()
             })
           all: Joi.boolean()
-        headers:
+        headers: Joi.object({
           authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
-            'query.access_token', {
-              is: Joi.exist(),
-              otherwise: Joi.forbidden()
-            })
+            '$query.access_token', {
+              is: Joi.forbidden(),
+              otherwise: Joi.exist()
+            }
+          )
+        }).unknown()
       response:
         schema:
            Joi.object({})
@@ -306,12 +311,14 @@ will have to hit /login"
               is: Joi.exist(),
               otherwise: Joi.forbidden()
             })
-        headers:
+        headers: Joi.object({
           authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
-            'query.access_token', {
-              is: Joi.exist(),
-              otherwise: Joi.forbidden()
-            })
+            '$query.access_token', {
+              is: Joi.forbidden(),
+              otherwise: Joi.exist()
+            }
+          )
+        }).unknown()
         payload:
           avatar: Joi.binary().required().meta(swaggerType: 'file')
       response:
@@ -365,12 +372,14 @@ will have to hit /login"
               is: Joi.exist(),
               otherwise: Joi.forbidden()
             })
-        headers:
+        headers: Joi.object({
           authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
-            'query.access_token', {
-              is: Joi.exist(),
-              otherwise: Joi.forbidden()
-            })
+            '$query.access_token', {
+              is: Joi.forbidden(),
+              otherwise: Joi.exist()
+            }
+          )
+        }).unknown()
       response:
         schema:
           Joi.binary().required()
