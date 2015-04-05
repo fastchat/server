@@ -7,6 +7,7 @@
 should = require('chai').should()
 AWS = require '../../lib/model/aws'
 sinon = require 'sinon'
+EventEmitter = require('events').EventEmitter
 
 describe 'AWS', ->
 
@@ -30,5 +31,27 @@ describe 'AWS', ->
     aws = new AWS('bucket')
     aws.on 'error', (err)->
       err.message.should.equal 'AWS_KEY or AWS_SECRET was not available! S3 access is disabled!'
-
     aws.get('name')
+
+  it 'should upload with knox', (done)->
+    process.env['AWS_KEY'] = 'test_key'
+    process.env['AWS_SECRET'] = 'test_secret'
+    aws = new AWS('bucket')
+    stub = sinon.stub(aws.knox, 'putStream')
+    aws.upload 'stream', 'name', {}, (err, res)->
+      res.should.equal 'stream'
+      process.env['AWS_KEY'] = undefined
+      process.env['AWS_SECRET'] = undefined
+      stub.restore()
+      done()
+    stub.yield(null, 'stream')
+
+  it 'should fetch with knox', ->
+    process.env['AWS_KEY'] = 'test_key'
+    process.env['AWS_SECRET'] = 'test_secret'
+    aws = new AWS('bucket')
+    returned = new EventEmitter()
+    stub = sinon.stub(aws.knox, 'get').returns(returned)
+    aws.get('name').on 'response', (res)->
+      res.should.equal 'rrr'
+    returned.emit('response', 'rrr')
