@@ -20,6 +20,6 @@ class GCM
     return BadRequest('Token is required!') unless opts.token
 
     message = new gcm.Message(data: opts)
-    Sender.send(message, [opts.token], 4)
+    @Sender.send(message, [opts.token], 4)
 
 module.exports = new GCM()
