@@ -11,23 +11,20 @@ Message = 'AWS_KEY or AWS_SECRET was not available! S3 access is disabled!'
 
 class AWS extends EventEmitter
 
-  constructor: (bucket, key, secret)->
+  constructor: (bucket, key = process.env.AWS_KEY, secret = process.env.AWS_SECRET)->
     super()
-    key ?= process.env.AWS_KEY
-    secret ?= process.env.AWS_SECRET
-
     return this unless key and secret
     @knox = Knox.createClient
       key: key
       secret: secret
       bucket: bucket
 
-  @upload: (stream, name, options, cb)->
+  upload: (stream, name, options, cb)->
     return cb NotImplemented(Message) unless @knox
     @knox.putStream(stream, name, options, cb)
 
-  @get: (name)->
-    @emit 'error', NotImplemented(Message) unless @knox
+  get: (name)->
+    return @emit 'error', NotImplemented(Message) unless @knox
     @knox.get(name)
 
 
