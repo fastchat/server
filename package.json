@@ -14,7 +14,7 @@
     "type": "git",
     "url": "git@github.com:fastchat/server.git"
   },
-  "author": "Ethan Mick",
+  "author": "Ethan Mick <ethan@ethanmick.com>",
   "license": "MIT",
   "config": {
     "blanket": {
