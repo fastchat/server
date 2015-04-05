@@ -31,7 +31,7 @@ class APN
   send: (opts = {})->
     return BadRequest('Token is required!') unless opts.token
 
-    opts?.badge = 0
+    opts.badge ?= 0
 
     try
       device = new apn.Device opts.token
