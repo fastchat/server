@@ -14,7 +14,6 @@
     "type": "git",
     "url": "git@github.com:fastchat/server.git"
   },
-  "main": "coffee_bridge.js",
   "bin": {
     "fastchat": "bin/fastchat.js"
   },
@@ -66,10 +65,12 @@
     "coffeelint-use-strict": "0.0.1",
     "coveralls": "2.11.2",
     "david": "6.1.5",
+    "form-data": "0.2.0",
     "mocha": "2.1.0",
     "mocha-lcov-reporter": "0.0.2",
     "sinon": "1.10.3",
     "socket.io-client": "0.9.16",
+    "stream-to-promise": "^1.0.4",
     "supertest": "0.14.0",
     "travis-cov": "0.2.5"
   },

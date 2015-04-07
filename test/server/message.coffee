@@ -92,7 +92,7 @@ describe 'Messages', ->
 
     req.set('Authorization', "Bearer #{tokens[0]}")
     req.field('text', text)
-    req.attach('media', './test/integration/test_image.png')
+    req.attach('media', './test/server/test_image.png')
     req.end (err, res)->
       should.not.exist(err)
       should.exist(res.body)

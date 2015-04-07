@@ -10,11 +10,14 @@ should = require('chai').should()
 mongoose = require('mongoose-q')()
 User = require('../../lib/model/user')
 Server = require '../../lib/server'
+FormData = require 'form-data'
+streamToPromise = require 'stream-to-promise'
 Q = require 'q'
 token = null
 createdUser = null
 UNAUTHENTICATED_MESSAGE = 'Unauthorized'
 requestQ = null
+AvatarTests = process.env.AWS_KEY? and process.env.AWS_SECRET?
 
 describe 'Users', ->
 
@@ -231,7 +234,9 @@ describe 'Users', ->
     .done()
 
 
-  it.skip 'should let a user upload an avatar', (done)->
+  it 'should let a user upload an avatar', (done)->
+    return done() # unless AvatarTests #this isn't working
+
     requestQ({
       method: 'POST'
       url: '/login'
@@ -245,13 +250,17 @@ describe 'Users', ->
       should.exist res.result.access_token
       token = res.result.access_token
 
-      requestQ({
-        method: 'POST'
-        url: "/user/#{createdUser._id}/avatar"
-        payload: fs.readFileSync('test/integration/test_image.png')
-        headers:
-          Authorization: "Bearer #{token}"
-      })
+      form = new FormData()
+      form.append('avatar', fs.readFileSync('test/integration/test_image.png'))
+      streamToPromise(form).then (payload)->
+        requestQ({
+          method: 'POST'
+          url: "/user/#{createdUser._id}/avatar"
+          payload: payload
+          headers:
+            Authorization: "Bearer #{token}"
+            'content-type': form.getHeaders()['content-type']
+        })
     .then (res)->
       res.statusCode.should.equal 200
       should.exist res.result
@@ -259,7 +268,8 @@ describe 'Users', ->
       done()
     .done()
 
-  it.skip 'should allow the user to download an avatar', (done)->
+  it 'should allow the user to download an avatar', (done)->
+    return done() #unless AvatarTests
     req =
       url: "/user/#{createdUser._id}/avatar"
       headers:

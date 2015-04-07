@@ -208,7 +208,7 @@ describe 'Users', ->
   it 'should allow the user to download an avatar', (done)->
     return done() unless AvatarTests
 
-    api.get('/user/' + createdUser._id + '/avatar')
+    api.get("/user/#{createdUser._id}/avatar")
       .set('Authorization', "Bearer #{token}")
       .expect(200)
       .end (err, res)->

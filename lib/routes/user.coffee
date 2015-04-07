@@ -68,8 +68,7 @@ uploadAvatar = (req, reply)->
 
 
 getAvatar = (req, reply)->
-  idParam = req.params.id
-  userId = new ObjectId(idParam)
+  userId = new ObjectId(req.params.id)
 
   User.findOneQ(_id: userId)
   .then (user)->
@@ -324,7 +323,7 @@ will have to hit /login"
           )
         }).unknown()
         payload:
-          avatar: Joi.binary().required().meta(swaggerType: 'file')
+          avatar: Joi.required().meta(swaggerType: 'file')
       response:
         schema:
           Joi.object({})
@@ -384,8 +383,5 @@ will have to hit /login"
             }
           )
         }).unknown()
-      response:
-        schema:
-          Joi.binary().required()
   }
 ]

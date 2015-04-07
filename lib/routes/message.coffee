@@ -190,7 +190,7 @@ module.exports = [
         }).unknown()
         payload:
           text: Joi.string()
-          media: Joi.binary().required().meta(swaggerType: 'file')
+          media: Joi.required().meta(swaggerType: 'file')
       response:
         schema:
           Joi.object({
@@ -268,8 +268,5 @@ module.exports = [
             }
           )
         }).unknown()
-      response:
-        schema:
-          Joi.binary().required()
   }
 ]

@@ -109,7 +109,9 @@ Message.methods =
 
     data = ''
     deferred = Q.defer()
-    knox.get(@media).on 'response', (s3res)=>
+
+    aws = new AWS(BUCKET)
+    aws.get(@media).on 'response', (s3res)=>
       if s3res.statusCode < 200 or s3res.statusCode > 300
         return deferred.reject BadRequest('There was an error fetching your image!')
 
