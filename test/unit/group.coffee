@@ -1,4 +1,9 @@
-require 'blanket'
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 should = require('chai').should()
 Group = require '../../lib/model/group'
 User = require '../../lib/model/user'
@@ -7,7 +12,7 @@ GroupSetting = require '../../lib/model/groupSetting'
 sinon = require 'sinon'
 mongoose = require 'mongoose'
 async = require 'async'
-Q = require 'Q'
+Q = require 'q'
 
 describe 'Group', ->
 
@@ -108,7 +113,7 @@ describe 'Group', ->
 
     it 'should push to a user', ->
       user = new User()
-      pushed = sinon.spy(user, "push")
+      pushed = sinon.spy(user, 'push')
       group.pushMessageToUser user, {}
       pushed.called.should.be.true
 
@@ -178,7 +183,7 @@ describe 'Group', ->
           user.saveQ()
           message.saveQ()
         ]).then -> cb()
-          .catch(console.log)
+        .done()
 
       next = ->
         Group.groupsForUser(user)
@@ -244,19 +249,14 @@ describe 'Group', ->
         group.lastMessage.text.should.equal 'Hello world!'
         done()
 
-    it 'should give a default message', (done)->
+    it 'should not give a default message', (done)->
       user = new User(username: 'sup4', password: 'testing')
       user1 = new User(username: 'testing4', password: 'testing')
       user2 = new User(username: 'johnny4', password: 'testing')
       Q.all([user.saveQ(), user1.saveQ(), user2.saveQ()]).then ->
         Group.newGroup(['testing4', 'johnny4'], user)
-      .then (group)->
-        should.exist group
-        should.not.exist group.name
-        group.members.should.have.length 3
-        group.leftMembers.should.have.length 0
-        should.exist group.lastMessage
-        group.lastMessage.text.should.equal 'Hello!'
+      .fail (err)->
+        err.message.should.be.ok
         done()
 
 

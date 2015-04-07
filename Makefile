@@ -1,44 +1,90 @@
 # Default Goal. Just run node in development mode.
 # to start the server, just run 'make'
-run-dev:
+run:
 	@ENV=dev \
 	MONGOLAB_URI=mongodb://localhost/dev \
-	$(MAKE) run
+	node coffee_bridge.js
 
 run-test:
 	@ENV=test \
 	MONGOLAB_URI=mongodb://localhost/test \
-	$(MAKE) run
+	node coffee_bridge.js 1>test.log 2>&1 & echo "$$!" > node.pid
+	sleep 5
 
-run-test-for-cov:
+run-test-visible:
 	@ENV=test \
-	COV_FASTCHAT=true \
 	MONGOLAB_URI=mongodb://localhost/test \
-	$(MAKE) run
-
-run:
 	node coffee_bridge.js
 
-test:
-	@ENV=test \
-	WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register ./test/unit
+kill-test-node:
+	-@kill -9 $(shell cat node.pid) 2>/dev/null
 
 unit:
 	@ENV=test \
 	WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register ./test/unit
 
 integration:
-	-rm nohup.out
-	ENV=test COV_FASTCHAT=true MONGOLAB_URI=mongodb://localhost/test AWS_KEY=$(KEY) AWS_SECRET=$(SECRET) nohup node coffee_bridge &
-	sleep 3
-	@ENV=test WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register ./test/integration
+	WINSTON=error \
+	MONGOLAB_URI=mongodb://localhost/test \
+	./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register ./test/integration
+
+server:
+	$(MAKE) run-test
+	WINSTON=error ./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register ./test/server
+	$(MAKE) kill-test-node
+	$(MAKE) cleanup
+
+cleanup:
+	-@rm node.pid 2>/dev/null
 
 cov:
-	-rm nohup.out
-	$(MAKE) kill-node
+	WINSTON=error \
+	MONGOLAB_URI=mongodb://localhost/test \
+	./node_modules/mocha/bin/mocha \
+	--compilers coffee:coffee-script/register \
+	--require ./node_modules/blanket-node/bin/index.js \
+	-R travis-cov \
+	./test/unit ./test/integration
+
+cov-report:
+	WINSTON=error \
+	MONGOLAB_URI=mongodb://localhost/test \
+	./node_modules/mocha/bin/mocha \
+	--compilers coffee:coffee-script/register \
+	--require ./node_modules/blanket-node/bin/index.js \
+	-R html-cov > coverage.html \
+	./test/unit ./test/integration
+	open coverage.html
+
+coveralls:
+	WINSTON=error \
+	MONGOLAB_URI=mongodb://localhost/test \
+	./node_modules/mocha/bin/mocha --compilers coffee:coffee-script/register \
+	--require ./node_modules/blanket-node/bin/index.js \
+	./test/unit ./test/integration \
+	--reporter mocha-lcov-reporter | ./node_modules/coveralls/bin/coveralls.js
+
+
+test:
 	$(MAKE) unit
 	$(MAKE) integration
+	$(MAKE) server
+	$(MAKE) cov
+	$(MAKE) lint
 
+travis:
+	$(MAKE) unit
+	$(MAKE) integration
+	$(MAKE) server
+	$(MAKE) cov
+	$(MAKE) lint
+	$(MAKE) coveralls
+
+lint:
+	./node_modules/coffeelint/bin/coffeelint ./lib ./test
+
+check-dependencies:
+	./node_modules/david/bin/david.js
 
 kill-node:
 	-kill `ps -eo pid,comm | awk '$$2 == "node" { print $$1 }'`

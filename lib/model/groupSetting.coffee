@@ -1,3 +1,9 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 mongoose = require('mongoose-q')()
 Schema = mongoose.Schema
 Q = require('q')

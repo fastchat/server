@@ -1,3 +1,9 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 mongoose = require('mongoose-q')()
 Schema = mongoose.Schema
 bcrypt = require('bcrypt')
@@ -10,16 +16,14 @@ Q = require('q')
 fs = require('fs')
 uuid = require 'uuid'
 Boom = require 'boom'
-
-knox = require('knox').createClient
-  key: process.env.AWS_KEY
-  secret: process.env.AWS_SECRET
-  bucket: 'com.fastchat.dev.avatars'
+AWS = require './aws'
+Unauthorized = Boom.unauthorized
+BUCKET = 'com.fastchat.dev.avatars'
 
 EXTENSION_LOOKUP =
   'image/jpeg': 'jpg'
   'image/png': 'png'
-  'image/gif' : 'gif'
+  'image/gif': 'gif'
 
 mimeTypes = ['image/jpeg', 'image/png', 'image/gif']
 
@@ -75,19 +79,24 @@ User.pre 'save', (next)->
 User.statics =
 
   register: (username, password)->
-
     throw Boom.badRequest 'Username is required!' unless username
     throw Boom.badRequest 'Password is required!' unless password
     throw Boom.badRequest 'Invalid username! Only alphanumeric values are allowed, with -, _, and .' if username.search(regex) is -1
 
-    newUser = new @ username: username, password: password
-    newUser.saveQ().then -> newUser
+    newUser = new this(username: username, password: password)
+    newUser.saveQ().then ->
+      newUser
 
   findByLowercaseUsername: (username)->
-    @findOneQ(username: username.toLowerCase())
+    @findOneQ(username: username?.toLowerCase())
       .then (user)->
-        throw new Error 'Incorrect username!' unless user
+        throw Unauthorized() unless user
         user
+
+  findWithToken: (token, required = yes)->
+    @findOneQ(accessToken: token).then (user)->
+      throw Unauthorized() unless user
+      user
 
 User.methods =
 
@@ -105,7 +114,7 @@ User.methods =
       matched
 
   ###
-   * Creates the session token for the user.
+   * Creates the access token for the user.
    * Utilizes the crypto library to generate the token, from the docs it:
    * 'Generates cryptographically strong pseudo-random data'
    * We then change that to a hex string for nice representation.
@@ -137,7 +146,7 @@ User.methods =
   add: (group)->
     index = @leftGroups.indexOfEquals group._id
     index2 = @groups.indexOfEquals group._id
-    throw 'A user who left cannot be readded!' if index isnt -1 or index2 isnt -1
+    throw Boom.badRequest('A user who left cannot be readded!') if index isnt -1 or index2 isnt -1
 
     setting = new GroupSetting
       user: @_id
@@ -148,7 +157,7 @@ User.methods =
     Q.all([
       @saveQ()
       setting.saveQ()
-    ]).then => @
+    ]).then => this
 
   ###
    * A convenience method that will return if the user is in the group
@@ -170,6 +179,11 @@ User.methods =
 
     @groups.indexOfEquals(groupId) > -1
 
+  login: ->
+    token = @generateRandomToken()
+    @accessToken.push(token)
+    Q.all([token, @saveQ()])
+
   logout: (token, all = no)->
     tokens = []
     if all
@@ -181,44 +195,31 @@ User.methods =
         @accessToken.splice index, 1
         tokens.push token
 
-    Device.findQ({accessToken : {$in: tokens}}).then (devices)=>
+    Device.findQ(accessToken: {$in: tokens}).then (devices)=>
       device.logout() for device in devices
-    @saveQ()
+      @saveQ()
 
 
   setAvatar: (name)->
     @avatar = name
     @saveQ()
 
-  uploadAvatar: (files)->
-    console.log 'Files', files
-    throw new Error('No files were found in the upload!') unless files
-    throw new Error('Avatar was not found in the upload!') unless files.avatar
-
-    file = files.avatar[0]
-    throw new Error 'Avatar was not found in the files, in first index!' unless file
-
-    stream = fs.createReadStream file.path
-    contentType = file.headers['content-type']
-    type = mimeTypes.indexOf(contentType)
-    throw new Error('File is not a supported type!') if type is -1
-
-    randomName = uuid.v4() + '.' + EXTENSION_LOOKUP[mimeTypes[type]]
-
-    options =
-      'Content-Type': contentType
-      'Cache-Control': 'max-age=604800'
-      'x-amz-acl': 'public-read'
-      'Content-Length': file.size
-
+  uploadAvatar: (file)->
     deferred = Q.defer()
 
-    console.log 'Uploading!'
+    throw new Boom.badRequest('No files were found in the upload!') unless file
 
-    knox.putStream stream, randomName, options, (err, result)=>
-      return deferred.reject err if err
-      return deferred.resolve(@setAvatar(result.req.path.replace(/^.*[\\\/]/, '')))
-    return deferred.promise
+    options =
+      'Content-Type': file.headers['content-type']
+      'Cache-Control': 'max-age=604800'
+      'x-amz-acl': 'public-read'
+      'Content-Length': file.bytes
+
+    aws = new AWS(BUCKET)
+    aws.upload fs.createReadStream(file.path), uuid.v4(), options, (err, result)=>
+      return deferred.reject(err) if err
+      deferred.resolve(@setAvatar(result.req.path.replace(/^.*[\\\/]/, '')))
+    deferred.promise
 
   getAvatar: ->
     throw Boom.notFound() unless @avatar
@@ -226,7 +227,8 @@ User.methods =
     deferred = Q.defer()
     data = ''
 
-    knox.get(@avatar).on 'response', (res)->
+    aws = new AWS(BUCKET)
+    aws.get(@avatar).on 'response', (res)->
 
       if res.statusCode < 200 or res.statusCode > 300
         deferred.reject new Error('There was an error fetching your image!')

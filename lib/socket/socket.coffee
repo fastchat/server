@@ -1,16 +1,20 @@
-io = require('socket.io')
+'use strict'
+#
+# FastChat
+# 2015
+#
+
+SocketIO = require('socket.io')
 ObjectId = require('mongoose').Types.ObjectId
-User = require('../model/user')
-Message = require('../model/message')
-Group = require('../model/group')
-GroupSetting = require('../model/groupSetting')
+{User, Group, Message, GroupSetting} = require '../../lib/model'
 async = require('async')
 Q = require('q')
+log = require '../helpers/log'
 
 sockets = {}
 
 exports.setup = (server)->
-  io = io.listen server, origins: '*:*'
+  io = SocketIO.listen(server.listener, origins: '*:*')
   io.set 'log level', 1
 
   #
@@ -23,7 +27,7 @@ exports.setup = (server)->
 
       User.findOneQ(accessToken: token)
         .then (user)->
-          throw 'Error' unless user
+          throw Error('Error') unless user
           handshakeData.user = user
           callback( null, true )
         .fail(callback)
@@ -85,14 +89,14 @@ exports.setup = (server)->
         fn(error: 'No Message Text') if fn
         return
 
-      if !socketUser.hasGroup(room)
+      if not socketUser.hasGroup(room)
         fn(error: 'Not Found') if fn
         return
 
       try
         roomId = new ObjectId room
       catch err
-        console.log 'Tried to make the room ID and failed! ', err
+        log.debug 'Tried to make the room ID and failed! ', err
         return
 
       #
@@ -119,7 +123,7 @@ exports.setup = (server)->
       # Save the object we have, and add it to the group
       #
       Group.findOneQ(_id: room).then (group)->
-        throw 'Not Found' unless group
+        throw Error('Not Found') unless group
 
         group.messages.push mes
         group.lastMessage = mes.id
@@ -134,11 +138,11 @@ exports.setup = (server)->
         # Let's send some notifications to all people not in the room.
         #
         clients = io.sockets.clients room
-        roomUsers = []; #all currently in the room
+        roomUsers = [] #all currently in the room
         clients.forEach (client)->
           roomUsers.push client.handshake.user
 
-        User.findQ({groups: { $in : [room] } }).then (users)->
+        User.findQ({groups: { $in: [room] } }).then (users)->
           [group, message, users, roomUsers]
       .spread (group, message, users, roomUsers)->
         #refactor this?
@@ -152,13 +156,13 @@ exports.setup = (server)->
             thisGs.missed()
             text = "#{mes.fromUser.username}@#{group.name}:#{mes.text}"
             GroupSetting.totalUnread(gses).then (unread)->
-              console.log 'Sending push to: ', mes.fromUser.username, unread
+              log.debug 'Sending push to: ', mes.fromUser.username, unread
               user.push group, text, unread, false
-            callback();
+            callback()
         (err)->
-          console.log 'Error Occured in sending push notifications: ', err if err
+          log.debug 'Error Occured in sending push notifications: ', err if err
       .catch (err)->
-        console.log 'Duh:', err
+        log.debug 'Duh:', err
 
 
     socket.on 'disconnect', ->
@@ -195,4 +199,4 @@ exports.emitNewGroup = (userId, group)->
   if userSocket
     userSocket.emit 'new_group', group
     return true
-   false;
+   false

@@ -1,127 +1,147 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 should = require('chai').should()
-supertest = require('supertest')
-api = supertest('http://localhost:3000')
-mongoose = require('mongoose')
-async = require('async')
+mongoose = require('mongoose-q')()
 User = require('../../lib/model/user')
-tokens = []
-users = []
+Server = require '../../lib/server'
 
 describe 'Devices', ->
 
+  user = null
+  s = null
+
   before (done)->
-    mongoose.connect 'mongodb://localhost/test'
-    db = mongoose.connection
+    mongoose.connect process.env.MONGOLAB_URI
 
-    async.series [
-      (callback)->
-        #
-        # Remove all users
-        #
-        db.once 'open', ->
-          User.remove {}, (err)->
-            callback()
+    s = new Server(port: process.env.PORT or 3000)
+    s.setup().then ->
+      s.start()
+    .then ->
+      User.removeQ()
+    .then ->
+      User.register('test1', 'test')
+    .then (user)->
+      token = user.generateRandomToken()
+      user.accessToken.push token
+      [user, user.saveQ()]
+    .spread (u)->
+      user = u
+      done()
+    .done()
 
-      (cb)->
-        #
-        # Add three users to seed our DB. We have to do it via the post request,
-        # because registering does a lot more than just create a DB record. Plus,
-        # this has already been tested, so we know it works.
-        #
-        api.post('/user')
-        .send({'username' : 'test1', 'password' : 'test'})
-        .end (err, res)->
-          users.push res.body
-          cb()
-      (cb)->
-        api.post('/login')
-        .send({'username' : 'test1', 'password' : 'test'})
-        .end (err, res)->
-          tokens.push res.body['session-token']
-          cb()
-    ], (err, results)->
+  it 'should be empty when you first request a token', (done)->
+    req =
+      url: '/user/device'
+      headers:
+        Authorization: "Bearer #{user.accessToken[0]}"
+
+    s.server.inject req, (res)->
+      res.statusCode.should.equal 200
+      res.headers['content-type'].should.match /json/
+      res.result.should.be.empty
       done()
 
 
-  it 'should be empty when you first request a token', (done)->
-    api.get('/user/device')
-      .set('session-token', tokens[0])
-      .expect(200)
-      .expect('Content-Type', /json/)
-      .end (err, res)->
-        should.not.exist(err)
-        should.exist(res.body)
-        res.body.should.be.empty
-        done()
-
   it 'should return an error if you send nothing in the post request', (done)->
-    api.post('/user/device')
-      .set('session-token', tokens[0])
-      .send({})
-      .expect(400)
-      .expect('Content-Type', /json/)
-      .end (err, res)->
-        should.not.exist(err)
-        should.exist(res.body)
-        should.exist(res.body.error)
-        done()
+    req =
+      method: 'POST'
+      url: '/user/device'
+      payload: JSON.stringify({})
+      headers:
+        Authorization: "Bearer #{user.accessToken[0]}"
+
+    s.server.inject req, (res)->
+      res.statusCode.should.equal 400
+      res.headers['content-type'].should.match /json/
+      should.exist res.result.error
+      done()
 
   it 'should return an error if you send not ios or android', (done)->
-    api.post('/user/device')
-      .set('session-token', tokens[0])
-      .send({token: 'something', type:'windows_phone'})
-      .expect(400)
-      .expect('Content-Type', /json/)
-      .end (err, res)->
-        should.not.exist(err)
-        should.exist(res.body)
-        should.exist(res.body.error)
-        done()
+    req =
+      method: 'POST'
+      url: '/user/device'
+      payload: JSON.stringify({
+        token: 'something'
+        type: 'windows_phone'
+      })
+      headers:
+        Authorization: "Bearer #{user.accessToken[0]}"
+
+    s.server.inject req, (res)->
+      res.statusCode.should.equal 400
+      res.headers['content-type'].should.match /json/
+      should.exist res.result.error
+      done()
 
   it 'should let you create an iOS device', (done)->
-    api.post('/user/device')
-      .set('session-token', tokens[0])
-      .send({token: 'somethingcool', type:'ios'})
-      .expect(201)
-      .expect('Content-Type', /json/)
-      .end (err, res)->
-        should.not.exist(err)
-        should.exist(res.body)
-        done()
+    req =
+      method: 'POST'
+      url: '/user/device'
+      payload: JSON.stringify({
+        token: 'somethingcool'
+        type: 'ios'
+      })
+      headers:
+        Authorization: "Bearer #{user.accessToken[0]}"
+
+    s.server.inject req, (res)->
+      res.statusCode.should.equal 201
+      res.headers['content-type'].should.match /json/
+      should.exist res.result
+      done()
 
   it 'should let you create an Android device', (done)->
-    api.post('/user/device')
-      .set('session-token', tokens[0])
-      .send({token: 'awesometoken', type:'android'})
-      .expect(201)
-      .expect('Content-Type', /json/)
-      .end (err, res)->
-        should.not.exist(err)
-        should.exist(res.body)
-        done()
+    req =
+      method: 'POST'
+      url: '/user/device'
+      payload: JSON.stringify({
+        token: 'awesometoken'
+        type: 'android'
+      })
+      headers:
+        Authorization: "Bearer #{user.accessToken[0]}"
+
+    s.server.inject req, (res)->
+      res.statusCode.should.equal 201
+      res.headers['content-type'].should.match /json/
+      should.exist res.result
+      done()
+
 
   it 'should update your device if you sent in the same token', (done)->
-    api.post('/user/device')
-      .set('session-token', tokens[0])
-      .send({token: 'somethingcool', type:'ios'})
-      .expect(200)
-      .expect('Content-Type', /json/)
-      .end (err, res)->
-        should.not.exist(err)
-        should.exist(res.body)
-        done()
+    req =
+      method: 'POST'
+      url: '/user/device'
+      payload: JSON.stringify({
+        token: 'somethingcool'
+        type: 'ios'
+      })
+      headers:
+        Authorization: "Bearer #{user.accessToken[0]}"
+
+    s.server.inject req, (res)->
+      res.statusCode.should.equal 200
+      res.headers['content-type'].should.match /json/
+      should.exist res.result
+      done()
 
   it 'should show all your devices when you request them', (done)->
-    api.get('/user/device')
-      .set('session-token', tokens[0])
-      .expect(200)
-      .expect('Content-Type', /json/)
-      .end (err, res)->
-        should.not.exist(err)
-        should.exist(res.body)
-        res.body.should.have.length(2)
-        done()
+    req =
+      url: '/user/device'
+      headers:
+        Authorization: "Bearer #{user.accessToken[0]}"
+
+    s.server.inject req, (res)->
+      res.statusCode.should.equal 200
+      res.headers['content-type'].should.match /json/
+      res.result.should.have.length 2
+      done()
 
   after (done)->
     mongoose.disconnect()
-    done()
+    s.stop().then ->
+      done()

@@ -1,13 +1,19 @@
-require 'blanket'
+'use strict'
+#
+# FastChat
+# 2015
+#
+
+require('../../lib/helpers/helpers')()
 mongoose = require 'mongoose'
-Q = require 'Q'
+Q = require 'q'
 sinon = require 'sinon'
 ObjectId = mongoose.Types.ObjectId
 should = require('chai').should()
 User = require '../../lib/model/user'
 Device = require '../../lib/model/device'
 Group = require '../../lib/model/group'
-
+AvatarTests = process.env.AWS_KEY? and process.env.AWS_SECRET?
 
 describe 'User', ->
 
@@ -20,7 +26,6 @@ describe 'User', ->
   user = null
   beforeEach ->
     user = new User()
-
 
   describe 'Model', ->
 
@@ -168,38 +173,17 @@ describe 'User', ->
 
   describe 'Avatars', ->
     upload =
-      avatar: [
-        {
-          path: './test/integration/test_image.png'
-          headers:
-            'content-type': 'image/png'
-          size: 7762
-        }
-      ]
+      path: './test/integration/test_image.png'
+      headers:
+        'content-type': 'image/png'
+      bytes: 7762
 
     it 'should throw an error with no files', ->
       (-> user.uploadAvatar()).should.throw /No files were found/
 
-    it 'should throw an error with no avatar', ->
-      (-> user.uploadAvatar({})).should.throw /Avatar was not found/
-
-    it 'should throw an error with no avatar file', ->
-      (-> user.uploadAvatar(avatar: [])).should.throw /Avatar was not found/
-
-    it 'should throw an error with an unsupported file', ->
-      testUpload =
-        avatar: [
-          {
-            path: './test/integration/test_image.png'
-            headers:
-              'content-type': 'whatever'
-            size: 7762
-          }
-        ]
-      (-> user.uploadAvatar(testUpload)).should.throw /File is not a supported/
-
     avatarId = null
     it 'should upload the avatar', (done)->
+      return done() unless AvatarTests
       user.username = 'uploader'
       user.password = 'testing'
       should.not.exist user.avatar
@@ -207,12 +191,13 @@ describe 'User', ->
         should.exist user.avatar
         avatarId = user.avatar
         done()
-      .catch(console.log)
+      .done()
 
     it 'should throw without an avatar', ->
       (-> user.getAvatar()).should.throw /Not Found/
 
     it 'should pull down the avatar', (done)->
+      return done() unless AvatarTests
       User.findOneQ(username: 'uploader').then (found)->
         found.getAvatar()
       .spread (type, data)->
@@ -220,6 +205,7 @@ describe 'User', ->
         should.exist data
         type.should.equal 'image/jpeg'
         done()
+      .done()
 
   describe 'Registering', ->
 
@@ -239,11 +225,16 @@ describe 'User', ->
 
     it 'should throw when finding a nonexistent user', (done)->
       User.findByLowercaseUsername('boby').catch (err)->
-        err.message.should.equal 'Incorrect username!'
+        err.message.should.equal 'Unauthorized'
         done()
+      .done()
 
-    it 'should find the user', (done)->
+    it 'should find the user by lowercase', (done)->
+      return done() unless AvatarTests
       User.findByLowercaseUsername('uploader').then (found)->
         should.exist found
         found.username.should.equal 'uploader'
         done()
+
+  after ->
+    mongoose.disconnect()

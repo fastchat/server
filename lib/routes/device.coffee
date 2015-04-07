@@ -1,17 +1,149 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 Device = require('../model/device')
+Joi = require 'joi'
 
-exports.getDevices = (req, res, next)->
-
-  Device.findQ(user: req.user._id)
+getDevices = (req, reply)->
+  {user} = req.auth.credentials
+  Device.findQ(user: user._id)
   .then (devices)->
-    res.status(200).json(devices)
-  .fail(next)
+    reply(devices)
+  .fail(reply)
   .done()
 
-exports.postDevice = (req, res, next)->
-  Device.createOrUpdate(req.user, req.body.token, req.body.type, req.headers['session-token'])
-  .then (device)->
-    console.log 'Device', device
-    res.status(if device then 201 else 200).json(if device then device else {})
-  .fail(next)
+postDevice = (req, reply)->
+  {user, token} = req.auth.credentials
+  Device.createOrUpdate(user, req.payload.token, req.payload.type, token)
+  .spread (device, updated)->
+    reply(device).code(if updated then 200 else 201)
+  .fail(reply)
   .done()
+
+module.exports = [
+  {
+    method: 'GET'
+    path: '/user/device'
+    config:
+      handler: getDevices
+      description: 'Gets all registered devices for the current user.'
+      notes: "Gets all devices for the current user.
+
+      This route requires the user's access token, either as a query param,
+      or a header, but not both.
+      The header format must be: authorization: Bearer {token}
+      The query format must be: access_token={token}"
+      tags: ['api']
+      plugins:
+        'hapi-swagger':
+          responseMessages: [
+            {
+              code: 400
+              message: 'Bad Request. Occurs when you fail to give the required data.'
+            }
+            {
+              code: 401
+              message: 'Unauthorized'
+            }
+          ]
+      validate:
+        query:
+          access_token: Joi.string().min(1).lowercase().trim().when(
+            '$headers.Authorization', {
+              is: Joi.exist(),
+              otherwise: Joi.forbidden()
+            })
+        headers: Joi.object({
+          authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
+            '$query.access_token', {
+              is: Joi.forbidden(),
+              otherwise: Joi.exist()
+            }
+          )
+        }).unknown()
+
+      response:
+        schema:
+          Joi.array().items(
+            Joi.object({
+              _id: Joi.required().description("The id for the device")
+              user: Joi.required().description("The user ID for this device")
+              accessToken: Joi.string().required("The Access Token used to create this device.
+              When the this access token is logged out, we will stop sending push notifications
+              to the device.")
+              loggedIn: Joi.boolean().required()
+              active: Joi.boolean().required()
+              token: Joi.string().required()
+              type: Joi.string().required().valid('ios', 'android')
+              lastActiveDate: Joi.date()
+              failedAttempts: Joi.number()
+            }).meta({
+              className: 'Device'
+            }).unknown()
+          )
+  }
+  {
+    method: 'POST'
+    path: '/user/device'
+    config:
+      handler: postDevice
+      description: 'Gives the user a new Device to send push notifications to.'
+      notes: "Creates a new device on the server with the token. This token will
+      differ between iOS and Android, but will be used to send push notifications
+      to the device. You also must specify which device type it is.
+
+      This route requires the user's access token, either as a query param,
+      or a header, but not both.
+      The header format must be: authorization: Bearer {token}
+      The query format must be: access_token={token}"
+      tags: ['api']
+      plugins:
+        'hapi-swagger':
+          responseMessages: [
+            {
+              code: 400
+              message: 'Bad Request. Occurs when you fail to give the required data.'
+            }
+            {
+              code: 401
+              message: 'Unauthorized'
+            }
+          ]
+      validate:
+        query:
+          access_token: Joi.string().min(1).lowercase().trim().when(
+            '$headers.authorization', {
+              is: Joi.exist()
+              otherwise: Joi.forbidden()
+            })
+        headers: Joi.object({
+          authorization: Joi.string().trim().regex(/^Bearer\s[a-zA-Z0-9]+$/).when(
+            '$query.access_token', {
+              is: Joi.forbidden()
+              otherwise: Joi.exist()
+            }
+          )
+        }).unknown()
+        payload:
+          token: Joi.string().required()
+          type: Joi.string().required().valid('ios', 'android')
+      response:
+        schema:
+          Joi.object({
+            _id: Joi.required().description("The id for the device")
+            user: Joi.required().description("The user ID for this device")
+            accessToken: Joi.string().required("The Access Token used to create this device.
+            When the this access token is logged out, we will stop sending push notifications
+            to the device.")
+            loggedIn: Joi.boolean().required()
+            active: Joi.boolean().required()
+            token: Joi.string().required()
+            type: Joi.string().required().valid('ios', 'android')
+          }).meta({
+            className: 'Device'
+          }).unknown()
+  }
+]

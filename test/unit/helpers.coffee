@@ -1,5 +1,10 @@
-require 'blanket'
-helpers = require '../../lib/extensions/helpers'
+'use strict'
+#
+# FastChat
+# 2015
+#
+
+Helpers = require('../../lib/helpers/helpers')()
 mongoose = require('mongoose-q')()
 ObjectId = mongoose.Types.ObjectId
 
@@ -15,10 +20,10 @@ describe 'Helpers', ->
   it 'should get the index with objects', ->
     toFind = {property: new ObjectId()}
     array = [
-      {property: new ObjectId()}
-      {property: new ObjectId()}
-      {property: new ObjectId()}
-      {property: new ObjectId()}
+      { property: new ObjectId() }
+      { property: new ObjectId() }
+      { property: new ObjectId() }
+      { property: new ObjectId() }
       toFind
     ]
     array.should.have.length 5
@@ -28,8 +33,8 @@ describe 'Helpers', ->
     index.should.equal -1
 
   it 'should find the key in an array', ->
-    array = [1,2,3,4,5]
-    array2 = [4,5]
+    array = [1, 2, 3, 4, 5]
+    array2 = [4, 5]
     diff = array.diff(array2)
     diff.should.include.members([1, 2, 3])
 

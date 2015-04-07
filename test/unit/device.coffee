@@ -1,10 +1,15 @@
-require 'blanket'
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 should = require('chai').should()
 Device = require '../../lib/model/device'
 User = require '../../lib/model/user'
 sinon = require 'sinon'
 mongoose = require 'mongoose'
-Q = require 'Q'
+Q = require 'q'
 
 describe 'Device', ->
 
@@ -23,8 +28,8 @@ describe 'Device', ->
     it 'should not send if inactive', ->
       device.active = no
 
-      android = sinon.spy(device, "sendAndroid")
-      ios = sinon.spy(device, "sendIOS")
+      android = sinon.spy(device, 'sendAndroid')
+      ios = sinon.spy(device, 'sendIOS')
       device.send()
       android.calledOnce.should.be.false
       ios.calledOnce.should.be.false
@@ -32,8 +37,8 @@ describe 'Device', ->
     it 'Should not send if logged out', ->
       device.loggedIn = no
 
-      android = sinon.spy(device, "sendAndroid")
-      ios = sinon.spy(device, "sendIOS")
+      android = sinon.spy(device, 'sendAndroid')
+      ios = sinon.spy(device, 'sendIOS')
       device.send()
       android.calledOnce.should.be.false
       ios.calledOnce.should.be.false
@@ -42,8 +47,8 @@ describe 'Device', ->
       device.loggedIn = no
       device.active = no
 
-      android = sinon.spy(device, "sendAndroid")
-      ios = sinon.spy(device, "sendIOS")
+      android = sinon.spy(device, 'sendAndroid')
+      ios = sinon.spy(device, 'sendIOS')
       device.send()
       android.calledOnce.should.be.false
       ios.calledOnce.should.be.false
@@ -51,8 +56,8 @@ describe 'Device', ->
     it 'should send an android message', ->
       device.type = 'android'
 
-      android = sinon.spy(device, "sendAndroid")
-      ios = sinon.spy(device, "sendIOS")
+      android = sinon.spy(device, 'sendAndroid')
+      ios = sinon.spy(device, 'sendIOS')
       device.send('213', 'Message', 5)
       android.calledOnce.should.be.ok
       ios.calledOnce.should.be.false
@@ -61,8 +66,8 @@ describe 'Device', ->
       device.type = 'ios'
       device.token = 'ba60aa0fa63e3ad5d3b0a35e389d391f48f945f1be8a8731da2b48979c80dcfa'
 
-      android = sinon.spy(device, "sendAndroid")
-      ios = sinon.spy(device, "sendIOS")
+      android = sinon.spy(device, 'sendAndroid')
+      ios = sinon.spy(device, 'sendIOS')
       device.send('3424', 'text', 1)
       android.calledOnce.should.be.false
       ios.calledOnce.should.be.ok
@@ -94,24 +99,19 @@ describe 'Device', ->
   describe 'Creating and Updating', ->
 
     it 'should throw an error without a token', (done)->
-      try
-        Device.createOrUpdate()
-      catch err
-        err.message.should.contain 'token'
+      Device.createOrUpdate().fail (err)->
+        err.message.should.equal 'Validation failed'
         done()
+      .done()
 
     it 'should throw an error without a type', (done)->
-      try
-        Device.createOrUpdate {}, 'token'
-      catch err
-        err.message.should.contain 'Type'
+      Device.createOrUpdate({}, 'token').fail (err)->
+        err.message.should.equal 'Validation failed'
         done()
 
     it 'should throw an error with windows phone', (done)->
-      try
-        Device.createOrUpdate {}, 'token', 'windows-phone'
-      catch err
-        err.message.should.contain 'Type'
+      Device.createOrUpdate({}, 'token', 'windows-phone').fail (err)->
+        err.message.should.equal 'Validation failed'
         done()
 
     it 'should create a new device when not found', (done)->
@@ -131,6 +131,8 @@ describe 'Device', ->
         active: no
         loggedIn: no
         accessToken: 'old'
+        type: 'android'
+        token: 'tokentoken'
 
       update = sinon.spy(Device, 'updateDevice')
       sinon.stub(Device, 'findOneQ').returns( Q(device) )
@@ -138,6 +140,7 @@ describe 'Device', ->
         update.called.should.be.true
         Device.findOneQ.restore()
         done()
+      .done()
 
   after (done)->
     mongoose.disconnect()

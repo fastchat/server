@@ -1,17 +1,16 @@
+'use strict'
+#
+# FastChat
+# 2015
+#
+
 mongoose = require('mongoose-q')()
 Schema = mongoose.Schema
-apn = require 'apn'
-gcm = require 'node-gcm'
 Boom = require 'boom'
+BadRequest = Boom.badRequest
 Q = require 'q'
-IOS_DEFAULT_SOUND = "ping.aiff"
-
-apnConnection = new apn.Connection
-  production: if process.env.ENV is 'dev' then false else true
-  certData: process.env.FASTCHAT_PUSH_CERT
-  keyData: process.env.FASTCHAT_PUSH_KEY
-
-Sender = new gcm.Sender process.env.GCM_API_KEY
+APN = require './apn'
+GCM = require './gcm'
 
 ###
  * Holds the information about a device. This is used to be able to run smart
@@ -22,14 +21,30 @@ Sender = new gcm.Sender process.env.GCM_API_KEY
  * correct gateways. More can be added later.
 ###
 DeviceSchema = new Schema
-  user: {type: Schema.Types.ObjectId, ref: 'User'}
-  accessToken: {type: String, default: ''}
-  loggedIn: {type: Boolean, default: true}
-  active: {type: Boolean, default: true}
-  token: String
-  type: String
+  user:
+    type: Schema.Types.ObjectId
+    ref: 'User'
+  accessToken:
+    type: String
+    default: ''
+  loggedIn:
+    type: Boolean
+    default: true
+  active:
+    type: Boolean
+    default: true
+  token:
+    type: String
+    required: true
+  type:
+    type: String
+    required: true
   lastActiveDate: Date
   failedAttempts: Number
+
+DeviceSchema.path('type').validate (value)->
+  /ios|android/i.test(value)
+, 'Invalid Type'
 
 ###
  * Sends a string to the device.
@@ -48,75 +63,51 @@ DeviceSchema.methods =
       @sendIOS group, message, badge, contentAvailable
 
   sendAndroid: (group, message, badge, contentAvailable)->
-    data = {}
-    data.group = group._id if group
-    data.text = message if message
-    data.alert = badge if badge
-    data.sound = IOS_DEFAULT_SOUND
-
-    message = new gcm.Message data: data
-
-    registrationIds = []
-    registrationIds.push @token
-
-    Sender.send message, registrationIds, 4, (err, result)->
-      #console.log 'GCM: ', result, ' Err? ', err
+    GCM.send({
+      group: group._id if group
+      text: message if message
+      alert: badge if badge
+      token: @token
+    })
 
   sendIOS: (group, message, badge, contentAvailable)->
-    badge = 0 if not badge
-
-    device = null
-    try
-      device = new apn.Device @token
-    catch err
-      return
-
-    note = new apn.Notification()
-    note.expiry = Math.floor(Date.now() / 1000) + 3600 #Expires 1 hour from now.
-    note.badge = badge if badge or badge is 0
-    note.alert = message if message
-    note.payload = group: group._id if group
-
-    if contentAvailable
-      note.setContentAvailable yes
-    else
-      note.sound = IOS_DEFAULT_SOUND
-
-    apnConnection.pushNotification note, device
+    APN.send({
+      token: @token
+      badge: if badge then badge else 0
+      message: message
+      group: group?._id
+      contentAvailable: contentAvailable
+    })
 
   logout: ->
     @loggedIn = no
     @saveQ()
 
-
 DeviceSchema.statics =
 
   createOrUpdate: (user, token, type, sessionToken)->
-
-    throw Boom.badRequest 'You must specify a token to register a device!' unless token
-    if not type or (type isnt 'ios' and type isnt 'android')
-      throw Boom.badRequest 'Type must be "ios" or "android"!'
-
-    @findOneQ(token: token, user: user._id)
-    .then (device)=>
+    @findOneQ(token: token, user: user?._id).then (device)=>
       return @updateDevice device, sessionToken if device
-      @createDevice(user, token, type, sessionToken)
-      .then (device)->
-        user.devices.push device
-        user.saveQ().then -> device
+      @createDevice(user, token, type, sessionToken).then (device)->
+        user.devices.push(device)
+        user.saveQ().then ->
+          [device]
 
   createDevice: (user, token, type, sessionToken)->
-    device = new @
+    device = new this({
       token: token
       type: type
-      user: user._id
+      user: user?._id
       accessToken: sessionToken
+    })
     device.saveQ().then -> device
 
   updateDevice: (device, sessionToken)->
     device.accessToken = sessionToken
     device.active = yes
     device.loggedIn = yes
-    device.saveQ().then -> Q()
+    device.saveQ().then ->
+      [device, updated = yes]
+
 
 module.exports = mongoose.model 'Device', DeviceSchema
