@@ -1,22 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # 0.6.0 (April 6th, 2015)
 * First Release to NPM
 * Better Environment Key Management:

@@ -8,6 +8,7 @@ should = require('chai').should()
 AWS = require '../../lib/model/aws'
 sinon = require 'sinon'
 EventEmitter = require('events').EventEmitter
+AvatarTests = process.env.AWS_KEY? and process.env.AWS_SECRET?
 
 describe 'AWS', ->
 
@@ -47,6 +48,8 @@ describe 'AWS', ->
     aws.get('name')
 
   it 'should upload with knox', (done)->
+    return done() unless AvatarTests
+
     key = process.env['AWS_KEY']
     secret = process.env['AWS_SECRET']
     process.env['AWS_KEY'] ?= 'test_key'
@@ -62,6 +65,8 @@ describe 'AWS', ->
     stub.yield(null, 'stream')
 
   it 'should fetch with knox', ->
+    return unless AvatarTests
+
     process.env['AWS_KEY'] ?= 'test_key'
     process.env['AWS_SECRET'] ?= 'test_secret'
     aws = new AWS('bucket')
