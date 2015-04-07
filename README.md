@@ -1,6 +1,6 @@
 # FastChat Server
 
-[![Build Status](https://travis-ci.org/fastchat/server.svg?branch=develop)](https://travis-ci.org/fastchat/server.svg?branch=develop) [![Coverage Status](https://coveralls.io/repos/fastchat/server/badge.svg?branch=develop)](https://coveralls.io/r/fastchat/server?branch=develop)
+[![Build Status](https://travis-ci.org/fastchat/server.svg?branch=develop)](https://travis-ci.org/fastchat/server.svg?branch=develop) [![Coverage Status](https://coveralls.io/repos/fastchat/server/badge.svg?branch=develop)](https://coveralls.io/r/fastchat/server?branch=develop) [![Dependencies](https://david-dm.org/fastchat/server.svg)](https://david-dm.org/fastchat/server)
 
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 
