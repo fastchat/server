@@ -66,7 +66,6 @@ class Server
         options: swaggerOptions
       })
     .then =>
-      console.log 'HALP', Web
       @server.route
         method: 'GET'
         path: '/{param*}'
