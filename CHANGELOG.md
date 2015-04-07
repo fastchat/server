@@ -1,3 +1,6 @@
+# 0.6.2 (April 7th, 2015)
+* Readded (via direct github link), the FastChat web interface. More work will be going in that next. [#128](https://github.com/fastchat/server/issues/128)
+
 # 0.6.1 (April 7th, 2015)
 * Fixed package.json pointing to the wrong bin file. You can now install it globally.
 
