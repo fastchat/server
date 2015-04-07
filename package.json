@@ -14,9 +14,7 @@
     "type": "git",
     "url": "git@github.com:fastchat/server.git"
   },
-  "bin": {
-    "fastchat": "./bin/fastchat.js"
-  },
+  "bin": "./bin/index.js",
   "preferGlobal": true,
   "author": "Ethan Mick <ethan@ethanmick.com>",
   "license": "MIT",
