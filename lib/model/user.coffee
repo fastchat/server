@@ -229,14 +229,12 @@ User.methods =
 
     aws = new AWS(BUCKET)
     aws.get(@avatar).on 'response', (res)->
-      console.log 'RES', res.statusCode
 
       if res.statusCode < 200 or res.statusCode > 300
         deferred.reject new Error('There was an error fetching your image!')
 
       res.setEncoding('binary')
       res.on 'data', (chunk)->
-        console.log 'data'
         data += chunk
 
       res.on 'end', ->

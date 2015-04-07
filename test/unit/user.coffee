@@ -197,12 +197,8 @@ describe 'User', ->
       (-> user.getAvatar()).should.throw /Not Found/
 
     it 'should pull down the avatar', (done)->
-      console.log 'WTF', process.env['AWS_KEY']
-      console.log 'WTF 2', process.env['AWS_SECRET']
-
       return done() unless AvatarTests
       User.findOneQ(username: 'uploader').then (found)->
-        console.log 'found user', found
         found.getAvatar()
       .spread (type, data)->
         should.exist type

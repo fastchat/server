@@ -23,7 +23,6 @@ describe 'AWS', ->
     should.not.exist aws.knox
     process.env['AWS_KEY'] = key or ''
     process.env['AWS_SECRET'] = secret or ''
-    console.log 'WTF', process.env['AWS_KEY']
 
   it 'should create knox with aws info', ->
     aws = new AWS('bucket', 'key', 'secret')
