@@ -6,7 +6,7 @@
 
 should = require('chai').should()
 supertest = require('supertest')
-api = supertest('http://localhost:3000')
+api = supertest('http://localhost:6190')
 async = require('async')
 mongoose = require('mongoose')
 User = require('../../lib/model/user')
@@ -20,7 +20,7 @@ mediaMessage = null
 AvatarTests = process.env.AWS_KEY? and process.env.AWS_SECRET?
 
 io = require('socket.io-client')
-socketURL = 'http://localhost:3000'
+socketURL = 'http://localhost:6190'
 
 options =
   transports: ['websocket']

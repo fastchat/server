@@ -17,7 +17,7 @@ theGroup = null
 mediaMessage = null
 s = null
 requestQ = null
-socketURL = 'http://localhost:3000'
+socketURL = 'http://localhost:6190'
 
 options =
   transports: ['websocket']
@@ -28,7 +28,7 @@ describe 'Messages', ->
   before (done)->
     mongoose.connect 'mongodb://localhost/test'
 
-    s = new Server(port: process.env.PORT or 3000)
+    s = new Server(port: process.env.PORT or 6190)
     requestQ = (req)->
       deferred = Q.defer()
       s.server.inject req, (res)->

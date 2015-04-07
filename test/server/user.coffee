@@ -6,7 +6,7 @@
 
 should = require('chai').should()
 supertest = require('supertest')
-api = supertest('http://localhost:3000')
+api = supertest('http://localhost:6190')
 mongoose = require('mongoose')
 User = require('../../lib/model/user')
 token = null

@@ -6,7 +6,7 @@
 
 should = require('chai').should()
 supertest = require('supertest')
-api = supertest('http://localhost:3000')
+api = supertest('http://localhost:6190')
 async = require('async')
 mongoose = require('mongoose')
 User = require('../../lib/model/user')
@@ -16,7 +16,7 @@ GroupSetting = require('../../lib/model/groupSetting')
 tokens = []
 users = []
 io = require('socket.io-client')
-socketURL = 'http://localhost:3000'
+socketURL = 'http://localhost:6190'
 options =
   transports: ['websocket']
   'force new connection': true

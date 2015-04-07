@@ -24,7 +24,7 @@ describe 'Users', ->
   s = null
   before (done)->
     mongoose.connect process.env.MONGOLAB_URI
-    s = new Server(port: process.env.PORT or 3000)
+    s = new Server(port: process.env.PORT or 6190)
 
     requestQ = (req)->
       deferred = Q.defer()

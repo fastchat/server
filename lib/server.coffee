@@ -5,6 +5,7 @@
 #
 
 Hapi = require 'hapi'
+Web = require 'fastchat-web'
 NotFound = require('boom').notFound
 Q = require 'q'
 log = require './helpers/log'
@@ -65,8 +66,19 @@ class Server
         options: swaggerOptions
       })
     .then =>
+      console.log 'HALP', Web
       @server.route
-        method: '*'
+        method: 'GET'
+        path: '/{param*}'
+        config:
+          auth: false
+          handler:
+            directory:
+              path: Web()
+              index: yes
+
+      @server.route
+        method: ['DELETE', 'POST', 'PUT']
         path: '/{p*}'
         config:
           auth: null

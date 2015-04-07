@@ -17,7 +17,7 @@ describe 'Devices', ->
   before (done)->
     mongoose.connect process.env.MONGOLAB_URI
 
-    s = new Server(port: process.env.PORT or 3000)
+    s = new Server(port: process.env.PORT or 6190)
     s.setup().then ->
       s.start()
     .then ->

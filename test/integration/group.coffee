@@ -21,7 +21,7 @@ describe 'Groups', ->
     mongoose.connect process.env.MONGOLAB_URI
     db = mongoose.connection
 
-    s = new Server(port: process.env.PORT or 3000)
+    s = new Server(port: process.env.PORT or 6190)
     requestQ = (req)->
       deferred = Q.defer()
       s.server.inject req, (res)->

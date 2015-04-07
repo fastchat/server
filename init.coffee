@@ -9,7 +9,7 @@ Server = require './lib/server'
 Mongo = require './lib/model/mongo'
 log = require './lib/helpers/log'
 
-s = new Server(port: process.env.PORT or 3000)
+s = new Server(port: process.env.PORT or 6190)
 s.setup().then ->
   Mongo()
 .then ->

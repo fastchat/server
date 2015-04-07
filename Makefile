@@ -97,13 +97,6 @@ test-w:
 	--growl \
 	--watch
 
-# Run coverage. This should only be run while you have another fastchat instance running
-# that is used make test
-test-cov:
-	curl -X POST "http://localhost:3000/coverage/reset" && echo
-	@COV_FASTCHAT=true $(MAKE) test
-	open "http://localhost:3000/coverage"
-
 # The .PHONY is needed to ensure that we recursively use the out/Makefile
 # to check for changes.m
 .PHONY: test test-w
