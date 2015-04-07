@@ -278,7 +278,7 @@ describe 'Groups', ->
   it 'should not let you leave a group you are not in', (done)->
     req =
       method: 'PUT'
-      url: "/group/#{group._id}/settings"
+      url: "/group/#{group._id}/leave"
       payload: JSON.stringify({})
       headers:
         Authorization: "Bearer #{users[2].accessToken[0]}"
@@ -295,9 +295,6 @@ describe 'Groups', ->
       requestQ({
         method: 'PUT'
         url: "/group/#{group._id}/leave"
-        payload: JSON.stringify({
-          name: 'New Group Name!'
-        })
         headers:
           Authorization: "Bearer #{users[1].accessToken[0]}"
       })
