@@ -11,6 +11,14 @@ This is the FastChat Server, written in CoffeeScript on Node.js. It uses socket.
 * [Android Client](https://github.com/fastchat/android)
 * [Windows Client](https://github.com/fastchat/windows)
 
+## Quick Start
+
+```
+$ npm install fastchat --global
+
+$ fastchat
+```
+
 ## Features
 
 1. Users registration, login, logout
