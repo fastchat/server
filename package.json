@@ -1,6 +1,6 @@
 {
   "name": "fastchat",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "A fast, small, chat server.",
   "main": "coffee_bridge.js",
   "scripts": {
@@ -15,8 +15,9 @@
     "url": "git@github.com:fastchat/server.git"
   },
   "bin": {
-    "fastchat": "bin/fastchat.js"
+    "fastchat": "./bin/fastchat.js"
   },
+  "preferGlobal": true,
   "author": "Ethan Mick <ethan@ethanmick.com>",
   "license": "MIT",
   "config": {
