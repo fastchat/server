@@ -1,3 +1,6 @@
+# 0.6.1 (April 7th, 2015)
+* Fixed package.json pointing to the wrong bin file. You can now install it globally.
+
 # 0.6.0 (April 6th, 2015)
 * First Release to NPM
 * Better Environment Key Management:
